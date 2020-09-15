@@ -29,5 +29,6 @@ setup(
                                       "pyiris.calibration.plot=pyiris.commands:plot_calibration",
                                       "pyiris.colorspace.isoslant=pyiris.commands:measure_iso_slant",
                                       "pyiris.colorspace.colorcircle=pyiris.commands:color_circle",
+                                      "pyiris.subject=pyiris.commands:subject",
                                       ]}
 )
