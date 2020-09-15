@@ -145,7 +145,7 @@ class Spectrum:
         """
 
         if not path:
-            path = "spectrum_{}.json".format(self.date)
+            path = "spectrum_{}.nix".format(self.date)
         if directory:
             path = os.path.join(directory, path)
 

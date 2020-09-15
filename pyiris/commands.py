@@ -26,10 +26,10 @@ def spectrum():
 
     photo = args.photometer if args.photometer else None
     spectrum = Spectrum(photometer=photo, stepsize=args.stepsize,
-                        monitor_settings_path=args.moitor)
+                        monitor_settings_path=args.monitor)
 
-    spectrum.measure_colors()
     spectrum.add_pr655()
+    spectrum.measure_colors()
 
     f_d = args.directory if args.directory else None
     f_p = args.path if args.path else None
