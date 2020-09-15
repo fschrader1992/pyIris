@@ -1,0 +1,35 @@
+id: eDP-1
+name: Sony GDM F-520
+vendor: Sony
+serial: 2804477
+year: 2001
+size:
+ width: 400
+ height: 300
+preferred_mode:
+  width: 1280
+  height: 1024
+  refresh: 60
+  color-depth: [8, 8, 8]
+settings:
+  contrast: 95
+  brightness: 50
+  left-right: 55
+  left-right-size: 67
+  up-down: 49
+  up-down-size: 49
+  geo-tilt: 51
+  geo-sym-curve: 35
+  geo-asym-curve: 49
+  geo-trapez: 50
+  gep-parallello: 53
+  kvg-left-right: 53
+  kvg-up-down: 53
+  kvg-up-down-up: 53
+  kvg-up-down-down: 56
+  color-purity-top-right: 50
+  color-purity-top-left: 50
+  color-purity-bottom-left: 50
+  color-purity-bottom-right: 50
+  color-type: simple
+  color-temperature: 7200K
