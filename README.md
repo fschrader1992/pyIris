@@ -41,9 +41,15 @@ shown, you need to add `usbserial` via the terminal:
 ```shell script
 modprobe usbserial vendorID=XXXX productID=XXXX
 ```
-You can get the two variables from `lsusb` as well. Now the photometer should be connected to port `/dev/ttyUSB0`. 
-If you don't want to run the commands that need to access the usb port with sudo, you can add the rights to your current
-user via the terminal:
+You can get the two variables by searching for it with `usb-devices` in the terminal. If this does not work, you can
+also try the following: Unplug the device and execute the following two commands:
+```shell script
+sudo modprobe usbserial
+sudo sh -c "echo [vendorID] [productID] >/sys/bus/usb-serial/drivers/generic/new_id"
+```
+If you plug your photometer back in and check with `lsusb -t` you now should see the right driver.
+If this works, the photometer is now connected to port `/dev/ttyUSB0`. If you don't want to run the commands that need 
+to access the usb port with sudo, you can add the rights to your current user via the terminal:
 ```shell script
 sudo usermod -a -G dialout USER
 ```
@@ -56,7 +62,7 @@ You can see, whether you are able to connect to the device by using screen:
 screen /dev/ttyUSB0 9600
 ```
 (where 9600 is the baudrate, change, if needed) and then type `PHOTOMETER`. The photometer should now be in remote mode.
-You can quit by typing `Q` and hitting `Ctrl + A` and `k` to exit screen.
+You can quit by typing `Q`, hitting `Ctrl + A` and `k` to exit screen.
 
 ## 4. Commandline Tool
 
