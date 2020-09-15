@@ -3,7 +3,9 @@
 Contents:
 
 1. [Installation](#1-installation---building-from-source)
-2. [Before Using the Package](#2-before-using-the-package)
+2. [Dependencies](#2-dependencies)
+3. [Before Using the Package](#3-before-using-the-package)
+4. [Commandline Tool](#4-commandline-tool)
 - how to start: calibration
     - cone spectra
     - monitor spectra
@@ -17,12 +19,15 @@ Contents:
 ## 1. Installation - Building From Source
 
 You can install the package by cloning the github repository:
+```shell script
+git clone https://github.com/fschrader1992/pyIris
+cd pyIris
+python setup.py install
+```
 
-    git clone https://github.com/fschrader1992/pyIris
-    cd pyIris
-    python setup.py install
+## 2. Dependencies
 
-## 2. Before Using the Package
+## 3. Before Using the Package
 
 In order to use the PR655 photometer, we need to set set the device driver to `usbserial`. You can check which driver 
 is used by typing `lsusb -t` (or whichever you prefer) into the terminal. As the standard is `cdc-acm`, we need to 
@@ -42,7 +47,7 @@ user via the terminal:
 ```shell script
 sudo usermod -a -G dialout USER
 ```
-Alternatively you can set the access tot he port by 
+Alternatively you can set the access to the port by 
 ```shell script
 sudo chmod /dev/ttyUSB0 0666
 ```
@@ -53,6 +58,14 @@ screen /dev/ttyUSB0 9600
 (where 9600 is the baudrate, change, if needed) and then type `PHOTOMETER`. The photometer should now be in remote mode.
 You can quit by typing `Q` and hitting `Ctrl + A` and `k` to exit screen.
 
-## Commandline Tool
+## 4. Commandline Tool
 
-## Dependencies
+|COMMAND|USE|
+|---------|-----|
+|`pyiris.spectrum`|Measure Spectra|
+|`pyiris.calibrate`|Create rgb &lrarr; lms Calibration Matrix (Based On Spectra)|
+|`pyiris.calibration.plot`|Plot Measured and Calculated Values|
+|`pyiris.colorspace.isoslant`|Measure Isoslant for Calibration and Subject|
+|`pyiris.colorspace.colorcircle`|Show Colorcircle for Colorspace|
+|`pyiris.subject`|Add a Subject|
+
