@@ -27,6 +27,16 @@ python setup.py install
 
 ## 2. Dependencies
 
+- psychopy
+- numpy
+- scipy
+- matplotlib
+- pandas
+- symfit
+- h5py
+- pyyaml
+- nixio >= 1.5.0b1 (otherwise writing to odML-like metadata will not work correctly)
+
 ## 3. Before Using the Package
 
 In order to use the PR655 photometer, we need to set set the device driver to `usbserial`. You can check which driver 
@@ -71,7 +81,74 @@ You can quit by typing `Q`, hitting `Ctrl + A` and `k` to exit screen.
 |`pyiris.spectrum`|Measure Spectra|
 |`pyiris.calibrate`|Create rgb &lrarr; lms Calibration Matrix (Based On Spectra)|
 |`pyiris.calibration.plot`|Plot Measured and Calculated Values|
+|`pyiris.subject`|Add a Subject|
 |`pyiris.colorspace.isoslant`|Measure Isoslant for Calibration and Subject|
 |`pyiris.colorspace.colorcircle`|Show Colorcircle for Colorspace|
-|`pyiris.subject`|Add a Subject|
 
+The commands in detail:
+
+```
+pyiris.spectrum [-h/--help] -s/--stepsize [-M/--monitor] -P/--photometer [-d/--directory] [-p/--path]
+
+pyiris.calibrate [-h/--help] -S/--spectra -C/--cones [-d/--directory] [-p/--path] 
+	-h/--help				Show help.
+	-S/--spectra			Path to file with measured (monitor) spectra.
+	-C/--cones				Path to file with cone spectra (cf. example in test/resources).
+	-d/--directory			Directory the calibration file should be stored in. If no filename is 
+                            specified in the path variable, it is saved as calibration_DATETIME.json.
+	-p/--path				Path the file should be stored in. This can be either the name of the
+							calibration file (works in combination with directory as well) or 
+							the full path. If it is not given, the calibration will be saved in the
+							current directory under calibration_DATETIME.json.
+```
+
+```shell script	
+pyiris.plot_calibration [-h/--help] -p/--path
+	-h/--help				Show help.
+	-p/--path				Path to file with calibration to plot.
+```
+
+```shell script	
+pyiris.subject [-h/--help] [-s/--short] [-N/--name] [-S/--surname] [-b/--birthday] [-n/--notes]
+			   [-d/--directory] [-p/--path] 
+	-h/--help				Show help.
+	-s/--short				Subject short, if given it is used in the filename.
+	-N/--name				Name of subject.
+	-S/--surname			Surname of subject.
+	-b/--birthday			Birthdate of subject (as string).
+	-n/--notes				Further notes you want to add.
+	-d/--directory			Directory the subject file should be stored in. If no filename is 
+							specified in the path variable, it is saved as subject_UUID/SHORT.json.
+	-p/--path				Path the file should be stored in. This can be either the name of the
+							subject file (works in combination with directory as well) or 
+							the full path. If it is not given, the subject will be saved in the
+							current directory under subject_UUID/SHORT.json.
+```
+
+```shell script	
+pyiris.measure_iso_slant [-h/--help] [-C/--calibration] [-S/--subject] [-b/--bitdepth] [-c/--chromaticity]
+						 [-g/--graylevel] [-u/--unit] [-s/--sscale] [-d/--directory] [-p/--path] 
+	-h/--help				Show help.
+	-C/--calibration		Path to file with calibration. Without this you can only use functions
+							that convert between different rgb-colorspaces.
+	-S/--subject			Path to file with subject.
+	-b/--bitdepth			Bit depth of one color of the current monitor (e.g. 8 or 10).
+							Default is 10bit.
+	-c/--chromaticity		Chromaticity (contrast) for colorcircle, maximum 0.36. Default is 0.12.
+	-g/--graylevel			Gray level [0-1]. Default is 0.66.
+	-u/--unit				Unit for angle [rad or deg]. Default is rad.
+	-s/--sscale				Scaling for S-cone values for better viewing. Default is 2.6.
+	-d/--directory			Directory the calibration file should be stored in. If no filename is 
+							specified in the path variable, it is saved as calibration_DATETIME.json.
+	-p/--path				Path the file should be stored in. This can be either the name of the
+							calibration file (works in combination with directory as well) or 
+							the full path. If it is not given, the calibration will be saved in the
+							current directory under calibration_DATETIME.json.
+```
+
+```shell script	
+pyiris.color_circle [-h/--help] [-n/--num] -p/--path
+	-h/--help				Show help.
+	-n/--num				Number of patches/hue angles to be shown. Default is 16.
+	-p/--path				Path to file with colorspace to plot circle for.
+```
