@@ -37,8 +37,10 @@ s2.add_monitor_settings("./test/resources/monitor_settings.yaml")
 print(s2.monitor["vendor"])
 #s2.save_to_file("test_spec.nix")
 #'''
-'''
-c1 = Calibration(mon_spectra_path="test_spec.nix", cone_spectra_path="example/cone_spectra")
+#'''
+p = "test/resources/spectrum_test.nix"
+#p = "spectrum_loc.nix"
+c1 = Calibration(mon_spectra_path=p, cone_spectra_path="example/cone_spectra")
 # -> if given load here already
 # -> make optional params
 c1.calc_lms_vals()
@@ -46,13 +48,13 @@ c1.calibrate()
 # lms = c1.rgb2lms_gamma([0.5, 0.5, 0.5])
 # print(lms)
 #c1.plot()
-c1.save_to_file("cal_test.json")
+c1.save_to_file("calibration_test.json")
 #'''
 
-'''
+#'''
 c2 = Calibration()
-c2.id = str(c2.id)
-c2.load_from_file(path="cal_test.json")
+c2.uuid = str(c2.uuid)
+c2.load_from_file(path="calibration_test.json")
 print(c2.date, c2.calibration_matrix)
 c2.plot()
 
@@ -60,14 +62,14 @@ c2.plot()
 
 #'''
 #'''
-cs1 = ColorSpace(calibration_path="cal_test.json")
+cs1 = ColorSpace(calibration_path="calibration_test.json")
 #cs1.measure_iso_slant(num_fit_points=4, repeats=1, step_size=0.01,)
 #cs1.plot_iso_slant()
 #cs1.show_colorcircle()
-cs1.save_to_file("colsp_test")
+cs1.save_to_file(path="colorspace_test.json")
 
 cs2 = ColorSpace()
-cs2.load_from_file("colsp_test")
+cs2.load_from_file("colorspace_test.json")
 cs2.plot_iso_slant()
 #print(cs2.lms_center)
 #cs2.show_colorcircle()
@@ -162,11 +164,12 @@ while True: #this creates a never-ending loop
         break
     event.clearEvents()
 '''
-
+#'''
 s = Subject(short="jdoe", name="Doe", surname="John", birthday="01.01.81")
-print(s.id)
+print(s.uuid)
 s.save_to_file()
 
 s2 = Subject()
-s2.load_from_file("jdoe.subject")
-print(s2.name, s2.surname, s2.birthday, s2.id)
+s2.load_from_file("subject_jdoe.json")
+print(s2.name, s2.surname, s2.birthday, s2.uuid)
+#'''
