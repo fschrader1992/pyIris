@@ -147,6 +147,14 @@ pyiris.measure_iso_slant [-h/--help] [-C/--calibration] [-S/--subject] [-b/--bit
 ```
 
 ```shell script	
+pyiris.colorlist [-h/--help] -p/--path [-r/--resolution] [-g/--graylevel]
+	-h/--help				Show help.
+	-p/--path				Path to file with colorspace to plot circle for.
+	-r/--resolution			Resoultion of hue angle in DEGREE. Default is 0.2.
+	-g/--graylevel			Gray level [0-1]. Default is 0.66.
+```
+
+```shell script	
 pyiris.color_circle [-h/--help] [-n/--num] -p/--path
 	-h/--help				Show help.
 	-n/--num				Number of patches/hue angles to be shown. Default is 16.
