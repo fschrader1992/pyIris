@@ -8,7 +8,6 @@ import datetime
 import uuid
 import json
 import codecs
-import argparse
 import numpy as np
 import matplotlib.pylab as pl
 

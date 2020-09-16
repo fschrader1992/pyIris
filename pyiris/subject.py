@@ -7,7 +7,6 @@ import os
 import uuid
 import json
 import codecs
-import argparse
 
 
 class Subject:
