@@ -155,7 +155,7 @@ pyiris.colorlist [-h/--help] -p/--path [-r/--resolution] [-g/--graylevel]
 ```
 
 ```shell script	
-pyiris.color_circle [-h/--help] [-n/--num] -p/--path
+pyiris.colorcircle [-h/--help] [-n/--num] -p/--path
 	-h/--help				Show help.
 	-n/--num				Number of patches/hue angles to be shown. Default is 16.
 	-p/--path				Path to file with colorspace to plot circle for.
