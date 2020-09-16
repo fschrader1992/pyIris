@@ -5,7 +5,7 @@ import time
 
 import matplotlib.pylab as pl
 
-from psychopy import visual, core, hardware
+from psychopy import visual, core, hardware, event
 from psychopy.hardware.pr import PR655
 #'''
 from pyiris.spectrum import Spectrum
@@ -37,7 +37,7 @@ s2.add_monitor_settings("./test/resources/monitor_settings.yaml")
 print(s2.monitor["vendor"])
 #s2.save_to_file("test_spec.nix")
 #'''
-#'''
+'''
 p = "test/resources/spectrum_test.nix"
 #p = "spectrum_loc.nix"
 c1 = Calibration(mon_spectra_path=p, cone_spectra_path="example/cone_spectra")
@@ -51,7 +51,7 @@ c1.calibrate()
 c1.save_to_file("calibration_test.json")
 #'''
 
-#'''
+'''
 c2 = Calibration()
 c2.uuid = str(c2.uuid)
 c2.load_from_file(path="calibration_test.json")
@@ -61,18 +61,44 @@ c2.plot()
 # Test: load and assert that values are equal
 
 #'''
-#'''
-cs1 = ColorSpace(calibration_path="calibration_test.json")
+'''
+cs1 = ColorSpace(calibration_path="test/resources/calibration_test.json")
 #cs1.measure_iso_slant(num_fit_points=4, repeats=1, step_size=0.01,)
 #cs1.plot_iso_slant()
 #cs1.show_colorcircle()
+cs1.create_color_list(hue_res=360./16.)
+#print(cs1.color_list)
 cs1.save_to_file(path="colorspace_test.json")
-
+#'''
+'''
 cs2 = ColorSpace()
 cs2.load_from_file("colorspace_test.json")
-cs2.plot_iso_slant()
+
+win = visual.Window(size=[1200, 200], colorSpace="rgb")
+
+rect_size = 30.
+i = 0
+#print(cs2.color_list.keys())
+for rgb in cs2.color_list['22.5']["rgb"]:
+    f_c = 2.*np.asarray(rgb)-1.
+    rect = visual.Rect(win=win,
+                       units="pix",
+                       width=int(rect_size), height=int(rect_size),
+                       fillColor=f_c, lineColor=f_c)
+
+    #rect.fillColorSpace = "rgb"
+    #rect.fillColor = f_c
+    rect.pos = [i*2*rect_size - 500, 0]
+    rect.draw()
+    i += 1
+
+win.flip()
+event.waitKeys()
+win.close()
+#cs2.plot_iso_slant()
+
 #print(cs2.lms_center)
-#cs2.show_colorcircle()
+#cs2.show_color_circle()
 #'''
 '''
 #cs1.calibration.plot()
@@ -164,7 +190,7 @@ while True: #this creates a never-ending loop
         break
     event.clearEvents()
 '''
-#'''
+'''
 s = Subject(short="jdoe", name="Doe", surname="John", birthday="01.01.81")
 print(s.uuid)
 s.save_to_file()
