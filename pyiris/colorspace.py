@@ -60,6 +60,7 @@ class ColorSpace:
         self.iso_slant["phase"] = 0
         self.iso_slant["xdata"] = []
         self.iso_slant["ydata"] = []
+        self.color_list = dict({})
 
         # dklc values
         self.chromaticity = chromaticity
@@ -405,6 +406,40 @@ class ColorSpace:
         self.iso_slant["xdata"] = stim
         self.iso_slant["ydata"] = res
 
+    def create_color_list(self, hue_res=0.2, gray_level=None):
+        """
+        Generate colors that are realizable in a N-bit display and save them in a color list.
+        :param hue_res: Resolution of hue angles, i.e. hue angle bins. Given in DEG!
+        :param gray_level: Luminance value.
+        """
+        if gray_level is None:
+            gray_level = self.gray_level
+
+        theta = np.linspace(0, 360 - hue_res, int(360 / hue_res))
+        conv_th = [self.dklc2rgb(theta=th, gray=gray_level, unit="deg") for th in theta]
+        rgb = [c_th for c_th in conv_th]
+        # resolution of N bit in [0, 1] scale
+        rgb_res = 1. / np.power(2., self.bit_depth)
+        sel_rgb = []
+        sel_theta = []
+        rgb_len = len(rgb)
+        it = iter(list(range(0, len(rgb))))
+
+        for idx in it:
+            sel_rgb.append(rgb[idx])
+            sel_theta.append(theta[idx])
+            # prevent multiple entries
+            if abs(rgb[idx][1] - rgb[(idx + 1) % rgb_len][1]) <= rgb_res:
+                next(it)
+            if abs(rgb[idx][1] - rgb[(idx + 2) % rgb_len][1]) <= rgb_res:
+                next(it)
+                next(it)
+
+        # add list to subject and colorspace
+        self.color_list[hue_res] = dict({})
+        self.color_list[hue_res]["hue_angles"] = sel_theta
+        self.color_list[hue_res]["rgb"] = sel_rgb
+
     def plot_iso_slant(self):
         """
         Run input and fit a sine-function to get the iso-slant for iso-luminance plane.
@@ -480,12 +515,16 @@ class ColorSpace:
         del dt["subject"]
         dt["uuid"] = str(self.uuid)
         dt["date"] = str(self.date)
+        dt["lms_center"] = self.lms_center.tolist()
         iso_slant = self.iso_slant
         iso_slant["xdata"] = np.asarray(iso_slant["xdata"]).tolist()
         iso_slant["ydata"] = np.asarray(iso_slant["ydata"]).tolist()
         iso_slant = json.dumps(iso_slant)
         dt["iso_slant"] = iso_slant
-        dt["lms_center"] = self.lms_center.tolist()
+        for key, val in self.color_list.items():
+            self.color_list[key]["hue_angles"] = np.asarray(val["hue_angles"]).tolist()
+            self.color_list[key]["rgb"] = np.asarray(val["rgb"]).tolist()
+        dt["color_list"] = json.dumps(self.color_list)
 
         if not path:
             path = "colorspace_{}.json".format(self.date)
@@ -522,5 +561,6 @@ class ColorSpace:
             self.subject.load_from_file(self.subject_path)
 
         self.iso_slant = json.loads(self.iso_slant)
+        self.color_list = json.loads(self.color_list)
 
         print("Successfully loaded colorspace from file {}".format(path))
