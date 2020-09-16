@@ -83,6 +83,7 @@ You can quit by typing `Q`, hitting `Ctrl + A` and `k` to exit screen.
 |`pyiris.calibration.plot`|Plot Measured and Calculated Values|
 |`pyiris.subject`|Add a Subject|
 |`pyiris.colorspace.isoslant`|Measure Isoslant for Calibration and Subject|
+|`pyiris.colorspace.colorlist`|Add List of Colors on Isoluminance Plane|
 |`pyiris.colorspace.colorcircle`|Show Colorcircle for Colorspace|
 
 The commands in detail:
@@ -102,13 +103,13 @@ pyiris.calibrate [-h/--help] -S/--spectra -C/--cones [-d/--directory] [-p/--path
 							current directory under calibration_DATETIME.json.
 ```
 
-```shell script	
+```	
 pyiris.plot_calibration [-h/--help] -p/--path
 	-h/--help				Show help.
 	-p/--path				Path to file with calibration to plot.
 ```
 
-```shell script	
+```
 pyiris.subject [-h/--help] [-s/--short] [-N/--name] [-S/--surname] [-b/--birthday] [-n/--notes]
 			   [-d/--directory] [-p/--path] 
 	-h/--help				Show help.
@@ -125,7 +126,7 @@ pyiris.subject [-h/--help] [-s/--short] [-N/--name] [-S/--surname] [-b/--birthda
 							current directory under subject_UUID/SHORT.json.
 ```
 
-```shell script	
+```	
 pyiris.measure_iso_slant [-h/--help] [-C/--calibration] [-S/--subject] [-b/--bitdepth] [-c/--chromaticity]
 						 [-g/--graylevel] [-u/--unit] [-s/--sscale] [-d/--directory] [-p/--path] 
 	-h/--help				Show help.
@@ -146,7 +147,7 @@ pyiris.measure_iso_slant [-h/--help] [-C/--calibration] [-S/--subject] [-b/--bit
 							current directory under calibration_DATETIME.json.
 ```
 
-```shell script	
+```
 pyiris.colorlist [-h/--help] -p/--path [-r/--resolution] [-g/--graylevel]
 	-h/--help				Show help.
 	-p/--path				Path to file with colorspace to plot circle for.
@@ -154,7 +155,7 @@ pyiris.colorlist [-h/--help] -p/--path [-r/--resolution] [-g/--graylevel]
 	-g/--graylevel			Gray level [0-1]. Default is 0.66.
 ```
 
-```shell script	
+```
 pyiris.colorcircle [-h/--help] [-n/--num] -p/--path
 	-h/--help				Show help.
 	-n/--num				Number of patches/hue angles to be shown. Default is 16.
