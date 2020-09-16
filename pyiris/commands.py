@@ -113,6 +113,20 @@ def color_circle():
     color_space.show_color_circle(num_col=args.num)
 
 
+def color_list():
+    parser = argparse.ArgumentParser(description="Create color list for resolution.")
+    parser.add_argument("-p", "--path", metavar="", help="Path for colorspace file.")
+    parser.add_argument("-r", "--resolution", metavar="", default=0.2,
+                        help="Resolution for hue angle in degree.")
+    parser.add_argument("-g", "--graylevel", metavar="", type=float, default=0.66,
+                        help="Gray level.")
+    args = parser.parse_args()
+
+    color_space = ColorSpace()
+    color_space.load_from_file(args.path)
+    color_space.create_color_list(hue_res=args.resolution, gray_level=args.graylevel)
+
+
 def subject():
     parser = argparse.ArgumentParser(description="Add a Subject.")
     parser.add_argument("-s", "--short", metavar="", required=True,
