@@ -1,0 +1,17 @@
+{
+    "bit_depth":10,
+    "calibration_path":"calibration_test.json",
+    "chromaticity":0.12,
+    "date":"2020-09-15 16:34:05.666010",
+    "gray_level":0.66,
+    "iso_slant":"{\"amplitude\": 0, \"phase\": 0, \"xdata\": [], \"ydata\": []}",
+    "lms_center":[
+        0.5170005721511496,
+        0.5181143525438583,
+        0.5232569587991622
+    ],
+    "s_scale":2.6,
+    "subject_path":null,
+    "unit":"rad",
+    "uuid":"bcb3c5d6-ef35-432c-bbda-976402016bd1"
+}
