@@ -448,8 +448,8 @@ class ColorSpace:
         win = visual.Window(size=[800, 600], colorSpace="rgb", color=bg_color, allowGUI=True,
                             bit_depth=self.bit_depth)
 
-        rect_size = 0.2 * win.size[0] * 2 / num_col
-        radius = 0.1 * win.size[0]
+        rect_size = 0.4 * win.size[0] * 2 / num_col
+        radius = 0.2 * win.size[0]
         alphas = np.linspace(0, 360, num_col, endpoint=False)
 
         rect = visual.Rect(win=win,
