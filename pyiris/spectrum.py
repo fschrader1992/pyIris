@@ -150,6 +150,11 @@ class Spectrum:
             path = "spectrum_{}.nix".format(self.date)
         if directory:
             path = os.path.join(directory, path)
+        save_dir, save_file = os.path.split(path)
+        if save_dir and not os.path.isdir(save_dir):
+            os.mkdir(save_dir)
+        if ".nix" not in save_file:
+            path = path + ".nix"
 
         nix_file = nix.File.open(path, mode=nix.FileMode.Overwrite)
         s = nix_file.create_section(name="meta-data", type_="meta-data")

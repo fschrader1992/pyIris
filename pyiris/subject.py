@@ -37,10 +37,15 @@ class Subject:
         dt["uuid"] = str(self.uuid)
 
         if not path:
-            path_var = self.short if len(self.short) > 0 else self.id
-            path = "{}.subject".format(path_var)
+            path_var = self.short if len(self.short) > 0 else self.uuid
+            path = "subject_{}.json".format(path_var)
         if directory:
             path = os.path.join(directory, path)
+        save_dir, save_file = os.path.split(path)
+        if save_dir and not os.path.isdir(save_dir):
+            os.mkdir(save_dir)
+        if ".json" not in save_file:
+            path = path + ".json"
         json.dump(dt, codecs.open(path, 'w', encoding='utf-8'),
                   separators=(',', ':'), sort_keys=True, indent=4)
 
