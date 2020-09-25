@@ -137,7 +137,7 @@ class Calibration:
             delta = lum_eff - monitor_spectra.spectra[stim, "luminance"]
             efc = delta / monitor_spectra.spectra[stim, "luminance"]
 
-            lum_eff_l += [np.trapz(mon_spec)]
+            lum_eff_l += [lum_eff]
             lum_ms_l += [monitor_spectra.spectra[stim, "luminance"]]
 
         self.lum_eff = np.asarray(lum_eff_l)
