@@ -1,4 +1,5 @@
 import unittest
+import os
 import numpy as np
 
 from pyiris.calibration import Calibration
@@ -11,8 +12,12 @@ class TestConversion(unittest.TestCase):
     """
 
     def setUp(self):
-        self.cal = Calibration(mon_spectra_path="test_spec.nix", cone_spectra_path="example/cone_spectra")
-        self.cs = ColorSpace(calibration_path="cal_test.json")
+        dir_path = os.path.dirname(os.path.realpath(__file__))
+        cal_path = os.path.join(dir_path, "resources/calibration_test.json")
+        self.cal = Calibration()
+        self.cal.load_from_file(path=cal_path)
+        self.cs = ColorSpace()
+        self.cs.calibration = self.cal
 
     def test_color2pp(self):
         colors = np.asarray([[0., 0., 0.], [0.5, 0.5, 0.5], [1., 1., 1.]])
