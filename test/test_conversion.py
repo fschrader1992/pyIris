@@ -35,10 +35,10 @@ class TestConversion(unittest.TestCase):
         rgb = np.asarray([[0., 0., 0.], [0.5, 0., 0.], [0., 0.5, 0.], [0., 0., 0.5], [1., 1., 1.]])
         lms = self.cs.rgb2lms(rgb)
         rgb_conv = self.cs.lms2rgb(lms)
-        np.testing.assert_allclose(rgb, rgb_conv, atol=1e-7)
+        np.testing.assert_allclose(rgb, rgb_conv, atol=1e-6)
 
     def test_lms_rgb_lms(self):
         lms = np.asarray([[0., 0., 0.], [0.5, 0.5, 0.5], [1., 1., 1.]])
         rgb = self.cs.lms2rgb(lms)
         lms_conv = self.cs.rgb2lms(rgb)
-        #np.testing.assert_allclose(lms, lms_conv, atol=1e-7)
+        np.testing.assert_allclose(lms, lms_conv, atol=1e-8)
