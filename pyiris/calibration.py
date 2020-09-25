@@ -97,7 +97,7 @@ class Calibration:
         if monitor_spectra_path is None:
             monitor_spectra_path = self.mon_spectra_path
 
-        cone_spectra = pd.read_csv(cone_spectra_path, sep=" ", header=0)
+        cone_spectra = pd.read_csv(cone_spectra_path, sep=",", header=0)
         monitor_spectra = Spectrum()
         monitor_spectra.load_from_file(path=monitor_spectra_path)
 
@@ -116,12 +116,12 @@ class Calibration:
                                  max(monitor_spectra.spectra[stim, "wavelength"])))
 
             # interpolate cone spectra
-            l_spec = np.exp(interp1d(cone_spectra["wavelength"],
-                                     cone_spectra["L"], kind="cubic")(lams))
-            m_spec = np.exp(interp1d(cone_spectra["wavelength"],
-                                     cone_spectra["M"], kind="cubic")(lams))
-            s_spec = np.exp(interp1d(cone_spectra["wavelength"],
-                                     cone_spectra["S"], kind="cubic")(lams))
+            l_spec = interp1d(cone_spectra["wavelength"],
+                              cone_spectra["L"], kind="cubic")(lams)
+            m_spec = interp1d(cone_spectra["wavelength"],
+                              cone_spectra["M"], kind="cubic")(lams)
+            s_spec = interp1d(cone_spectra["wavelength"],
+                              cone_spectra["S"], kind="cubic")(lams)
 
             mon_spec = interp1d(monitor_spectra.spectra[stim, "wavelength"],
                                 monitor_spectra.spectra[stim, "power"], kind="cubic")(lams)
