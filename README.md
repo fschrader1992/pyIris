@@ -10,15 +10,7 @@ that can be adjusted to individual subjects.
 2. [Dependencies](#2-dependencies)
 3. [Before Using the Package](#3-before-using-the-package)
 4. [Commandline Tool](#4-commandline-tool)
-- how to start: calibration
-    - cone spectra
-    - monitor spectra
-    - calibration
-- subjects
-- colorspace
-    - color conversion
-    - measure an iso_slant
-- create an experiment
+5. [File Structure](#5-file-structure)
 
 ## 1. Installation - Building From Source
 
@@ -165,3 +157,17 @@ pyiris.colorcircle [-h/--help] [-n/--num] -p/--path
 	-n/--num				Number of patches/hue angles to be shown. Default is 16.
 	-p/--path				Path to file with colorspace to plot circle for.
 ```
+
+## 5. File Structure
+
+You can name and store files as you like. You can also use the default names of files,
+containing the file creation date or, in case of subjects, its short name.
+
+In order to use the tool, you have to give two files. One provides the spectra of cones.
+It is a csv file containing (at least) the following columns, which will be found by their names:
+`wavelength`, `L`, `M` and `S`.
+If you don't want to provide your own file, you can use the file found at 
+`test/resources/cone_spectra.csv`.
+
+The other file you need is a yaml file containing the monitor settings. 
+You can use the file at `test/resources/monitor_settings.yaml` as template.
