@@ -285,11 +285,14 @@ class Calibration:
 
             rgb_e = self._rgb_mat[i % 3][i::4]
 
-            lum_calc = 80.*(l + m)
+            # account for difference between measured
+            # luminosity and luminance
+            lum_const = 100.
+            lum_calc = lum_const*(l + m)
 
             ax[int(i / 2)][i % 2].plot(rgb_e, lum_ms, c="k",
                                        marker="x", linestyle=":", label="Measured")
-            ax[int(i / 2)][i % 2].plot(rgb_e, 200.*lum_eff, c="b",
+            ax[int(i / 2)][i % 2].plot(rgb_e, lum_eff, c="lightblue",
                                        marker="+", linestyle=":", label="Integrated")
             ax[int(i / 2)][i % 2].plot(x, lum_calc, "r", label="Calculated")
             ax[int(i / 2)][i % 2].set_title(titles[i])
