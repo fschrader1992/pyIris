@@ -85,7 +85,8 @@ You can quit by typing `Q`, hitting `Ctrl + A` and `k` to exit screen.
 The commands in detail:
 
 ```
-pyiris.spectrum [-h/--help] -s/--stepsize [-M/--monitor] -P/--photometer [-d/--directory] [-p/--path]
+pyiris.spectrum [-h/--help] -s/--stepsize [-M/--monitor] -P/--photometer [-d/--directory]
+                [-p/--path]
     -h/--help               Show help.
     -M/--monitor            
     -P/--photometer         
@@ -103,11 +104,12 @@ pyiris.calibrate [-h/--help] -S/--spectra -C/--cones [-d/--directory] [-p/--path
     -S/--spectra            Path to file with measured (monitor) spectra.
     -C/--cones              Path to file with cone spectra (cf. example in test/resources).
     -d/--directory          Directory the calibration file should be stored in. If no filename is 
-                            specified in the path variable, it is saved as calibration_DATETIME.json.
+                            specified in the path variable, it is saved as 
+                            calibration_DATETIME.json.
     -p/--path               Path the file should be stored in. This can be either the name of the
                             calibration file (works in combination with directory as well) or 
-                            the full path. If it is not given, the calibration will be saved in the
-                            current directory under calibration_DATETIME.json.
+                            the full path. If it is not given, the calibration will be saved in
+                            the current directory under calibration_DATETIME.json.
 ```
 
 ```	
@@ -117,8 +119,8 @@ pyiris.plot_calibration [-h/--help] -p/--path
 ```
 
 ```
-pyiris.subject [-h/--help] [-s/--short] [-N/--name] [-S/--surname] [-b/--birthday] [-n/--notes]
-               [-d/--directory] [-p/--path] 
+pyiris.subject [-h/--help] [-s/--short] [-N/--name] [-S/--surname] [-b/--birthday]
+               [-n/--notes] [-d/--directory] [-p/--path] 
     -h/--help	            Show help.
     -s/--short              Subject short, if given it is used in the filename.
     -N/--name               Name of subject.
@@ -134,8 +136,9 @@ pyiris.subject [-h/--help] [-s/--short] [-N/--name] [-S/--surname] [-b/--birthda
 ```
 
 ```	
-pyiris.measure_iso_slant [-h/--help] [-C/--calibration] [-S/--subject] [-b/--bitdepth] [-c/--chromaticity]
-                         [-g/--graylevel] [-u/--unit] [-s/--sscale] [-d/--directory] [-p/--path] 
+pyiris.measure_iso_slant [-h/--help] [-C/--calibration] [-S/--subject] [-b/--bitdepth]
+                         [-c/--chromaticity] [-g/--graylevel] [-u/--unit] [-s/--sscale]
+                         [-d/--directory] [-p/--path] 
     -h/--help               Show help.
     -C/--calibration        Path to file with calibration. Without this you can only use functions
                             that convert between different rgb-colorspaces.
@@ -147,11 +150,12 @@ pyiris.measure_iso_slant [-h/--help] [-C/--calibration] [-S/--subject] [-b/--bit
     -u/--unit               Unit for angle [rad or deg]. Default is rad.
     -s/--sscale             Scaling for S-cone values for better viewing. Default is 2.6.
     -d/--directory          Directory the calibration file should be stored in. If no filename is 
-                            specified in the path variable, it is saved as calibration_DATETIME.json.
+                            specified in the path variable, it is saved as 
+                            calibration_DATETIME.json.
     -p/--path               Path the file should be stored in. This can be either the name of the
                             calibration file (works in combination with directory as well) or 
-                            the full path. If it is not given, the calibration will be saved in the
-                            current directory under calibration_DATETIME.json.
+                            the full path. If it is not given, the calibration will be saved in
+                            the current directory under calibration_DATETIME.json.
 ```
 
 ```
