@@ -20,11 +20,21 @@ s = Spectrum(stepsize=1.)
 #s.measure_colors()
 s.save_to_file("test_loc.nix")
 time.sleep(2)
+'''
+#s2 = Spectrum()
+#s2.load_from_file("spectrum_mycomp_2.nix")
 
-s2 = Spectrum()
-s2.load_from_file("test_spec.nix")
-print(s2.id)
-s2.save_to_file("test_spec.nix")
+#s2.save_to_file("spectrum_mycomp_2.nix")
+'''
+sq = ["[0.65 0. 0.]", "[0. 0.65 0.]", "[0. 0. 0.65]", "[0.65 0.65 0.65]", "[0.6 0.6 0.6]"]
+s2.photometer = None
+print(s2.names)
+l = []
+for n in s2.names:
+    if n not in sq:
+        l += [n]
+s2.names = l
+'''
 
 #pl.plot(s2.spectra["[0. 0. 1.]", "power"])
 #pl.plot(s2.spectra["[1. 1. 1.]", "power"])
@@ -37,24 +47,25 @@ s2.add_monitor_settings("./test/resources/monitor_settings.yaml")
 print(s2.monitor["vendor"])
 #s2.save_to_file("test_spec.nix")
 #'''
-'''
+#'''
 p = "test/resources/spectrum_test.nix"
-#p = "spectrum_loc.nix"
-c1 = Calibration(mon_spectra_path=p, cone_spectra_path="example/cone_spectra")
+#p = "spectrum_mycomp.nix"
+#c1 = Calibration(mon_spectra_path=p, cone_spectra_path="example/cone_spectra_old")
+c1 = Calibration(mon_spectra_path=p, cone_spectra_path="test/resources/cone_spectra.csv")
 # -> if given load here already
 # -> make optional params
 c1.calc_lms_vals()
 c1.calibrate()
 # lms = c1.rgb2lms_gamma([0.5, 0.5, 0.5])
 # print(lms)
-#c1.plot()
+c1.plot()
 c1.save_to_file("calibration_test.json")
 #'''
 
 '''
 c2 = Calibration()
 c2.uuid = str(c2.uuid)
-c2.load_from_file(path="calibration_test.json")
+c2.load_from_file(path="calibration_mycomp.json")
 print(c2.date, c2.calibration_matrix)
 c2.plot()
 
