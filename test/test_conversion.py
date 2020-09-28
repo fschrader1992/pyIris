@@ -42,3 +42,51 @@ class TestConversion(unittest.TestCase):
         rgb = self.cs.lms2rgb(lms)
         lms_conv = self.cs.rgb2lms(rgb)
         np.testing.assert_allclose(lms, lms_conv, atol=1e-8)
+
+    def test_rgb_lms_rgb_tuple(self):
+        rgb = (0.5, 0.5, 0.5)
+        lms = self.cs.rgb2lms(rgb)
+        rgb_conv = self.cs.lms2rgb(lms)
+        np.testing.assert_allclose(np.asarray([rgb]), rgb_conv, atol=1e-8)
+
+    def test_lms_rgb_lms_tuple(self):
+        lms = (0.5, 0.5, 0.5)
+        rgb = self.cs.lms2rgb(lms)
+        lms_conv = self.cs.rgb2lms(rgb)
+        np.testing.assert_allclose(np.asarray([lms]), lms_conv, atol=1e-8)
+
+    def test_color2pp_tuple(self):
+        colors = (0.0, 0.5, 1.0)
+        pp_colors = np.asarray([[-1.0, 0.0, 1.0]])
+        pp_colors_conv = self.cs.color2pp(colors)
+        np.testing.assert_allclose(pp_colors, pp_colors_conv, atol=1e-8)
+
+    def test_pp2color_tuple(self):
+        pp_colors = (-1.0, 0.0, 1.0)
+        colors = np.asarray([[0.0, 0.5, 1.0]])
+        colors_conv = self.cs.pp2color(pp_colors)
+        np.testing.assert_allclose(colors, colors_conv, atol=1e-8)
+
+    def test_rgb_lms_rgb_list(self):
+        rgb = [0.5, 0.5, 0.5]
+        lms = self.cs.rgb2lms(rgb)
+        rgb_conv = self.cs.lms2rgb(lms)
+        np.testing.assert_allclose(np.asarray([rgb]), rgb_conv, atol=1e-8)
+
+    def test_lms_rgb_lms_list(self):
+        lms = [0.5, 0.5, 0.5]
+        rgb = self.cs.lms2rgb(lms)
+        lms_conv = self.cs.rgb2lms(rgb)
+        np.testing.assert_allclose(np.asarray([lms]), lms_conv, atol=1e-8)
+
+    def test_color2pp_list(self):
+        colors = [0.0, 0.5, 1.0]
+        pp_colors = np.asarray([[-1.0, 0.0, 1.0]])
+        pp_colors_conv = self.cs.color2pp(colors)
+        np.testing.assert_allclose(pp_colors, pp_colors_conv, atol=1e-8)
+
+    def test_pp2color_list(self):
+        pp_colors = [-1.0, 0.0, 1.0]
+        colors = np.asarray([[0.0, 0.5, 1.0]])
+        colors_conv = self.cs.pp2color(pp_colors)
+        np.testing.assert_allclose(colors, colors_conv, atol=1e-8)
