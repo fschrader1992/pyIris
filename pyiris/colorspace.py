@@ -253,7 +253,9 @@ class ColorSpace:
             print("WARNING: The current bit depth of the monitor is not 8 bit."
                   "Conversion to rgb255 format possibly leads to differences in color.")
         rgb = np.asarray(rgb)
-        rgb255 = int(rgb * 255 + 0.5)
+        if rgb.ndim == 1:
+            rgb = np.asarray([rgb])
+        rgb255 = (rgb * 255 + 0.5 * np.ones((len(rgb), len(rgb[0])))).astype(int)
         return rgb255
 
     def rgb2552rgb(self, rgb255):
@@ -267,7 +269,9 @@ class ColorSpace:
         if self.bit_depth != 8:
             print("WARNING: The current bit depth of the monitor is not 8 bit."
                   "Consider using float rgb values in range [0, 1].")
-        rgb255 = np.asarray(rgb255)
+        rgb255 = np.asarray(rgb255).astype(float)
+        if rgb255.ndim == 1:
+            rgb255 = np.asarray([rgb255])
         rgb = rgb255/255.
         return rgb
 
@@ -283,7 +287,9 @@ class ColorSpace:
             print("WARNING: The current bit depth of the monitor is not 10 bit."
                   "Conversion to rgb1023 format possibly leads to differences in color.")
         rgb = np.asarray(rgb)
-        rgb1023 = int(rgb * 1023 + 0.5)
+        if rgb.ndim == 1:
+            rgb = np.asarray([rgb])
+        rgb1023 = (rgb * 1023 + 0.5*np.ones((len(rgb), len(rgb[0])))).astype(int)
         return rgb1023
 
     def rgb10232rgb(self, rgb1023):
@@ -297,7 +303,9 @@ class ColorSpace:
         if self.bit_depth != 10:
             print("WARNING: The current bit depth of the monitor is not 8 bit."
                   "Consider using float rgb values in range [0, 1].")
-        rgb1023 = np.asarray(rgb1023)
+        rgb1023 = np.asarray(rgb1023).astype(float)
+        if rgb1023.ndim == 1:
+            rgb1023 = np.asarray([rgb1023])
         rgb = rgb1023/1023.
         return rgb
 
