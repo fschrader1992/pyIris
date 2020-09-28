@@ -80,11 +80,13 @@ class ColorSpace:
         Conversion with gamma correction: lms = a_o + a * rgb**gamma.
         Uses calibration matrix.
 
-        :param rgb: (list of) 3-tuple/numpy array with rgb values (0-1).
+        :param rgb: list/3-tuples/numpy array with single or multiple rgb values (0-1).
         :return: lms value as numpy array.
         """
         min_val = 0.00000000000001
         rgb = np.asarray(rgb)
+        if rgb.ndim == 1:
+            rgb = np.asarray([rgb])
         np.where(np.abs(rgb) < min_val, min_val, rgb)
         r, g, b = rgb.T
 
@@ -99,11 +101,13 @@ class ColorSpace:
         Conversion with gamma correction: x = (a_inv * (a_0 - lms))**(1/gamma_x).
         Uses inverse calibration matrix.
 
-        :param lms: (list of) 3-tuple/numpy array with lms values (0-1).
+        :param lms: list/3-tuples/numpy array with single or multiple lms values (0-1).
         :return: rgb values as numpy array.
         """
         min_val = 0.00000000000001
         lms = np.asarray(lms)
+        if lms.ndim == 1:
+            lms = np.asarray([lms])
 
         icm = self.calibration.inv_calibration_matrix
 
@@ -214,10 +218,12 @@ class ColorSpace:
         """
         Convert rgb/lms values to psychopy xyz colorspace.
 
-        :param xyz: (list of) 3-tuple/numpy array with rgb/lms values [0, 1].
+        :param xyz: list/3-tuples/numpy array with rgb/lms values [0, 1].
         :return: psychopy compatible values [-1, 1] as numpy array.
         """
         xyz = np.asarray(xyz)
+        if xyz.ndim == 1:
+            xyz = np.asarray([xyz])
         xyz_pp = 2. * xyz - np.ones((len(xyz), len(xyz[0])))
         return xyz_pp
 
@@ -226,10 +232,12 @@ class ColorSpace:
         """
         Convert psychopy rgb/lms values to psychopy xyz colorspace.
 
-        :param xyz_pp: (list of) 3-tuple/numpy array with psychopy rgb/lms values [-1, 1].
+        :param xyz_pp: list/3-tuple/numpy array with psychopy rgb/lms values [-1, 1].
         :return: rgb/lms values [0, 1] as numpy array.
         """
         xyz_pp = np.asarray(xyz_pp)
+        if xyz_pp.ndim == 1:
+            xyz_pp = np.asarray([xyz_pp])
         xyz = (xyz_pp + np.ones((len(xyz_pp), len(xyz_pp[0])))) * 0.5
         return xyz
 
