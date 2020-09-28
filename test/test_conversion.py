@@ -43,6 +43,30 @@ class TestConversion(unittest.TestCase):
         lms_conv = self.cs.rgb2lms(rgb)
         np.testing.assert_allclose(lms, lms_conv, atol=1e-8)
 
+    def test_rgb_rgb255(self):
+        rgb = np.asarray([[0., 0., 0.], [0.5, 0.5, 0.5], [1., 1., 1.]])
+        rgb255 = np.asarray([[0, 0, 0], [128, 128, 128], [255, 255, 255]])
+        rgb255_conv = self.cs.rgb2rgb255(rgb)
+        np.testing.assert_allclose(rgb255, rgb255_conv, atol=1e-8)
+
+    def test_rgb255_rgb(self):
+        rgb255 = np.asarray([[0, 0, 0], [128, 128, 128], [255, 255, 255]])
+        rgb = np.asarray([[0., 0., 0.], [0.501961, 0.501961, 0.501961], [1., 1., 1.]])
+        rgb_conv = self.cs.rgb2552rgb(rgb255)
+        np.testing.assert_allclose(rgb, rgb_conv, atol=1e-6)
+    
+    def test_rgb_rgb1023(self):
+        rgb = np.asarray([[0., 0., 0.], [0.5, 0.5, 0.5], [1., 1., 1.]])
+        rgb1023 = np.asarray([[0, 0, 0], [512, 512, 512], [1023, 1023, 1023]])
+        rgb1023_conv = self.cs.rgb2rgb1023(rgb)
+        np.testing.assert_allclose(rgb1023, rgb1023_conv, atol=1e-8)
+
+    def test_rgb1023_rgb(self):
+        rgb1023 = np.asarray([[0, 0, 0], [512, 512, 512], [1023, 1023, 1023]])
+        rgb = np.asarray([[0., 0., 0.], [0.500489, 0.500489, 0.500489], [1., 1., 1.]])
+        rgb_conv = self.cs.rgb10232rgb(rgb1023)
+        np.testing.assert_allclose(rgb, rgb_conv, atol=1e-6)
+
     def test_rgb_lms_rgb_tuple(self):
         rgb = (0.5, 0.5, 0.5)
         lms = self.cs.rgb2lms(rgb)
@@ -67,6 +91,30 @@ class TestConversion(unittest.TestCase):
         colors_conv = self.cs.pp2color(pp_colors)
         np.testing.assert_allclose(colors, colors_conv, atol=1e-8)
 
+    def test_rgb_rgb255_tuple(self):
+        rgb = (1., 1., 1.)
+        rgb255 = np.asarray([[255, 255, 255]])
+        rgb255_conv = self.cs.rgb2rgb255(rgb)
+        np.testing.assert_allclose(rgb255, rgb255_conv, atol=1e-8)
+
+    def test_rgb255_rgb_tuple(self):
+        rgb255 = (255, 255, 255)
+        rgb = np.asarray([[1., 1., 1.]])
+        rgb_conv = self.cs.rgb2552rgb(rgb255)
+        np.testing.assert_allclose(rgb, rgb_conv, atol=1e-6)
+
+    def test_rgb_rgb1023_tuple(self):
+        rgb = (1., 1., 1.)
+        rgb1023 = np.asarray([[1023, 1023, 1023]])
+        rgb1023_conv = self.cs.rgb2rgb1023(rgb)
+        np.testing.assert_allclose(rgb1023, rgb1023_conv, atol=1e-8)
+
+    def test_rgb1023_rgb_tuple(self):
+        rgb1023 = (1023, 1023, 1023)
+        rgb = np.asarray([[1., 1., 1.]])
+        rgb_conv = self.cs.rgb10232rgb(rgb1023)
+        np.testing.assert_allclose(rgb, rgb_conv, atol=1e-6)
+
     def test_rgb_lms_rgb_list(self):
         rgb = [0.5, 0.5, 0.5]
         lms = self.cs.rgb2lms(rgb)
@@ -90,3 +138,27 @@ class TestConversion(unittest.TestCase):
         colors = np.asarray([[0.0, 0.5, 1.0]])
         colors_conv = self.cs.pp2color(pp_colors)
         np.testing.assert_allclose(colors, colors_conv, atol=1e-8)
+
+    def test_rgb_rgb255_list(self):
+        rgb = [1., 1., 1.]
+        rgb255 = np.asarray([[255, 255, 255]])
+        rgb255_conv = self.cs.rgb2rgb255(rgb)
+        np.testing.assert_allclose(rgb255, rgb255_conv, atol=1e-8)
+
+    def test_rgb255_rgb_list(self):
+        rgb255 = [255, 255, 255]
+        rgb = np.asarray([[1., 1., 1.]])
+        rgb_conv = self.cs.rgb2552rgb(rgb255)
+        np.testing.assert_allclose(rgb, rgb_conv, atol=1e-6)
+
+    def test_rgb_rgb1023_list(self):
+        rgb = [1., 1., 1.]
+        rgb1023 = np.asarray([[1023, 1023, 1023]])
+        rgb1023_conv = self.cs.rgb2rgb1023(rgb)
+        np.testing.assert_allclose(rgb1023, rgb1023_conv, atol=1e-8)
+
+    def test_rgb1023_rgb_list(self):
+        rgb1023 = [1023, 1023, 1023]
+        rgb = np.asarray([[1., 1., 1.]])
+        rgb_conv = self.cs.rgb10232rgb(rgb1023)
+        np.testing.assert_allclose(rgb, rgb_conv, atol=1e-6)
