@@ -3,6 +3,7 @@
 PyIris is a tool that helps creating visual experiments with psychopy.
 It is possible to calibrate a monitor in order to be able to set LSM-colors 
 that can be adjusted to individual subjects.
+It is tested for python versions > 3.5.
 
 ## Contents
 
