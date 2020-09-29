@@ -165,7 +165,7 @@ class ColorSpace:
 
         phase = 0.
         if self.iso_slant["amplitude"] == 0.:
-            amplitude = 0.
+            amplitude = 1.
             print("WARNING: Amplitude of iso-slant is 0.\n"
                   "Make sure to measure subject's iso-slant with ColorSpace.measure_iso_slant.")
         else:
