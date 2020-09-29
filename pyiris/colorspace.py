@@ -143,22 +143,24 @@ class ColorSpace:
         Conversion of a dkl-similar value (gray/lum, theta) to a corresponding lms value.
         If a subject is given, this also depends on its iso-slant.
 
-        :param theta: color angle(s).
+        :param theta: color angle(s) as list/numpy array.
         :param gray: luminance/gray value(s).
         :param chromaticity: Chromaticity.
         :param unit: unit for theta: rad or deg
         :param s_scale: Scaling factor for blue values.
         :return: lms values as numpy array.
         """
-        # TODO: make sure that works with lists as well
+
+        theta = np.asarray(theta)
+        th_len = len(theta)
         if gray is None:
             gray = self.lms_center
         if chromaticity is None:
-            chromaticity = self.chromaticity
+            chromaticity = self.chromaticity * np.ones(th_len)
         if unit is None:
             unit = self.unit
         if s_scale is None:
-            s_scale = self.s_scale
+            s_scale = self.s_scale * np.ones(th_len)
 
         if unit != 'rad':
             theta = 2. * theta * np.pi/360.
@@ -172,16 +174,21 @@ class ColorSpace:
             amplitude = self.iso_slant["amplitude"]
             phase = self.iso_slant["phase"]
 
-        # TODO: is that right?
-        dlum = amplitude * np.sin(theta + phase)
-        gray *= np.asarray([1.0 + dlum, 1.0 + dlum, 1.0])
+        gray = np.repeat([gray], len(theta), axis=0)
+        dlum = np.asarray([1.0 + amplitude * np.sin(theta + phase),
+                           1.0 + amplitude * np.sin(theta + phase),
+                           np.ones(th_len)]).T
+        gray *= dlum
+        gray[gray == 0] = self.min_val
 
-        lm_ratio = 1.0 * gray[0] / gray[1]  # this ratio can be adjusted
+        # this ratio can be adjusted
+        lm_ratio = 1.0 * gray.T[0] / gray.T[1]
+
         vec = np.asarray([
             1.0 + chromaticity * np.cos(theta) / (1.0 + lm_ratio),
             1.0 - chromaticity * np.cos(theta) / (1.0 + 1.0/lm_ratio),
             1.0 + s_scale * chromaticity * np.sin(theta)
-        ])
+        ]).T
 
         lms = gray * vec
 
