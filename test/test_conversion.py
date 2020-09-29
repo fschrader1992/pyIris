@@ -14,9 +14,11 @@ class TestConversion(unittest.TestCase):
     def setUp(self):
         dir_path = os.path.dirname(os.path.realpath(__file__))
         cal_path = os.path.join(dir_path, "resources/calibration_test.json")
+        cs_path = os.path.join(dir_path, "resources/colorspace_test.json")
         self.cal = Calibration()
         self.cal.load_from_file(path=cal_path)
         self.cs = ColorSpace()
+        self.cal.load_from_file(path=cs_path)
         self.cs.calibration = self.cal
 
     def test_color2pp(self):
