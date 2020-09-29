@@ -45,6 +45,19 @@ class TestConversion(unittest.TestCase):
         lms_conv = self.cs.rgb2lms(rgb)
         np.testing.assert_allclose(lms, lms_conv, atol=1e-8)
 
+    def test_lms_dklc(self):
+        lms = np.asarray([[0., 0., 0.], [0.5, 0.5, 0.5], [1., 1., 1.]])
+        lms = np.asarray([0.5, 0.5, 0.5])
+        #dklc = self.cs.lms2dklc(lms)
+        #lms_conv = self.cs.dklc2lms(dklc)
+        #np.testing.assert_allclose(lms, lms_conv, atol=1e-8)
+
+    def test_dklc_lms(self):
+        thetas = np.asarray([0., 0.5*np.pi, 1.0*np.pi, 1.5*np.pi])
+        lms_s = self.cs.dklc2lms(thetas)
+        theta = [0.5*np.pi]
+        lms = self.cs.dklc2lms(theta)
+
     def test_rgb_rgb255(self):
         rgb = np.asarray([[0., 0., 0.], [0.5, 0.5, 0.5], [1., 1., 1.]])
         rgb255 = np.asarray([[0, 0, 0], [128, 128, 128], [255, 255, 255]])
