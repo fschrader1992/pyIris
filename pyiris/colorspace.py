@@ -75,7 +75,7 @@ class ColorSpace:
             top = np.sum(self.rgb2lms([[1., 0., 0.], [0., 1., 0.], [0., 0., 1.]]), axis=0)
             self.lms_center = np.asarray((top + self.calibration.calibration_matrix[0]) / 2.)
         else:
-            self.lms_center = None
+            self.lms_center = np.asarray([0.5, 0.5, 0.5])
 
     def rgb2lms(self, rgb):
         """
