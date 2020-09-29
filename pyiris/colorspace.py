@@ -52,6 +52,8 @@ class ColorSpace:
             self.subject = Subject().load_from_file(subject_path)
             self.subject.colospaces += [self]
 
+        self.min_val = 0.00000000000001
+
         self.date = datetime.datetime.now()
         # TODO: get from current settings?
         self.bit_depth = bit_depth
@@ -83,11 +85,10 @@ class ColorSpace:
         :param rgb: list/3-tuples/numpy array with single or multiple rgb values (0-1).
         :return: lms value as numpy array.
         """
-        min_val = 0.00000000000001
         rgb = np.asarray(rgb)
         if rgb.ndim == 1:
             rgb = np.asarray([rgb])
-        np.where(np.abs(rgb) < min_val, min_val, rgb)
+        np.where(np.abs(rgb) < self.min_val, self.min_val, rgb)
         r, g, b = rgb.T
 
         cm = self.calibration.calibration_matrix
@@ -104,7 +105,6 @@ class ColorSpace:
         :param lms: list/3-tuples/numpy array with single or multiple lms values (0-1).
         :return: rgb values as numpy array.
         """
-        min_val = 0.00000000000001
         lms = np.asarray(lms)
         if lms.ndim == 1:
             lms = np.asarray([lms])
@@ -114,7 +114,7 @@ class ColorSpace:
         a = icm[1:4]
         v = lms - np.tile(icm[0], (len(lms), 1))
         va = v.dot(a.T).T
-        r_g, g_g, b_g = np.where(np.abs(va) < min_val, min_val, va)
+        r_g, g_g, b_g = np.where(np.abs(va) < self.min_val, self.min_val, va)
 
         rgb = np.asarray([np.power(r_g, icm[4][0]),
                           np.power(g_g, icm[4][1]),
