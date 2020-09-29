@@ -122,21 +122,24 @@ class ColorSpace:
 
         return rgb
 
-    @staticmethod
-    def lms2dklc(lms):
+    def lms2dklc(self, lms):
         """
         Conversion of a lms value to dkl-similar coordinates,
         such that a gray value and color_angle can be given.
         If a subject is given, this also depends on its isoslant.
 
-        :param lms: (list of) 3-tuple/numpy array with lms values (0-1).
+        :param lms: list/3-tuples/numpy array with single or multiple lms values (0-1).
         :return: dkl-like coordinates.
         """
-        min_val = 0.00000000000001
-        lms[lms == 0] = min_val
-        l, m, s = lms
+        lms[lms == 0] = self.min_val
+        if lms.ndim == 1:
+            lms = np.asarray([lms])
+        l, m, s = lms.T
 
-        return np.asarray((l+m, l-m, s))
+        r = l+m
+        a = l-m
+        theta = np.arccos(a/r)
+        return theta
 
     def dklc2lms(self, theta, gray=None, chromaticity=None, unit=None, s_scale=None):
         """
