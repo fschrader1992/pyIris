@@ -1,5 +1,6 @@
-
-import os
+"""
+This file contains all functions for the command line tool.
+"""
 import argparse
 
 from .calibration import Calibration
@@ -9,6 +10,9 @@ from .subject import Subject
 
 
 def spectrum():
+    """
+    Measure a spectrum.
+    """
     parser = argparse.ArgumentParser(description="Measure spectra.")
     parser.add_argument("-s", "--stepsize", type=float, metavar="",
                         help="Stepsize as float in range [0-1] for differences in colors. "
@@ -25,18 +29,21 @@ def spectrum():
     args = parser.parse_args()
 
     photo = args.photometer if args.photometer else None
-    spectrum = Spectrum(photometer=photo, stepsize=args.stepsize,
-                        monitor_settings_path=args.monitor)
+    spec = Spectrum(photometer=photo, stepsize=args.stepsize,
+                    monitor_settings_path=args.monitor)
 
-    spectrum.add_pr655()
-    spectrum.measure_colors()
+    spec.add_pr655()
+    spec.measure_colors()
 
     f_d = args.directory if args.directory else None
     f_p = args.path if args.path else None
-    spectrum.save_to_file(directory=f_d, path=f_p)
+    spec.save_to_file(directory=f_d, path=f_p)
 
 
 def calibrate():
+    """
+    Create a calibration.
+    """
     parser = argparse.ArgumentParser(description="Determine calibration matrix.")
     parser.add_argument("-S", "--spectra", metavar="",
                         help="Path to file with measured spectra object.")
@@ -49,28 +56,34 @@ def calibrate():
 
     args = parser.parse_args()
 
-    photo = args.photometer if args.photometer else None
-    calibration = Calibration(mon_spectra_path=args.spectra, cone_spectra_path=args.cones)
+    # photo = args.photometer if args.photometer else None
+    cal = Calibration(mon_spectra_path=args.spectra, cone_spectra_path=args.cones)
 
-    calibration.calc_lms_vals()
-    calibration.calibrate()
+    cal.calc_lms_vals()
+    cal.calibrate()
 
     f_d = args.directory if args.directory else None
     f_p = args.path if args.path else None
-    calibration.save_to_file(directory=f_d, path=f_p)
+    cal.save_to_file(directory=f_d, path=f_p)
 
 
 def plot_calibration():
+    """
+    Plot measured and calculated values and fits.
+    """
     parser = argparse.ArgumentParser(description="Plot calibration.")
     parser.add_argument("-p", "--path", metavar="", help="Path for calibration file.")
 
     args = parser.parse_args()
-    calibration = Calibration()
-    calibration.load_from_file(args.path)
-    calibration.plot()
+    cal = Calibration()
+    cal.load_from_file(args.path)
+    cal.plot()
 
 
 def measure_iso_slant():
+    """
+    Measure a subject's iso-slant.
+    """
     parser = argparse.ArgumentParser(description="Measure isoslant.")
     parser.add_argument("-C", "--calibration", metavar="",
                         help="Path to file with measured spectra object.")
@@ -91,7 +104,7 @@ def measure_iso_slant():
 
     args = parser.parse_args()
 
-    photo = args.photometer if args.photometer else None
+    # photo = args.photometer if args.photometer else None
     color_space = ColorSpace(calibration_path=args.calibration, subject_path=args.subject,
                              bit_depth=args.bitdepth, chromaticity=args.chromaticity,
                              gray_lavel=args.graylevel, unit=args.unit, s_scale=args.sscale)
@@ -102,6 +115,9 @@ def measure_iso_slant():
 
 
 def color_circle():
+    """
+    Plot the iso-slant corrected color circle.
+    """
     parser = argparse.ArgumentParser(description="Show color circle.")
     parser.add_argument("-p", "--path", metavar="", help="Path for colorspace file.")
     parser.add_argument("-n", "--num", metavar="", type=int, default=16,
@@ -114,6 +130,9 @@ def color_circle():
 
 
 def color_list():
+    """
+    Create a rgb-color list for dklc-angles.
+    """
     parser = argparse.ArgumentParser(description="Create color list for resolution.")
     parser.add_argument("-p", "--path", metavar="", help="Path for colorspace file.")
     parser.add_argument("-r", "--resolution", metavar="", default=0.2,
@@ -143,6 +162,9 @@ def screensaver():
 
 
 def subject():
+    """
+    Create a subject and fill with data.
+    """
     parser = argparse.ArgumentParser(description="Add a Subject.")
     parser.add_argument("-s", "--short", metavar="", required=True,
                         help="Short name that refers to subject. "
@@ -156,8 +178,8 @@ def subject():
 
     args = parser.parse_args()
 
-    subject = Subject(short=args.short, name=args.name, surname=args.surname,
-                birthday=args.birthday, notes=args.notes)
+    sub = Subject(short=args.short, name=args.name, surname=args.surname,
+                  birthday=args.birthday, notes=args.notes)
     f_d = args.directory if args.directory else None
     f_p = args.path if args.path else None
-    subject.save_to_file(directory=f_d, path=f_p)
+    sub.save_to_file(directory=f_d, path=f_p)
