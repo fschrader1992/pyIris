@@ -75,6 +75,7 @@ You can quit by typing `Q`, hitting `Ctrl + A` and `k` to exit screen.
 
 |COMMAND|USE|
 |---------|-----|
+|`pyiris.screensaver`|Show Screensaver (Exit by Pressing ESCAPE)|
 |`pyiris.spectrum`|Measure Spectra|
 |`pyiris.calibrate`|Create rgb &lrarr; lms Calibration Matrix (Based On Spectra)|
 |`pyiris.calibration.plot`|Plot Measured and Calculated Values|
@@ -84,6 +85,12 @@ You can quit by typing `Q`, hitting `Ctrl + A` and `k` to exit screen.
 |`pyiris.colorspace.colorcircle`|Show Colorcircle for Colorspace|
 
 The commands in detail:
+
+```
+pyiris.screensaver [-h/--help] [-g/--graylevel]
+    -h/--help               Show help.
+    -g/--graylevel          Gray level [0-1]. Default is 0.66.
+```
 
 ```
 pyiris.spectrum [-h/--help] -s/--stepsize [-M/--monitor] -P/--photometer [-d/--directory]

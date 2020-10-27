@@ -149,9 +149,9 @@ def color_list():
 
 def screensaver():
     """
-    Show the screensaver (exit by pressing "escape").
+    Show screensaver.
     """
-    parser = argparse.ArgumentParser(description="Show the screensaver.")
+    parser = argparse.ArgumentParser(description="Show screensaver (Exit by pressing ESCAPE).")
     parser.add_argument("-g", "--graylevel", metavar="", type=float, default=0.5,
                         help="Gray level.")
     args = parser.parse_args()
