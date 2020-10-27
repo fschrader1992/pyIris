@@ -16,8 +16,10 @@ import numpy as np
 import matplotlib.pylab as pl
 
 from .subject import Subject
-from .calibration import Calibration
-
+try:
+    from .calibration import Calibration
+except ImportError:
+    pass
 
 def sine_fitter(x, amp, phi):
     """
