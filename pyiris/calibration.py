@@ -41,27 +41,6 @@ class Calibration:
         self.lum_ms = np.ones(1)
         self.lum_eff = np.ones(1)
 
-    def rgb2lms_gamma(self, rgb):
-        """
-        TODO: replaced by Colorspace.rgb2lms()
-        Conversion with gamma correction: lms = a_o + a * rgb**gamma.
-        Uses calibration matrix.
-        :param rgb: (list of) 3-tuple/numpy array with rgb values (0-1).
-        :return: lms value as numpy array.
-        """
-        r, g, b = rgb
-
-        min_val = 0.00000001
-        r[r == 0] = min_val
-        g[g == 0] = min_val
-        b[b == 0] = min_val
-
-        cm = self.calibration_matrix
-        v_p = np.asarray([np.power(r, cm[4][0]), np.power(g, cm[4][1]), np.power(b, cm[4][2])])
-        lms = np.tile(cm[0], (len(r), 1)).T + np.dot(cm[1:4], v_p)
-
-        return lms
-
     def set_mock_values(self):
         """
         Set mock values for screensaver or test purposes.
@@ -81,31 +60,6 @@ class Calibration:
              [0.007936907301686164, -0.14592096739768426, 1.0888417086438396],
              [0.48076052921868406, 0.47366677744387564, 0.4873112079952422]]
         )
-
-    def lms2rgb_gamma(self, lms):
-        """
-        TODO: replaced by Colorspace.lms2rgb()
-        Reverse conversion from gamma correction:
-        (r,g,b) = [a**I * (lms - a_0)]**(1/gamma_(r,g,b))
-        Uses inverse calibration matrix.
-
-        :param lms: (list of) 3-tuple/numpy array with lms values (0-1).
-        :return: lms value as numpy array.
-        """
-        l, m, s = lms
-
-        min_val = 0.00000001
-        l[l == 0] = min_val
-        m[m == 0] = min_val
-        s[s == 0] = min_val
-
-        cm = self.inv_calibration_matrix
-
-        # invert and get values. in the end potentiate each list
-        v_p = np.asarray([np.power(l, cm[4][0]), np.power(m, cm[4][1]), np.power(s, cm[4][2])])
-        lms = np.tile(cm[0], (len(l), 1)).T + np.dot(cm[1:4], v_p)
-
-        return lms
 
     def calc_lms_vals(self, cone_spectra_path=None, monitor_spectra_path=None):
         """
