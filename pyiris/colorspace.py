@@ -502,13 +502,12 @@ class ColorSpace:
 
         if gray_level is None:
             gray_level = self.gray_level
+        rgb_gray = np.array([gray_level, gray_level, gray_level])
 
         phis = np.linspace(0, 2 * np.pi, num_col, endpoint=False)
-        m_rgb = []
-        for phi in phis:
-            m_rgb.append(self.dklc2rgb(theta=phi))
+        m_rgb = self.dklc2rgb(theta=phis, gray=rgb_gray)
 
-        bg_color = self.color2pp([[gray_level, gray_level, gray_level]])[0]
+        bg_color = self.color2pp(rgb_gray)[0]
 
         win = visual.Window(size=[800, 600], colorSpace="rgb", color=bg_color, allowGUI=True,
                             bit_depth=self.bit_depth)
