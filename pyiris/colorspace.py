@@ -146,40 +146,40 @@ class ColorSpace:
 
         r = l+m
         a = l-m
-        theta = np.arccos(a/r)
-        return theta
+        phi = np.arccos(a/r)
+        return phi
 
-    def dklc2lms(self, theta, gray=None, chromaticity=None, unit=None, s_scale=None):
+    def dklc2lms(self, phi, gray=None, chromaticity=None, unit=None, s_scale=None):
         """
-        Conversion of a dkl-similar value (gray/lum, theta) to a corresponding lms value.
+        Conversion of a dkl-similar value (gray/lum, phi) to a corresponding lms value.
         If a subject is given, this also depends on its iso-slant.
 
-        :param theta: color angle(s) as list/numpy array.
+        :param phi: color angle(s) as list/numpy array.
         :param gray: luminance/gray value(s).
         :param chromaticity: Chromaticity.
-        :param unit: unit for theta: rad or deg
+        :param unit: unit for phi: rad or deg
         :param s_scale: Scaling factor for blue values.
         :return: lms values as numpy array.
         """
 
-        theta = np.asarray(theta)
-        if theta.ndim == 0:
-            theta = np.asarray([theta])
-        th_len = len(theta)
+        phi = np.asarray(phi)
+        if phi.ndim == 0:
+            phi = np.asarray([phi])
+        phi_len = len(phi)
         if gray is None:
             gray = self.lms_center
         if gray.ndim == 1:
             gray = np.asarray([gray])
         if chromaticity is None:
             chromaticity = self.chromaticity
-        chromaticity = chromaticity * np.ones(th_len)
+        chromaticity = chromaticity * np.ones(phi_len)
         if unit is None:
             unit = self.unit
         if s_scale is None:
             s_scale = self.s_scale
-        s_scale = s_scale * np.ones(th_len)
+        s_scale = s_scale * np.ones(phi_len)
         if unit != 'rad':
-            theta = 2. * theta * np.pi/360.
+            phi = 2. * phi * np.pi/360.
 
         amplitude = 0.
         phase = 0.
@@ -191,19 +191,19 @@ class ColorSpace:
             amplitude = self.iso_slant["amplitude"]
             phase = self.iso_slant["phase"]
 
-        gray = np.repeat(gray, th_len, axis=0)
-        phase = phase * np.ones(th_len)
-        theta_lum = np.repeat([theta + phase], 3, axis=0).T
-        gray = self.rgb2lms(gray + amplitude * np.sin(theta_lum))
+        gray = np.repeat(gray, phi_len, axis=0)
+        phase = phase * np.ones(phi_len)
+        phi_lum = np.repeat([phi + phase], 3, axis=0).T
+        gray = self.rgb2lms(gray + amplitude * np.sin(phi_lum))
         gray[gray == 0] = self.min_val
 
         # this ratio can be adjusted
         lm_ratio = 1.0 * gray.T[0] / gray.T[1]
 
         vec = np.asarray([
-            1.0 + chromaticity * np.cos(theta) / (1.0 + lm_ratio),
-            1.0 - chromaticity * np.cos(theta) / (1.0 + 1.0/lm_ratio),
-            1.0 + s_scale * chromaticity * np.sin(theta)
+            1.0 + chromaticity * np.cos(phi) / (1.0 + lm_ratio),
+            1.0 - chromaticity * np.cos(phi) / (1.0 + 1.0/lm_ratio),
+            1.0 + s_scale * chromaticity * np.sin(phi)
         ]).T
 
         lms = gray * vec
@@ -220,19 +220,19 @@ class ColorSpace:
         dklc = self.lms2dklc(lms)
         return dklc
 
-    def dklc2rgb(self, theta, gray=None, chromaticity=None, unit=None, s_scale=None):
+    def dklc2rgb(self, phi, gray=None, chromaticity=None, unit=None, s_scale=None):
         """
-        Conversion of a dkl-similar value (gray/lum, theta) to a corresponding rgb value.
+        Conversion of a dkl-similar value (gray/lum, phi) to a corresponding rgb value.
         If a subject is given, this also depends on its iso-slant.
 
-        :param theta: color angle(s).
+        :param phi: color angle(s).
         :param gray: luminance/gray value(s).
         :param chromaticity: Chromaticity.
-        :param unit: unit for theta: rad or deg
+        :param unit: unit for phi: rad or deg
         :param s_scale: Scaling factor for blue values.
         :return: rgb values as numpy array.
         """
-        lms = self.dklc2lms(theta, gray, chromaticity, unit, s_scale)
+        lms = self.dklc2lms(phi, gray, chromaticity, unit, s_scale)
         rgb = self.lms2rgb([lms])[0]
         return rgb
 
@@ -362,7 +362,7 @@ class ColorSpace:
         keep = 2
         freq = refresh / keep
 
-        for idx, theta in enumerate(randstim):
+        for idx, phi in enumerate(randstim):
             #TODO: get from monitor settings
             win = visual.Window([win_h, win_w], monitor="eDc-1")
 
@@ -371,7 +371,7 @@ class ColorSpace:
             bg = visual.Rect(win, pos=[0, 0], width=1., height=1.)
             bg.setColor(self.color2pp(rgb_gray)[0], "rgb")
             rect = visual.Rect(win, pos=[0, 0], width=0.35, height=0.5)
-            color = self.color2pp(self.dklc2rgb(theta, gray=rgb_gray))[0]
+            color = self.color2pp(self.dklc2rgb(phi, gray=rgb_gray))[0]
             rect.setColor(color, "rgb")
             text = visual.TextStim(win, pos=[-0.7, 0.95], height=0.03,
                                    text=str(idx + 1) + ' of ' + str(len(randstim)) +
@@ -391,7 +391,7 @@ class ColorSpace:
                         d_gray = lim * x
                         pos = x
                         ref_gray = rgb_gray + np.ones(3) * d_gray
-                        color = self.color2pp(self.dklc2rgb(theta, gray=ref_gray))[0]
+                        color = self.color2pp(self.dklc2rgb(phi, gray=ref_gray))[0]
                         if len(color[color > 1.]) == 0 and not np.isnan(np.sum(color)):
                             curr_color = color
 
@@ -400,14 +400,14 @@ class ColorSpace:
 
                     if event.getKeys('right'):
                         ref_gray = rgb_gray + np.ones(3) * (d_gray + step_size)
-                        color = self.color2pp(self.dklc2rgb(theta, gray=ref_gray))[0]
+                        color = self.color2pp(self.dklc2rgb(phi, gray=ref_gray))[0]
                         if len(color[color > 1.]) == 0 and not np.isnan(np.sum(color)):
                             curr_color = color
                             d_gray += step_size
 
                     if event.getKeys('left'):
                         ref_gray = rgb_gray + np.ones(3) * (d_gray - step_size)
-                        color = self.color2pp(self.dklc2rgb(theta, gray=ref_gray))[0]
+                        color = self.color2pp(self.dklc2rgb(phi, gray=ref_gray))[0]
                         if len(color[color < -1.]) == 0 and not np.isnan(np.sum(color)):
                             curr_color = color
                             d_gray -= step_size
@@ -421,7 +421,7 @@ class ColorSpace:
 
                 i_frame += 1
 
-            response[0][idx] = theta
+            response[0][idx] = phi
             response[1][idx] = d_gray
 
         stim, res = response
@@ -444,19 +444,19 @@ class ColorSpace:
             gray_level = self.gray_level
         rgb_gray = np.array([gray_level, gray_level, gray_level])
 
-        theta = np.linspace(0, 360 - hue_res, int(360 / hue_res))
-        conv_th = [self.dklc2rgb(theta=th, gray=rgb_gray, unit="deg") for th in theta]
-        rgb = [c_th for c_th in conv_th]
+        phis = np.linspace(0, 360 - hue_res, int(360 / hue_res))
+        conv_phi = [self.dklc2rgb(phi=phi, gray=rgb_gray, unit="deg") for phi in phis]
+        rgb = [c_phi for c_phi in conv_phi]
         # resolution of N bit in [0, 1] scale
         rgb_res = 1. / np.power(2., self.bit_depth)
         sel_rgb = []
-        sel_theta = []
+        sel_phi = []
         rgb_len = len(rgb)
         it = iter(list(range(0, len(rgb))))
 
         for idx in it:
             sel_rgb.append(rgb[idx][0])
-            sel_theta.append(theta[idx])
+            sel_phi.append(phis[idx])
             # prevent multiple entries
             if abs(rgb[idx][0][1] - rgb[(idx + 1) % rgb_len][0][1]) <= rgb_res:
                 next(it)
@@ -466,7 +466,7 @@ class ColorSpace:
 
         # add list to subject and colorspace
         self.color_list[hue_res] = dict({})
-        self.color_list[hue_res]["hue_angles"] = sel_theta
+        self.color_list[hue_res]["hue_angles"] = sel_phi
         self.color_list[hue_res]["rgb"] = sel_rgb
         self.op_mode = False
 
@@ -508,7 +508,7 @@ class ColorSpace:
         rgb_gray = np.array([gray_level, gray_level, gray_level])
 
         phis = np.linspace(0, 2 * np.pi, num_col, endpoint=False)
-        m_rgb = self.dklc2rgb(theta=phis, gray=rgb_gray)
+        m_rgb = self.dklc2rgb(phi=phis, gray=rgb_gray)
 
         bg_color = self.color2pp(rgb_gray)[0]
 
@@ -566,7 +566,7 @@ class ColorSpace:
         # speed process up for screensaver etc.
         if color_list is None:
             angles = np.asarray(np.random.randint(low=0, high=360, size=len(p_grid)))
-            colors = self.color2pp(self.dklc2rgb(theta=angles, unit="deg",
+            colors = self.color2pp(self.dklc2rgb(phi=angles, unit="deg",
                                                  chromaticity=chromaticity,
                                                  gray=rgb_gray))
         else:
