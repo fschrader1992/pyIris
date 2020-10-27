@@ -578,6 +578,27 @@ class ColorSpace:
         win.flip()
         self.op_mode = False
 
+    def screensaver(self, gray_level=None):
+        """
+        Show random checkerboards as screensaver.
+        :param gray_level: Gray level.
+        """
+        if gray_level is None:
+            gray_level = self.gray_level
+        win = visual.Window(fullscr=True, monitor="eDc-1")
+
+        # create color_list
+        if 2. not in self.color_list.keys():
+            self.create_color_list(hue_res=2., gray_level=gray_level)
+        color_list = self.color_list[2.]["rgb"]
+
+        while True:
+            self.show_checkerboard(win=win, color_list=color_list)
+            keys = event.waitKeys(maxWait=3)
+            if keys and "escape" in keys:
+                win.close()
+                break
+
     def save_to_file(self, path=None, directory=None):
         """
         Save object data to file.
