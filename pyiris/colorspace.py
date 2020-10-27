@@ -80,6 +80,8 @@ class ColorSpace:
         else:
             self.lms_center = np.array([0.5, 0.5, 0.5])
 
+        self.op_mode = False
+
     def rgb2lms(self, rgb):
         """
         Conversion with gamma correction: lms = a_o + a * rgb**gamma.
@@ -179,9 +181,9 @@ class ColorSpace:
         amplitude = 0.
         phase = 0.
         if self.iso_slant["amplitude"] == 0.:
-            amplitude = 1.
-            print("WARNING: Amplitude of iso-slant is 0.\n"
-                  "Make sure to measure subject's iso-slant with ColorSpace.measure_iso_slant.")
+            if not self.op_mode:
+                print("WARNING: Amplitude of iso-slant is 0.\n"
+                      "Make sure to measure subject's iso-slant with ColorSpace.measure_iso_slant.")
         else:
             amplitude = self.iso_slant["amplitude"]
             phase = self.iso_slant["phase"]
@@ -342,6 +344,7 @@ class ColorSpace:
         :param refresh: 1/refresh is frame length.
         """
 
+        self.op_mode = True
         if gray_level is None:
             gray_level = self.gray_level
         rgb_gray = np.array([gray_level, gray_level, gray_level])
@@ -425,6 +428,7 @@ class ColorSpace:
         self.iso_slant["phase"] = params[1]
         self.iso_slant["xdata"] = stim
         self.iso_slant["ydata"] = res
+        self.op_mode = False
 
     def create_color_list(self, hue_res=0.2, gray_level=None):
         """
@@ -432,6 +436,7 @@ class ColorSpace:
         :param hue_res: Resolution of hue angles, i.e. hue angle bins. Given in DEG!
         :param gray_level: Luminance value.
         """
+        self.op_mode = True
         if gray_level is None:
             gray_level = self.gray_level
         rgb_gray = np.array([gray_level, gray_level, gray_level])
@@ -460,6 +465,7 @@ class ColorSpace:
         self.color_list[hue_res] = dict({})
         self.color_list[hue_res]["hue_angles"] = sel_theta
         self.color_list[hue_res]["rgb"] = sel_rgb
+        self.op_mode = False
 
     def plot_iso_slant(self):
         """
@@ -467,6 +473,7 @@ class ColorSpace:
         Depends on the current calibration.
         """
 
+        self.op_mode = True
         x = np.arange(0., 2.*np.pi, 0.01*np.pi)
         a = self.iso_slant["amplitude"]
         ph = self.iso_slant["phase"]
@@ -483,6 +490,7 @@ class ColorSpace:
         pl.legend()
         pl.tight_layout()
         pl.show()
+        self.op_mode = False
 
     def show_color_circle(self, num_col=16, gray_level=None):
         """
@@ -491,6 +499,7 @@ class ColorSpace:
         :param gray_level: Gray level.
         """
 
+        self.op_mode = True
         if gray_level is None:
             gray_level = self.gray_level
         rgb_gray = np.array([gray_level, gray_level, gray_level])
@@ -522,6 +531,7 @@ class ColorSpace:
 
         event.waitKeys()
         win.close()
+        self.op_mode = False
 
     def save_to_file(self, path=None, directory=None):
         """
