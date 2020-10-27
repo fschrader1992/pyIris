@@ -1,3 +1,4 @@
+# -*- coding: utf-8
 """
 This file contains all functions for the command line tool.
 """
