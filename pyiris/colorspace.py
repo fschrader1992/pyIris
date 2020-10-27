@@ -8,9 +8,7 @@ import datetime
 import uuid
 import json
 import codecs
-import numpy as np
-import matplotlib.pylab as pl
-
+from operator import itemgetter
 from psychopy import event, misc, visual
 from scipy import optimize
 
@@ -531,6 +529,53 @@ class ColorSpace:
 
         event.waitKeys()
         win.close()
+        self.op_mode = False
+
+    def show_checkerboard(self, low=1, high=15, win=None, gray_level=None,
+                          chromaticity=None, color_list=None):
+        """
+        Show randomly colored checkerboard.
+        :param low: Lowest number of rectangles.
+        :param high: Highest number of rectangles.
+        :param win: Window, which should be filled.
+        :param gray_level: Gray level.
+        :param chromaticity: Chromaticity.
+        :param color_list: List of possible colors (in rgb).
+        """
+        self.op_mode = True
+        if gray_level is None:
+            gray_level = self.gray_level
+        rgb_gray = np.array([gray_level, gray_level, gray_level])
+        if win is None:
+            win = visual.Window(fullscr=True, monitor="eDc-1")
+
+        # create grid
+        hw_ratio = win.size[0]/win.size[1]
+        p_num = np.random.randint(low=low, high=high, size=1)
+        p_w = 1./p_num
+        p_h = p_w * hw_ratio
+        p_grid = np.mgrid[-1.:(1.+p_w):p_w,
+                          -1.:(1.+p_h):p_h].reshape(2, -1).T
+
+        # get colors
+        # speed process up for screensaver etc.
+        if color_list is None:
+            angles = np.asarray(np.random.randint(low=0, high=360, size=len(p_grid)))
+            colors = self.color2pp(self.dklc2rgb(theta=angles, unit="deg",
+                                                 chromaticity=chromaticity,
+                                                 gray=rgb_gray))
+        else:
+            indices = np.asarray(np.random.randint(low=0, high=len(color_list), size=len(p_grid)))
+            colors = list(itemgetter(*indices)(color_list))
+
+        # fill grid
+        for pos, color in zip(p_grid, colors):
+            rect = visual.Rect(win=win, pos=pos, width=p_w, height=p_h,
+                               fillColorSpace="rgb", fillColor=color,
+                               lineColorSpace="rgb", lineColor=color)
+            rect.draw()
+
+        win.flip()
         self.op_mode = False
 
     def save_to_file(self, path=None, directory=None):
