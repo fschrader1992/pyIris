@@ -324,19 +324,6 @@ class ColorSpace:
         rgb = rgb1023/1023.
         return rgb
 
-    def dklc_gray(self, dlum, lms_gray=None):
-        """
-        Get a dklc gray value.
-        :param lms_gray: Gray reference value. If None, lms_center is used.
-        :param dlum: Change in luminance.
-        :return: New gray value in lms-coordinates.
-        """
-
-        if lms_gray is None:
-            lms_gray = self.lms_center
-
-        return lms_gray * (np.ones(3) + np.asarray([dlum/2., dlum/2., 0.]))
-
     def measure_iso_slant(self, gray_level=None, num_fit_points=8, repeats=2, lim=0.1,
                           step_size=0.001, refresh=60):
         """
