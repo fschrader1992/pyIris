@@ -127,6 +127,21 @@ def color_list():
     color_space.create_color_list(hue_res=args.resolution, gray_level=args.graylevel)
 
 
+def screensaver():
+    """
+    Show the screensaver (exit by pressing "escape").
+    """
+    parser = argparse.ArgumentParser(description="Show the screensaver.")
+    parser.add_argument("-g", "--graylevel", metavar="", type=float, default=0.5,
+                        help="Gray level.")
+    args = parser.parse_args()
+
+    color_space = ColorSpace()
+    color_space.calibration = Calibration()
+    color_space.calibration.set_mock_values()
+    color_space.screensaver(gray_level=args.graylevel)
+
+
 def subject():
     parser = argparse.ArgumentParser(description="Add a Subject.")
     parser.add_argument("-s", "--short", metavar="", required=True,
