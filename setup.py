@@ -30,6 +30,7 @@ setup(
                                       "pyiris.colorspace.isoslant=pyiris.commands:measure_iso_slant",
                                       "pyiris.colorspace.colorlist=pyiris.commands:color_list",
                                       "pyiris.colorspace.colorcircle=pyiris.commands:color_circle",
+                                      "pyiris.screensaver=pyiris.commands:screensaver",
                                       "pyiris.subject=pyiris.commands:subject",
                                       ]}
 )
