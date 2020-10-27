@@ -354,11 +354,10 @@ class ColorSpace:
 
         if gray_level is None:
             gray_level = self.gray_level
-        rgb_gray = [[gray_level, gray_level, gray_level]]
-        lms_gray = self.rgb2lms(rgb_gray)[0]
+        rgb_gray = np.array([gray_level, gray_level, gray_level])
 
         response = np.zeros((2, repeats * num_fit_points))
-        stimulus = np.linspace(0, 2 * np.pi, num_fit_points, endpoint=False)
+        stimulus = np.linspace(0., 2. * np.pi, num_fit_points, endpoint=False)
         randstim = np.random.permutation(np.repeat(stimulus, repeats))
 
         win_h = 800
@@ -368,6 +367,7 @@ class ColorSpace:
         freq = refresh / keep
 
         for idx, theta in enumerate(randstim):
+            #TODO: get from monitor settings
             win = visual.Window([win_h, win_w], monitor="eDc-1")
 
             mouse = event.Mouse()
@@ -375,27 +375,27 @@ class ColorSpace:
             bg = visual.Rect(win, pos=[0, 0], width=1., height=1.)
             bg.setColor(self.color2pp(rgb_gray)[0], "rgb")
             rect = visual.Rect(win, pos=[0, 0], width=0.35, height=0.5)
-            color = self.color2pp([self.dklc2rgb(theta, gray=lms_gray)])[0]
+            color = self.color2pp(self.dklc2rgb(theta, gray=rgb_gray))[0]
             rect.setColor(color, "rgb")
             text = visual.TextStim(win, pos=[-0.7, 0.95], height=0.03,
                                    text=str(idx + 1) + ' of ' + str(len(randstim)) +
                                    ' stimuli at ' + str(freq) + 'Hz')
 
-            dlum = 0.
-            frameN = 0
+            d_gray = 0.
+            i_frame = 0
             curr_color = color
             pos, _ = mouse.getPos()
 
             while True:
-                if frameN % (2 * keep) < keep:
+                if i_frame % (2 * keep) < keep:
 
                     # get mouse position.
                     x, _ = mouse.getPos()
                     if x != pos:
-                        dlum = lim * x
+                        d_gray = lim * x
                         pos = x
-                        refgray = self.dklc_gray(dlum, lms_gray=lms_gray)
-                        color = self.color2pp([self.dklc2rgb(theta, gray=refgray)])[0]
+                        ref_gray = rgb_gray + np.ones(3) * d_gray
+                        color = self.color2pp(self.dklc2rgb(theta, gray=ref_gray))[0]
                         if len(color[color > 1.]) == 0 and not np.isnan(np.sum(color)):
                             curr_color = color
 
@@ -403,19 +403,18 @@ class ColorSpace:
                     rect.draw()
 
                     if event.getKeys('right'):
-                        # dlum = gray_level * (1 + dlum)
-                        refgray = self.dklc_gray(dlum + step_size, lms_gray=lms_gray)
-                        color = self.color2pp([self.dklc2rgb(theta, gray=refgray)])[0]
+                        ref_gray = rgb_gray + np.ones(3) * (d_gray + step_size)
+                        color = self.color2pp(self.dklc2rgb(theta, gray=ref_gray))[0]
                         if len(color[color > 1.]) == 0 and not np.isnan(np.sum(color)):
                             curr_color = color
-                            dlum += step_size
+                            d_gray += step_size
 
                     if event.getKeys('left'):
-                        refgray = self.dklc_gray(dlum - step_size, lms_gray=lms_gray)
-                        color = self.color2pp([self.dklc2rgb(theta, gray=refgray)])[0]
+                        ref_gray = rgb_gray + np.ones(3) * (d_gray - step_size)
+                        color = self.color2pp(self.dklc2rgb(theta, gray=ref_gray))[0]
                         if len(color[color < -1.]) == 0 and not np.isnan(np.sum(color)):
                             curr_color = color
-                            dlum -= step_size
+                            d_gray -= step_size
 
                     if event.getKeys('space'):
                         win.close()
@@ -424,10 +423,10 @@ class ColorSpace:
                 text.draw()
                 win.flip()
 
-                frameN += 1
+                i_frame += 1
 
             response[0][idx] = theta
-            response[1][idx] = dlum
+            response[1][idx] = d_gray
 
         stim, res = response
         params, _ = optimize.curve_fit(sine_fitter, stim, res)
