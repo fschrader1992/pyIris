@@ -31,8 +31,8 @@ class Calibration:
         self.mon_spectra_path = mon_spectra_path
         self._rgb_mat = None
         self._lms_mat = None
-        self.calibration_matrix = np.ones(1)
-        self.inv_calibration_matrix = np.ones(1)
+        self.calibration_matrix = np.ones((5, 3))
+        self.inv_calibration_matrix = np.ones((5, 3))
 
         self.lum_ms = np.ones(1)
         self.lum_eff = np.ones(1)
@@ -57,6 +57,27 @@ class Calibration:
         lms = np.tile(cm[0], (len(r), 1)).T + np.dot(cm[1:4], v_p)
 
         return lms
+
+    def set_mock_values(self):
+        """
+
+        :return:
+        """
+        self.calibration_matrix = np.asarray(
+            [[0.0, 0.0, 0.0],
+             [0.345765267310672, 0.5607281392808607, 0.12632156724602728],
+             [0.07656794856797913, 0.7388016690306252, 0.22102205877927666],
+             [0.007740851755583411, 0.09492307851228836, 0.9471065829653906],
+             [2.080037647069668, 2.1111888095603013, 2.052076750120148]]
+        )
+
+        self.inv_calibration_matrix = np.asarray(
+            [[0.0, 0.0, 0.0],
+             [3.4775598238712497, -2.6595106834252373, 0.15681415600330526],
+             [-0.3627818730838481, 1.672823819523023, -0.3419929663834115],
+             [0.007936907301686164, -0.14592096739768426, 1.0888417086438396],
+             [0.48076052921868406, 0.47366677744387564, 0.4873112079952422]]
+        )
 
     def lms2rgb_gamma(self, lms):
         """
