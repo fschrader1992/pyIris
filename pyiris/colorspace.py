@@ -431,9 +431,10 @@ class ColorSpace:
         """
         if gray_level is None:
             gray_level = self.gray_level
+        rgb_gray = np.array([gray_level, gray_level, gray_level])
 
         theta = np.linspace(0, 360 - hue_res, int(360 / hue_res))
-        conv_th = [self.dklc2rgb(theta=th, gray=gray_level, unit="deg") for th in theta]
+        conv_th = [self.dklc2rgb(theta=th, gray=rgb_gray, unit="deg") for th in theta]
         rgb = [c_th for c_th in conv_th]
         # resolution of N bit in [0, 1] scale
         rgb_res = 1. / np.power(2., self.bit_depth)
@@ -443,12 +444,12 @@ class ColorSpace:
         it = iter(list(range(0, len(rgb))))
 
         for idx in it:
-            sel_rgb.append(rgb[idx])
+            sel_rgb.append(rgb[idx][0])
             sel_theta.append(theta[idx])
             # prevent multiple entries
-            if abs(rgb[idx][1] - rgb[(idx + 1) % rgb_len][1]) <= rgb_res:
+            if abs(rgb[idx][0][1] - rgb[(idx + 1) % rgb_len][0][1]) <= rgb_res:
                 next(it)
-            if abs(rgb[idx][1] - rgb[(idx + 2) % rgb_len][1]) <= rgb_res:
+            if abs(rgb[idx][0][1] - rgb[(idx + 2) % rgb_len][0][1]) <= rgb_res:
                 next(it)
                 next(it)
 
