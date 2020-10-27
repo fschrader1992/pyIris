@@ -484,8 +484,8 @@ class ColorSpace:
     def show_color_circle(self, num_col=16, gray_level=None):
         """
         Show color circle.
-        :param num_col: number of colors to be shown.
-        :param gray_level: gray level.
+        :param num_col: Number of colors to be shown.
+        :param gray_level: Gray level.
         """
 
         if gray_level is None:
