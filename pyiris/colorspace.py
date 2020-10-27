@@ -163,15 +163,17 @@ class ColorSpace:
         if gray.ndim == 1:
             gray = np.asarray([gray])
         if chromaticity is None:
-            chromaticity = self.chromaticity * np.ones(th_len)
+            chromaticity = self.chromaticity
+        chromaticity = chromaticity * np.ones(th_len)
         if unit is None:
             unit = self.unit
         if s_scale is None:
-            s_scale = self.s_scale * np.ones(th_len)
-
+            s_scale = self.s_scale
+        s_scale = s_scale * np.ones(th_len)
         if unit != 'rad':
             theta = 2. * theta * np.pi/360.
 
+        amplitude = 0.
         phase = 0.
         if self.iso_slant["amplitude"] == 0.:
             amplitude = 1.
