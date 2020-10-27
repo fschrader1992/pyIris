@@ -16,10 +16,6 @@ from scipy.interpolate import interp1d
 from symfit import variables, parameters, Model, Fit
 
 from .spectrum import Spectrum
-try:
-    from .colorspace import ColorSpace
-except ImportError:
-    pass
 
 
 class Calibration:
@@ -216,6 +212,11 @@ class Calibration:
         Plot luminosity as well.
         Works only, if monitor spectra were obtained with color-sequence.
         """
+
+        try:
+            from .colorspace import ColorSpace
+        except ImportError:
+            pass
 
         # RGB Values
         fig, ax = pl.subplots(ncols=2, nrows=2)
