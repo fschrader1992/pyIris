@@ -155,9 +155,13 @@ class ColorSpace:
         """
 
         theta = np.asarray(theta)
+        if theta.ndim == 0:
+            theta = np.asarray([theta])
         th_len = len(theta)
         if gray is None:
             gray = self.lms_center
+        if gray.ndim == 1:
+            gray = np.asarray([gray])
         if chromaticity is None:
             chromaticity = self.chromaticity * np.ones(th_len)
         if unit is None:
@@ -177,11 +181,10 @@ class ColorSpace:
             amplitude = self.iso_slant["amplitude"]
             phase = self.iso_slant["phase"]
 
-        gray = np.repeat([gray], len(theta), axis=0)
-        dlum = np.asarray([1.0 + amplitude * np.sin(theta + phase),
-                           1.0 + amplitude * np.sin(theta + phase),
-                           np.ones(th_len)]).T
-        gray *= dlum
+        gray = np.repeat(gray, th_len, axis=0)
+        phase = phase * np.ones(th_len)
+        theta_lum = np.repeat([theta + phase], 3, axis=0).T
+        gray = self.rgb2lms(gray + amplitude * np.sin(theta_lum))
         gray[gray == 0] = self.min_val
 
         # this ratio can be adjusted
