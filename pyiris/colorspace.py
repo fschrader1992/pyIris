@@ -172,7 +172,8 @@ class ColorSpace:
             gray = np.asarray([gray])
         if chromaticity is None:
             chromaticity = self.chromaticity
-        chromaticity = chromaticity * np.ones(phi_len)
+        if phi.ndim == 0:
+            chromaticity = chromaticity * np.ones(phi_len)
         if unit is None:
             unit = self.unit
         if s_scale is None:
