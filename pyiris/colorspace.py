@@ -12,6 +12,9 @@ from operator import itemgetter
 from psychopy import event, misc, visual
 from scipy import optimize
 
+import numpy as np
+import matplotlib.pylab as pl
+
 from .subject import Subject
 from .calibration import Calibration
 
