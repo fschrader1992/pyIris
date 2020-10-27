@@ -265,7 +265,8 @@ class Calibration:
 
         # RGB Values
         fig, ax = pl.subplots(ncols=2, nrows=2)
-
+        cs = ColorSpace()
+        cs.calibration = self
         x = np.arange(0, 1, 0.01)
         x_z = np.zeros(len(x))
         x_s = [(x, x_z, x_z), (x_z, x, x_z), (x_z, x_z, x), (x, x, x)]
@@ -278,7 +279,7 @@ class Calibration:
             s_e = self._lms_mat[2][i::4]
             rgb_e = self._rgb_mat[i % 3][i::4]
 
-            l, m, s = self.rgb2lms_gamma(x_s[i])
+            l, m, s = cs.rgb2lms(np.asarray(x_s[i]).T).T
 
             ax[int(i / 2)][i % 2].plot(x, l, label="l", c="r")
             ax[int(i / 2)][i % 2].plot(x, m, label="m", c="g")
@@ -305,7 +306,7 @@ class Calibration:
         for i in range(4):
             lum_ms = self.lum_ms[i::4]
             lum_eff = self.lum_eff[i::4]
-            l, m, s = self.rgb2lms_gamma(x_s[i])
+            l, m, s = cs.rgb2lms(np.asarray(x_s[i]).T).T
 
             rgb_e = self._rgb_mat[i % 3][i::4]
 
