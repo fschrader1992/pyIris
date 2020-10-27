@@ -60,8 +60,7 @@ class Calibration:
 
     def set_mock_values(self):
         """
-
-        :return:
+        Set mock values for screensaver or test purposes.
         """
         self.calibration_matrix = np.asarray(
             [[0.0, 0.0, 0.0],
