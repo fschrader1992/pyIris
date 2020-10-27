@@ -72,16 +72,16 @@ c2.plot()
 # Test: load and assert that values are equal
 
 #'''
-#'''
-#cs1 = ColorSpace(calibration_path="test/resources/calibration_test.json")
-#cs1.measure_iso_slant(num_fit_points=4, repeats=2, step_size=0.1, gray_level=0.5)
-#cs1.plot_iso_slant()
-#cs1.show_colorcircle()
+'''
+cs1 = ColorSpace(calibration_path="test/resources/calibration_test.json")
+cs1.measure_iso_slant(num_fit_points=4, repeats=2, step_size=0.1, gray_level=0.5)
+cs1.plot_iso_slant()
+cs1.show_color_circle()
 
-#cs1.create_color_list(hue_res=360./16.)
-#print(cs1.color_list)
+cs1.create_color_list(hue_res=360./16.)
+print(cs1.color_list)
 #cs1.show_color_circle()
-#cs1.screensaver()
+cs1.screensaver()
 
 #print(cs1.color_list)
 #cs1.save_to_file(path="colorspace_test.json")
