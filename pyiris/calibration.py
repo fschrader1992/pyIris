@@ -16,6 +16,10 @@ from scipy.interpolate import interp1d
 from symfit import variables, parameters, Model, Fit
 
 from .spectrum import Spectrum
+try:
+    from .colorspace import ColorSpace
+except ImportError:
+    pass
 
 
 class Calibration:
