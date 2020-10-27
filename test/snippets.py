@@ -47,7 +47,7 @@ s2.add_monitor_settings("./test/resources/monitor_settings.yaml")
 print(s2.monitor["vendor"])
 #s2.save_to_file("test_spec.nix")
 #'''
-#'''
+'''
 p = "test/resources/spectrum_test.nix"
 #p = "spectrum_mycomp.nix"
 #c1 = Calibration(mon_spectra_path=p, cone_spectra_path="example/cone_spectra_old")
@@ -62,24 +62,29 @@ c1.plot()
 c1.save_to_file("calibration_test.json")
 #'''
 
-'''
+#'''
 c2 = Calibration()
 c2.uuid = str(c2.uuid)
-c2.load_from_file(path="calibration_mycomp.json")
+c2.load_from_file(path="test/resources/calibration_test.json")
 print(c2.date, c2.calibration_matrix)
 c2.plot()
 
 # Test: load and assert that values are equal
 
 #'''
-'''
-cs1 = ColorSpace(calibration_path="test/resources/calibration_test.json")
-#cs1.measure_iso_slant(num_fit_points=4, repeats=1, step_size=0.01,)
+#'''
+#cs1 = ColorSpace(calibration_path="test/resources/calibration_test.json")
+#cs1.measure_iso_slant(num_fit_points=4, repeats=2, step_size=0.1, gray_level=0.5)
 #cs1.plot_iso_slant()
 #cs1.show_colorcircle()
-cs1.create_color_list(hue_res=360./16.)
+
+#cs1.create_color_list(hue_res=360./16.)
 #print(cs1.color_list)
-cs1.save_to_file(path="colorspace_test.json")
+#cs1.show_color_circle()
+#cs1.screensaver()
+
+#print(cs1.color_list)
+#cs1.save_to_file(path="colorspace_test.json")
 #'''
 '''
 cs2 = ColorSpace()
