@@ -576,9 +576,11 @@ class ColorSpace:
 
         # fill grid
         for pos, color in zip(p_grid, colors):
-            rect = visual.Rect(win=win, pos=pos, width=p_w, height=p_h,
-                               fillColorSpace="rgb", fillColor=color,
-                               lineColorSpace="rgb", lineColor=color)
+            rect = visual.Rect(win=win, pos=pos, width=p_w, height=p_h)
+            rect.fillColorSpace = "rgb"
+            rect.fillColor = color
+            rect.lineColorSpace = "rgb"
+            rect.lineColor = color
             rect.draw()
 
         win.flip()
