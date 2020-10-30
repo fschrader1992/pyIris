@@ -126,8 +126,11 @@ class Spectrum:
             # draw stimulus
             # get psychopy color range
             show_color = 2. * color - 1.
-            rect = visual.Rect(win=win, width=win_w, height=win_w,
-                               fillColor=show_color, fillColorSpace='rgb')
+            rect = visual.Rect(win=win, width=win_w, height=win_h)
+            rect.fillColorSpace = "rgb"
+            rect.fillColor = color
+            rect.lineColorSpace = "rgb"
+            rect.lineColor = color
             rect.draw()
             win.flip()
             # measure spectrum
