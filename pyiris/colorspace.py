@@ -554,6 +554,8 @@ class ColorSpace:
         rgb_gray = np.array([gray_level, gray_level, gray_level])
         if win is None:
             win = visual.Window(fullscr=True, monitor="eDc-1")
+        old_units = win.units
+        win.units = "norm"
 
         # create grid
         hw_ratio = win.size[0]/win.size[1]
@@ -584,6 +586,7 @@ class ColorSpace:
             rect.draw()
 
         win.flip()
+        win.units = old_units
         self.op_mode = False
 
     def screensaver(self, gray_level=None):
