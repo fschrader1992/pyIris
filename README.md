@@ -155,7 +155,6 @@ pyiris.colorspace.measure_iso_slant [-h/--help] [-C/--calibration] [-S/--subject
                             Default is 10bit.
     -c/--chromaticity       Chromaticity (contrast) for colorcircle, maximum 0.36. Default is 0.12.
     -g/--graylevel          Gray level [0-1]. Default is 0.66.
-    -u/--unit               Unit for angle [rad or deg]. Default is rad.
     -s/--sscale             Scaling for S-cone values for better viewing. Default is 2.6.
     -d/--directory          Directory the calibration file should be stored in. If no filename is 
                             specified in the path variable, it is saved as 
