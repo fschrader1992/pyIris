@@ -41,20 +41,19 @@ class ColorSpace:
                  gray_lavel=0.66, unit="rad", s_scale=2.6):
 
         self.uuid = uuid.uuid4()
-        self.calibration = None
         self.calibration_path = None
+        self.calibration = None
         if calibration_path:
             self.calibration_path = calibration_path
             self.calibration = Calibration()
             self.calibration.load_from_file(path=calibration_path)
         # else: load_latest(calibration) -> own function used by all classes
+        self.subject_path = subject_path if subject_path else None
         self.subject = None
-        self.subject_path = None
         if subject_path:
-            self.subject_path = subject_path
             self.subject = Subject()
             self.subject = self.subject.load_from_file(subject_path)
-            self.subject.colospaces += [self]
+            self.subject.colorspaces += [self]
 
         self.min_val = 0.00000000000001
 
