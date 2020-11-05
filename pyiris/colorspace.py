@@ -40,7 +40,7 @@ class ColorSpace:
     """
 
     def __init__(self, calibration_path=None, subject_path=None, bit_depth=10, chromaticity=0.12,
-                 gray_lavel=0.66, unit="rad", s_scale=2.6):
+                 gray_level=0.66, unit="rad", s_scale=2.6):
 
         self.uuid = uuid.uuid4()
         self.calibration_path = None
@@ -71,7 +71,7 @@ class ColorSpace:
 
         # dklc values
         self.chromaticity = chromaticity
-        self.gray_level = gray_lavel
+        self.gray_level = gray_level
         self.unit = unit
         self.s_scale = s_scale
 

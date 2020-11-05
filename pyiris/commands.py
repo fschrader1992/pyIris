@@ -108,7 +108,7 @@ def measure_iso_slant():
     # photo = args.photometer if args.photometer else None
     color_space = ColorSpace(calibration_path=args.calibration, subject_path=args.subject,
                              bit_depth=args.bitdepth, chromaticity=args.chromaticity,
-                             gray_lavel=args.graylevel, unit=args.unit, s_scale=args.sscale)
+                             gray_level=args.graylevel, unit=args.unit, s_scale=args.sscale)
 
     f_d = args.directory if args.directory else None
     f_p = args.path if args.path else None
