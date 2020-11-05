@@ -517,10 +517,11 @@ class ColorSpace:
         phis = np.linspace(0, 2 * np.pi, num_col, endpoint=False)
         m_rgb = self.dklc2rgb(phi=phis, gray=rgb_gray)
 
-        bg_color = self.color2pp(rgb_gray)[0]
-
-        win = visual.Window(size=[800, 600], colorSpace="rgb", color=bg_color, allowGUI=True,
-                            bit_depth=self.bit_depth)
+        win = visual.Window(size=[800, 600], monitor="eDc-1", fullscr=False)
+        # set background gray level
+        win.colorSpace = "rgb"
+        win.color = self.color2pp(rgb_gray)[0]
+        win.flip()
 
         rect_size = 0.4 * win.size[0] * 2 / num_col
         radius = 0.2 * win.size[0]
