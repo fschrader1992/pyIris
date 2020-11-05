@@ -54,7 +54,7 @@ class Spectrum:
         if monitor_settings_path is None:
             monitor_settings_path = self.monitor_settings_path
 
-        self.monitor = Monitor("spec_mon", settings_path=monitor_settings_path)
+        self.monitor = Monitor(settings_path=monitor_settings_path)
 
     def create_colorlist(self, stepsize=None):
         """
