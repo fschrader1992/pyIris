@@ -15,7 +15,7 @@ class Monitor(mon.Monitor):
     Monitor Class.
     """
 
-    def __init__(self, name, settings_path=None):
+    def __init__(self, name=None, settings_path=None):
         self.uuid = uuid.uuid4()
         self.date = datetime.datetime.now()
         self.name = name
@@ -40,6 +40,7 @@ class Monitor(mon.Monitor):
         # load settings file
         with open(settings_path, "r") as file:
             d = yaml.load(file, Loader=yaml.FullLoader)
+        self.name = d["id"]
         self.setWidth(d["size"]["width"]/10.)
         self.setSizePix([d["preferred_mode"]["width"], d["preferred_mode"]["height"]])
         self.setDistance(d["preferred_mode"]["distance"])
