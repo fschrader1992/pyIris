@@ -144,7 +144,7 @@ pyiris.subject [-h/--help] [-s/--short] [-N/--name] [-S/--surname] [-b/--birthda
 ```
 
 ```	
-pyiris.measure_iso_slant [-h/--help] [-C/--calibration] [-S/--subject] [-b/--bitdepth]
+pyiris.colorspace.measure_iso_slant [-h/--help] [-C/--calibration] [-S/--subject] [-b/--bitdepth]
                          [-c/--chromaticity] [-g/--graylevel] [-u/--unit] [-s/--sscale]
                          [-d/--directory] [-p/--path] 
     -h/--help               Show help.
@@ -167,7 +167,7 @@ pyiris.measure_iso_slant [-h/--help] [-C/--calibration] [-S/--subject] [-b/--bit
 ```
 
 ```
-pyiris.colorlist [-h/--help] -p/--path [-r/--resolution] [-g/--graylevel]
+pyiris.colorspace.colorlist [-h/--help] -p/--path [-r/--resolution] [-g/--graylevel]
     -h/--help               Show help.
     -p/--path               Path to file with colorspace to plot circle for.
     -r/--resolution         Resoultion of hue angle in DEGREE. Default is 0.2.
@@ -175,7 +175,7 @@ pyiris.colorlist [-h/--help] -p/--path [-r/--resolution] [-g/--graylevel]
 ```
 
 ```
-pyiris.colorcircle [-h/--help] [-n/--num] -p/--path
+pyiris.colorspace.colorcircle [-h/--help] [-n/--num] -p/--path
     -h/--help               Show help.
     -n/--num                Number of patches/hue angles to be shown. Default is 16.
     -p/--path               Path to file with colorspace to plot circle for.
