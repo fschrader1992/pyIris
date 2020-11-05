@@ -458,17 +458,18 @@ class ColorSpace:
         sel_rgb = []
         sel_phi = []
         rgb_len = len(rgb)
-        it = iter(list(range(0, len(rgb))))
+        it = iter(list(range(0, len(rgb) + 2)))
 
         for idx in it:
-            sel_rgb.append(rgb[idx][0])
-            sel_phi.append(phis[idx])
-            # prevent multiple entries
-            if abs(rgb[idx][0][1] - rgb[(idx + 1) % rgb_len][0][1]) <= rgb_res:
-                next(it)
-            if abs(rgb[idx][0][1] - rgb[(idx + 2) % rgb_len][0][1]) <= rgb_res:
-                next(it)
-                next(it)
+            if idx < rgb_len:
+                sel_rgb.append(rgb[idx][0])
+                sel_phi.append(phis[idx])
+                # prevent multiple entries
+                if abs(rgb[idx][0][1] - rgb[(idx + 1) % rgb_len][0][1]) <= rgb_res:
+                    next(it)
+                if abs(rgb[idx][0][1] - rgb[(idx + 2) % rgb_len][0][1]) <= rgb_res:
+                    next(it)
+                    next(it)
 
         # add list to subject and colorspace
         self.color_list[hue_res] = dict({})
