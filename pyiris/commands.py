@@ -112,6 +112,7 @@ def measure_iso_slant():
 
     f_d = args.directory if args.directory else None
     f_p = args.path if args.path else None
+    color_space.measure_iso_slant()
     color_space.save_to_file(directory=f_d, path=f_p)
 
 
