@@ -96,7 +96,6 @@ def measure_iso_slant():
                         help="Chromaticity (<= 0.36).")
     parser.add_argument("-g", "--graylevel", metavar="", type=float, default=0.66,
                         help="Gray level.")
-    parser.add_argument("-u", "--unit", metavar="", help="Unit for hue angle (rad or deg).")
     parser.add_argument("-s", "--sscale", metavar="", type=float, default=2.6,
                         help="Scale S-cone values for better viewing.")
 
@@ -108,7 +107,7 @@ def measure_iso_slant():
     # photo = args.photometer if args.photometer else None
     color_space = ColorSpace(calibration_path=args.calibration, subject_path=args.subject,
                              bit_depth=args.bitdepth, chromaticity=args.chromaticity,
-                             gray_level=args.graylevel, unit=args.unit, s_scale=args.sscale)
+                             gray_level=args.graylevel, s_scale=args.sscale)
 
     f_d = args.directory if args.directory else None
     f_p = args.path if args.path else None
