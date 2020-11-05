@@ -7,7 +7,6 @@ import os
 import datetime
 import uuid
 import h5py
-import yaml
 import numpy as np
 import nixio as nix
 
