@@ -18,7 +18,7 @@ class Monitor(mon.Monitor):
     def __init__(self, name=None, settings_path=None):
         self.uuid = uuid.uuid4()
         self.date = datetime.datetime.now()
-        self.name = name
+        self.name = name if name else "temp"
         super().__init__(self.name)
 
         self.bpc = None
