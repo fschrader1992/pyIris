@@ -97,7 +97,7 @@ def measure_iso_slant():
     parser.add_argument("-g", "--graylevel", metavar="", type=float, default=0.66,
                         help="Gray level.")
     parser.add_argument("-u", "--unit", metavar="", help="Unit for hue angle (rad or deg).")
-    parser.add_argument("-s", "--sscale", metavar="", dtype=float, default=2.6,
+    parser.add_argument("-s", "--sscale", metavar="", type=float, default=2.6,
                         help="Scale S-cone values for better viewing.")
 
     parser.add_argument("-d", "--directory", metavar="", help="Directory for colorspace file.")
