@@ -333,7 +333,7 @@ class ColorSpace:
         rgb = rgb1023/1023.
         return rgb
 
-    def measure_iso_slant(self, gray_level=None, num_fit_points=8, repeats=2, lim=0.1,
+    def measure_iso_slant(self, gray_level=None, num_fit_points=10, repeats=6, lim=0.1,
                           step_size=0.001, refresh=60):
         """
         Run luminance fitting experiment and fit a sine-function to
@@ -363,29 +363,35 @@ class ColorSpace:
         keep = 2
         freq = refresh / keep
 
+        # TODO: get from monitor settings
+        win = visual.Window([win_h, win_w], monitor="eDc-1", fullscr=True)
+
+        # set background gray level
+        win.colorSpace = "rgb"
+        win.color = self.color2pp(rgb_gray)[0]
+
+        mouse = event.Mouse()
+
+        info = visual.TextStim(win, pos=[-0.7, 0.95], height=0.03)
+        info.autoDraw = True
+
+        rect = visual.Rect(win, pos=[0, 0], width=0.35, height=0.5)
+
         for idx, phi in enumerate(randstim):
-            #TODO: get from monitor settings
-            win = visual.Window([win_h, win_w], monitor="eDc-1")
+            info.text = str(idx + 1) + ' of ' + str(len(randstim)) +\
+                        ' stimuli at ' + str(freq) + 'Hz'
 
-            mouse = event.Mouse()
-
-            bg = visual.Rect(win, pos=[0, 0], width=1., height=1.)
-            bg.setColor(self.color2pp(rgb_gray)[0], "rgb")
-            rect = visual.Rect(win, pos=[0, 0], width=0.35, height=0.5)
             color = self.color2pp(self.dklc2rgb(phi, gray=rgb_gray))[0]
             rect.setColor(color, "rgb")
-            text = visual.TextStim(win, pos=[-0.7, 0.95], height=0.03,
-                                   text=str(idx + 1) + ' of ' + str(len(randstim)) +
-                                   ' stimuli at ' + str(freq) + 'Hz')
 
             d_gray = 0.
             i_frame = 0
             curr_color = color
+            mouse.setPos(0.)
             pos, _ = mouse.getPos()
 
             while True:
                 if i_frame % (2 * keep) < keep:
-
                     # get mouse position.
                     x, _ = mouse.getPos()
                     if x != pos:
@@ -414,10 +420,8 @@ class ColorSpace:
                             d_gray -= step_size
 
                     if event.getKeys('space'):
-                        win.close()
                         break
 
-                text.draw()
                 win.flip()
 
                 i_frame += 1
@@ -425,6 +429,7 @@ class ColorSpace:
             response[0][idx] = phi
             response[1][idx] = d_gray
 
+        win.close()
         stim, res = response
         params, _ = optimize.curve_fit(sine_fitter, stim, res)
 
