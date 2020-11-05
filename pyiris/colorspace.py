@@ -8,6 +8,7 @@ import datetime
 import uuid
 import json
 import codecs
+from pathlib import Path
 from operator import itemgetter
 from psychopy import event, misc, visual
 from scipy import optimize
@@ -20,6 +21,7 @@ try:
     from .calibration import Calibration
 except ImportError:
     pass
+
 
 def sine_fitter(x, amp, phi):
     """
@@ -629,6 +631,10 @@ class ColorSpace:
         dt["uuid"] = str(self.uuid)
         dt["date"] = str(self.date)
         dt["lms_center"] = self.lms_center.tolist()
+        if dt["calibration_path"]:
+            dt["calibration_path"] = str(Path(dt["calibration_path"]).resolve())
+        if dt["subject_path"]:
+            dt["subject_path"] = str(Path(dt["subject_path"]).resolve())
         iso_slant = self.iso_slant
         iso_slant["xdata"] = np.asarray(iso_slant["xdata"]).tolist()
         iso_slant["ydata"] = np.asarray(iso_slant["ydata"]).tolist()

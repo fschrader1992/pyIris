@@ -11,6 +11,7 @@ import yaml
 import numpy as np
 import nixio as nix
 
+from pathlib import Path
 from psychopy import logging, visual
 
 from .pr655 import PR655
@@ -164,7 +165,10 @@ class Spectrum:
         s.create_property(name="photometer", values_or_dtype=[photometer])
         stepsize = self.stepsize if self.stepsize else ""
         s.create_property(name="stepsize", values_or_dtype=[stepsize])
-        msp = self.monitor_settings_path if self.monitor_settings_path else "empty"
+        msp = "empty"
+        if self.monitor_settings_path:
+            msp = self.monitor_settings_path
+            msp = str(Path(msp).resolve())
         s.create_property(name="monitor_settings_path", values_or_dtype=[msp])
 
         ds = nix_file.create_section(name="data", type_="data")

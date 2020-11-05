@@ -12,6 +12,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pylab as pl
 
+from pathlib import Path
 from scipy.interpolate import interp1d
 from symfit import variables, parameters, Model, Fit
 
@@ -298,6 +299,10 @@ class Calibration:
         dt["inv_calibration_matrix"] = self.inv_calibration_matrix.tolist()
         dt["lum_eff"] = self.lum_eff.tolist()
         dt["lum_ms"] = self.lum_ms.tolist()
+        if dt["cone_spetcra_path"]:
+            dt["cone_spectra_path"] = str(Path(dt["cone_spetcra_path"]).resolve())
+        if dt["mon_spetcra_path"]:
+            dt["mon_spetcra_path"] = str(Path(dt["mon_spetcra_path"]).resolve())
 
         if not path:
             path = "calibration_{}.json".format(self.date)
