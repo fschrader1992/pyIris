@@ -53,7 +53,7 @@ class ColorSpace:
         if subject_path:
             self.subject = Subject()
             self.subject = self.subject.load_from_file(subject_path)
-            self.subject.colorspaces += [self]
+            # self.subject.colorspaces += [self]
 
         self.min_val = 0.00000000000001
 
