@@ -10,6 +10,7 @@ preferred_mode:
   width: 1280
   height: 1024
   refresh: 60
+  distance: 57
   color-depth: [8, 8, 8]
 settings:
   contrast: 95
