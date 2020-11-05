@@ -14,6 +14,7 @@ import nixio as nix
 from psychopy import logging, visual
 
 from .pr655 import PR655
+from .monitor import Monitor
 
 
 class Spectrum:
@@ -29,7 +30,7 @@ class Spectrum:
         self.stepsize = stepsize
 
         self.monitor_settings_path = monitor_settings_path
-        self.monitor = {}
+        self.monitor = None
 
         self.names = []
         self.spectra = {}
@@ -53,10 +54,7 @@ class Spectrum:
         if monitor_settings_path is None:
             monitor_settings_path = self.monitor_settings_path
 
-        with open(monitor_settings_path, "r") as file:
-            self.monitor = yaml.load(file, Loader=yaml.FullLoader)
-
-        print("Successfully loaded monitor settings from file {}".format(monitor_settings_path))
+        self.monitor = Monitor("spec_mon", settings_path=monitor_settings_path)
 
     def create_colorlist(self, stepsize=None):
         """
@@ -119,8 +117,8 @@ class Spectrum:
         """
 
         win = visual.Window([win_h, win_w], fullscr=True)
-        if self.monitor_settings_path:
-            win.monitor = self.monitor["id"]
+        if self.monitor:
+            win.monitor = self.monitor
 
         for color in self.colors:
             # draw stimulus
