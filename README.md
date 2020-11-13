@@ -144,9 +144,9 @@ pyiris.subject [-h/--help] [-s/--short] [-N/--name] [-S/--surname] [-b/--birthda
 ```
 
 ```	
-pyiris.colorspace.measure_iso_slant [-h/--help] [-C/--calibration] [-S/--subject] [-b/--bitdepth]
-                         [-c/--chromaticity] [-g/--graylevel] [-u/--unit] [-s/--sscale]
-                         [-d/--directory] [-p/--path] 
+pyiris.colorspace.isoslant [-h/--help] [-C/--calibration] [-S/--subject] [-b/--bitdepth]
+                           [-c/--chromaticity] [-g/--graylevel] [-u/--unit] [-s/--sscale]
+                           [-d/--directory] [-p/--path] 
     -h/--help               Show help.
     -C/--calibration        Path to file with calibration. Without this you can only use functions
                             that convert between different rgb-colorspaces.
