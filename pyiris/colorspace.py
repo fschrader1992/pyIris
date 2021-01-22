@@ -187,6 +187,7 @@ class ColorSpace:
         amplitude = 0.
         phase = 0.
         offset = 0.
+        chrom_0 = self.chromaticity
         if self.iso_slant["amplitude"] == 0.:
             if not self.op_mode:
                 print("WARNING: Amplitude of iso-slant is 0.\n"
@@ -195,11 +196,12 @@ class ColorSpace:
             amplitude = self.iso_slant["amplitude"]
             phase = self.iso_slant["phase"]
             offset = self.iso_slant["offset"]
+            chrom_0 = self.iso_slant["chromaticity"]
 
         gray = np.repeat(gray, phi_len, axis=0)
         phase = phase * np.ones(phi_len)
         phi_lum = np.repeat([phi + phase], 3, axis=0).T
-        gray = self.rgb2lms(gray + amplitude * np.sin(phi_lum) + offset)
+        gray = self.rgb2lms(gray + chromaticity/chrom_0 * amplitude * np.sin(phi_lum) + offset)
         gray[gray == 0] = self.min_val
 
         # this ratio can be adjusted
@@ -442,6 +444,8 @@ class ColorSpace:
         self.iso_slant["offset"] = params[2]
         self.iso_slant["xdata"] = stim
         self.iso_slant["ydata"] = res
+        self.iso_slant["chromaticity"] = self.chromaticity
+        self.iso_slant["gray_level"] = gray_level
         self.op_mode = False
 
     def create_color_list(self, hue_res=0.2, gray_level=None):
