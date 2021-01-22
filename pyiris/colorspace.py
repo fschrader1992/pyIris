@@ -543,7 +543,7 @@ class ColorSpace:
         win.close()
         self.op_mode = False
 
-    def show_checkerboard(self, low=1, high=15, win=None, gray_level=None,
+    def show_checkerboard(self, low=1, high=13, win=None, gray_level=None,
                           chromaticity=None, color_list=None):
         """
         Show randomly colored checkerboard.
