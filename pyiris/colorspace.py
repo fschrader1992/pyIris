@@ -23,15 +23,16 @@ except ImportError:
     pass
 
 
-def sine_fitter(x, amp, phi):
+def sine_fitter(x, amp, phi, off):
     """
     For iso-slant fit.
     :param x: Hue angle.
     :param amp: Amplitude.
     :param phi: Phase.
+    :param off: Offset.
     :return: Sine value.
     """
-    return amp * np.sin(x + phi)
+    return amp * np.sin(x + phi) + off
 
 
 class ColorSpace:
@@ -185,6 +186,7 @@ class ColorSpace:
 
         amplitude = 0.
         phase = 0.
+        offset = 0.
         if self.iso_slant["amplitude"] == 0.:
             if not self.op_mode:
                 print("WARNING: Amplitude of iso-slant is 0.\n"
@@ -192,11 +194,12 @@ class ColorSpace:
         else:
             amplitude = self.iso_slant["amplitude"]
             phase = self.iso_slant["phase"]
+            offset = self.iso_slant["offset"]
 
         gray = np.repeat(gray, phi_len, axis=0)
         phase = phase * np.ones(phi_len)
         phi_lum = np.repeat([phi + phase], 3, axis=0).T
-        gray = self.rgb2lms(gray + amplitude * np.sin(phi_lum))
+        gray = self.rgb2lms(gray + amplitude * np.sin(phi_lum) + offset)
         gray[gray == 0] = self.min_val
 
         # this ratio can be adjusted
@@ -436,6 +439,7 @@ class ColorSpace:
 
         self.iso_slant["amplitude"] = params[0]
         self.iso_slant["phase"] = params[1]
+        self.iso_slant["offset"] = params[2]
         self.iso_slant["xdata"] = stim
         self.iso_slant["ydata"] = res
         self.op_mode = False
