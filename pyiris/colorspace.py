@@ -564,8 +564,8 @@ class ColorSpace:
 
         # create grid
         hw_ratio = win.size[0] / win.size[1]
-        low = 5
-        high = 13
+        low = low
+        high = high
         p_num = np.random.randint(low=low, high=high, size=1)
         p_w = 1. / p_num
         p_h = p_w * hw_ratio
