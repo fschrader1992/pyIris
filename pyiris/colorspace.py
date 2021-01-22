@@ -76,15 +76,6 @@ class ColorSpace:
         self.unit = unit
         self.s_scale = s_scale
 
-        # get from calibration
-        if self.calibration:
-            top = np.sum(self.rgb2lms([[1., 0., 0.], [0., 1., 0.], [0., 0., 1.]]), axis=0)
-            self.lms_center = self.lms2rgb(
-                np.asarray((top + self.calibration.calibration_matrix[0]) / 2.)
-            )
-        else:
-            self.lms_center = np.array([0.5, 0.5, 0.5])
-
         self.op_mode = False
 
     def rgb2lms(self, rgb):
@@ -644,7 +635,6 @@ class ColorSpace:
         del dt["subject"]
         dt["uuid"] = str(self.uuid)
         dt["date"] = str(self.date)
-        dt["lms_center"] = self.lms_center.tolist()
         if dt["calibration_path"]:
             dt["calibration_path"] = str(Path(dt["calibration_path"]).resolve())
         if dt["subject_path"]:
