@@ -574,12 +574,17 @@ class ColorSpace:
         win.units = "norm"
 
         # create grid
-        hw_ratio = win.size[0]/win.size[1]
+        hw_ratio = win.size[0] / win.size[1]
+        low = 5
+        high = 13
         p_num = np.random.randint(low=low, high=high, size=1)
-        p_w = 1./p_num
+        p_w = 1. / p_num
         p_h = p_w * hw_ratio
-        p_grid = np.mgrid[-1.:(1.+p_w):p_w,
-                          -1.:(1.+p_h):p_h].reshape(2, -1).T
+        p_grid = np.mgrid[-1.:(1. + p_w):p_w, -1.:(1. + p_h):p_h].reshape(2, -1).T
+        n_dots = len(p_grid)
+        mask = None
+        sizes = (p_w[0], p_h[0])
+        tex = None
 
         # get colors
         # speed process up for screensaver etc.
@@ -592,14 +597,17 @@ class ColorSpace:
             indices = np.asarray(np.random.randint(low=0, high=len(color_list), size=len(p_grid)))
             colors = list(itemgetter(*indices)(color_list))
 
-        # fill grid
-        for pos, color in zip(p_grid, colors):
-            rect = visual.Rect(win=win, pos=pos, width=p_w, height=p_h)
-            rect.fillColorSpace = "rgb"
-            rect.fillColor = color
-            rect.lineColorSpace = "rgb"
-            rect.lineColor = color
-            rect.draw()
+        checkerboard = visual.ElementArrayStim(
+                win=win,
+                nElements=n_dots,
+                units="norm",
+                xys=p_grid,
+                colors=colors,
+                sizes=sizes,
+                elementTex=tex,
+                elementMask=mask
+        )
+        checkerboard.draw()
 
         win.flip()
         win.units = old_units
