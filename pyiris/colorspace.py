@@ -191,10 +191,12 @@ class ColorSpace:
             offset = self.iso_slant["offset"]
             chrom_0 = self.iso_slant["chromaticity"]
 
-        gray = np.repeat(gray, phi_len, axis=0)
+        gray_level = np.repeat(gray_level, phi_len, axis=0)
         phase = phase * np.ones(phi_len)
-        phi_lum = np.repeat([phi + phase], 3, axis=0).T
-        gray = self.rgb2lms(gray + chromaticity/chrom_0 * amplitude * np.sin(phi_lum) + offset)
+        phi_lum = phi + phase
+
+        gray_level = [gray_level + chromaticity/chrom_0 * amplitude * np.sin(phi_lum) + offset]
+        gray = self.rgb2lms(np.repeat(gray_level, 3, axis = 0).T)
         gray[gray == 0] = self.min_val
 
         # this ratio can be adjusted
