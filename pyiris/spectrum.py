@@ -126,9 +126,9 @@ class Spectrum:
             show_color = 2. * color - 1.
             rect = visual.Rect(win=win, width=win_w, height=win_h)
             rect.fillColorSpace = "rgb"
-            rect.fillColor = color
+            rect.fillColor = show_color
             rect.lineColorSpace = "rgb"
-            rect.lineColor = color
+            rect.lineColor = show_color
             rect.draw()
             win.flip()
             # measure spectrum
