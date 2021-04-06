@@ -299,9 +299,9 @@ class Calibration:
         dt["inv_calibration_matrix"] = self.inv_calibration_matrix.tolist()
         dt["lum_eff"] = self.lum_eff.tolist()
         dt["lum_ms"] = self.lum_ms.tolist()
-        if dt["cone_spetcra_path"]:
+        if "cone_spetcra_path" in dt.keys() and dt["cone_spetcra_path"]:
             dt["cone_spectra_path"] = str(Path(dt["cone_spetcra_path"]).resolve())
-        if dt["mon_spetcra_path"]:
+        if "mon_spetcra_path" in dt.keys() and dt["mon_spetcra_path"]:
             dt["mon_spetcra_path"] = str(Path(dt["mon_spetcra_path"]).resolve())
 
         if not path:
