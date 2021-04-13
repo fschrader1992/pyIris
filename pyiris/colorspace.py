@@ -360,7 +360,8 @@ class ColorSpace:
         win_h = 800
         win_w = 600
         # each stimulus lasts 4 frames; each frame last for 1/refresh second
-        keep = 2
+        # TODO: get from monitor settings + make better understandable!
+        keep = 4
         freq = refresh / keep
 
         # TODO: get from monitor settings
