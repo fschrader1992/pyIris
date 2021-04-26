@@ -76,6 +76,8 @@ class ColorSpace:
         self.unit = unit
         self.s_scale = s_scale
 
+        self.checkerboard = None
+
         self.op_mode = False
 
     def rgb2lms(self, rgb):
@@ -547,7 +549,8 @@ class ColorSpace:
         self.op_mode = False
 
     def show_checkerboard(self, low=1, high=13, win=None, gray_level=None,
-                          chromaticity=None, color_list=None):
+                          chromaticity=None, color_list=None, update=True,
+                          draw=True):
         """
         Show randomly colored checkerboard.
         :param low: Lowest number of rectangles.
@@ -556,7 +559,10 @@ class ColorSpace:
         :param gray_level: Gray level.
         :param chromaticity: Chromaticity.
         :param color_list: List of possible colors (in rgb).
+        :param update: Whether or not to change layout (size and colors)
+        :param draw: Whether or not to draw it (e.g. for initialization).
         """
+
         self.op_mode = True
         if gray_level is None:
             gray_level = self.gray_level
@@ -564,44 +570,48 @@ class ColorSpace:
             win = visual.Window(fullscr=True, monitor="eDc-1")
         old_units = win.units
         win.units = "norm"
+        # random number of elements
+        p_num = np.random.randint(low=low, high=high, size=1)[0]
 
-        # create grid
-        hw_ratio = win.size[0] / win.size[1]
-        low = low
-        high = high
-        p_num = np.random.randint(low=low, high=high, size=1)
-        p_w = 1. / p_num
-        p_h = p_w * hw_ratio
-        p_grid = np.mgrid[-1.:(1. + p_w):p_w, -1.:(1. + p_h):p_h].reshape(2, -1).T
-        n_dots = len(p_grid)
-        mask = None
-        sizes = (p_w[0], p_h[0])
-        tex = None
+        if update:
+            # create grid
+            hw_ratio = win.size[0] / win.size[1]
+            mask = None
+            tex = None
 
-        # get colors
-        # speed process up for screensaver etc.
-        if color_list is None:
-            angles = np.asarray(np.random.randint(low=0, high=360, size=len(p_grid)))
-            colors = self.color2pp(self.dklc2rgb(phi=angles, unit="deg",
-                                                 chromaticity=chromaticity,
-                                                 gray_level=gray_level))
-        else:
-            indices = np.asarray(np.random.randint(low=0, high=len(color_list), size=len(p_grid)))
-            colors = list(itemgetter(*indices)(color_list))
-
-        checkerboard = visual.ElementArrayStim(
-                win=win,
-                nElements=n_dots,
-                units="norm",
-                xys=p_grid,
-                colors=colors,
-                sizes=sizes,
-                elementTex=tex,
-                elementMask=mask
-        )
-        checkerboard.draw()
-
-        win.flip()
+            # INITIALIZE
+            if self.checkerboard is None:
+                self.checkerboard = dict({})
+                for c_num in range(low, high):
+                    p_w = 1. / c_num
+                    p_h = p_w * hw_ratio
+                    p_grid = np.mgrid[-1.:(1. + p_w):p_w, -1.:(1. + p_h):p_h].reshape(2, -1).T
+                    n_dots = len(p_grid)
+                    sizes = (p_w, p_h)
+                    self.checkerboard[c_num] = visual.ElementArrayStim(
+                        win=win,
+                        nElements=n_dots,
+                        units="norm",
+                        xys=p_grid,
+                        sizes=sizes,
+                        elementTex=tex,
+                        elementMask=mask
+                    )
+            else:
+                cb = self.checkerboard[p_num]
+                # get colors
+                # speed process up for screensaver etc.
+                if color_list is None:
+                    angles = np.asarray(np.random.randint(low=0, high=360, size=cb.nElements))
+                    cb.setColors(self.color2pp(self.dklc2rgb(phi=angles, unit="deg",
+                                                         chromaticity=chromaticity,
+                                                         gray_level=gray_level)))
+                else:
+                    indices = np.asarray(np.random.randint(low=0, high=len(color_list), size=cb.nElements))
+                    cb.setColors(list(itemgetter(*indices)(color_list)))
+        if draw:
+            self.checkerboard[p_num].draw()
+            win.flip()
         win.units = old_units
         self.op_mode = False
 
