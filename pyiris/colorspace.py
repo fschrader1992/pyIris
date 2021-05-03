@@ -371,7 +371,7 @@ class ColorSpace:
         return rgb
 
     def measure_iso_slant(self, gray_level=None, num_fit_points=10, repeats=6, lim=0.1,
-                          step_size=0.001, refresh=60):
+                          step_size=0.001, refresh=None):
         """
         Run luminance fitting experiment and fit a sine-function to
         get the iso-slant for iso-luminance plane.
@@ -388,15 +388,17 @@ class ColorSpace:
         self.op_mode = True
         if gray_level is None:
             gray_level = self.gray_level
+        if refresh is None:
+            refresh = self.monitor.refresh
 
         response = np.zeros((2, repeats * num_fit_points))
         stimulus = np.linspace(0., 2. * np.pi, num_fit_points, endpoint=False)
         randstim = np.random.permutation(np.repeat(stimulus, repeats))
 
-        # each stimulus lasts 4 frames; each frame last for 1/refresh second
-        # TODO: get from monitor settings + make better understandable!
-        keep = 4
-        freq = refresh / keep
+        #  get correct frames, frequency should be between 10-20 Hz
+        # number of frames with stimulus (half of the frames for the frequency)
+        keep = int(refresh/(2.*15.))
+        freq = refresh / keep / 2.
 
         win = visual.Window([self.monitor.currentCalib['sizePix'][0],
                              self.monitor.currentCalib['sizePix'][1]],
