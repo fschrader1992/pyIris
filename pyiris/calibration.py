@@ -30,6 +30,7 @@ class Calibration:
         self.corr_type = corr_type
         self.cone_spectra_path = cone_spectra_path
         self.mon_spectra_path = mon_spectra_path
+        self.monitor_settings_path = None
         self._rgb_mat = None
         self._lms_mat = None
         self.calibration_matrix = np.ones((5, 3))
@@ -75,6 +76,7 @@ class Calibration:
         cone_spectra = pd.read_csv(cone_spectra_path, sep=",", header=0)
         monitor_spectra = Spectrum()
         monitor_spectra.load_from_file(path=monitor_spectra_path)
+        self.monitor_settings_path = monitor_spectra.monitor_settings_path
 
         self._rgb_mat = np.zeros(shape=(len(monitor_spectra.names), 3))
         self._lms_mat = np.zeros(shape=(len(monitor_spectra.names), 3))
@@ -303,6 +305,8 @@ class Calibration:
             dt["cone_spectra_path"] = str(Path(dt["cone_spetcra_path"]).resolve())
         if "mon_spetcra_path" in dt.keys() and dt["mon_spetcra_path"]:
             dt["mon_spetcra_path"] = str(Path(dt["mon_spetcra_path"]).resolve())
+        if dt["monitor_settings_path"]:
+            dt["monitor_settings_path"] = str(Path(dt["monitor_settings_path"]).resolve())
 
         if not path:
             path = "calibration_{}.json".format(self.date)
