@@ -16,6 +16,7 @@ from scipy import optimize
 import numpy as np
 import matplotlib.pylab as pl
 
+from .monitor import Monitor
 from .subject import Subject
 try:
     from .calibration import Calibration
@@ -46,10 +47,13 @@ class ColorSpace:
         self.uuid = uuid.uuid4()
         self.calibration_path = None
         self.calibration = None
+        self.monitor = None
         if calibration_path:
             self.calibration_path = calibration_path
             self.calibration = Calibration()
             self.calibration.load_from_file(path=calibration_path)
+            self.monitor = Monitor(settings_path=self.calibration.monitor_settings_path)
+
         # else: load_latest(calibration) -> own function used by all classes
         self.subject_path = subject_path if subject_path else None
         self.subject = None
@@ -61,8 +65,7 @@ class ColorSpace:
         self.min_val = 0.00000000000001
 
         self.date = datetime.datetime.now()
-        # TODO: get from current settings?
-        self.bit_depth = bit_depth
+        self.bit_depth = self.monitor.bpc if self.monitor is not None else bit_depth
         self.iso_slant = dict({})
         self.iso_slant["amplitude"] = 0
         self.iso_slant["phase"] = 0
@@ -390,15 +393,14 @@ class ColorSpace:
         stimulus = np.linspace(0., 2. * np.pi, num_fit_points, endpoint=False)
         randstim = np.random.permutation(np.repeat(stimulus, repeats))
 
-        win_h = 800
-        win_w = 600
         # each stimulus lasts 4 frames; each frame last for 1/refresh second
         # TODO: get from monitor settings + make better understandable!
         keep = 4
         freq = refresh / keep
 
-        # TODO: get from monitor settings
-        win = visual.Window([win_h, win_w], monitor="eDc-1", fullscr=True)
+        win = visual.Window([self.monitor.currentCalib['sizePix'][0],
+                             self.monitor.currentCalib['sizePix'][1]],
+                            monitor=self.monitor.name, fullscr=True)
 
         # set background gray level
         win.colorSpace = "rgb"
@@ -677,6 +679,7 @@ class ColorSpace:
         dt.update(vars(self))
         del dt["calibration"]
         del dt["subject"]
+        del dt["monitor"]
         dt["uuid"] = str(self.uuid)
         dt["date"] = str(self.date)
         if dt["calibration_path"]:
