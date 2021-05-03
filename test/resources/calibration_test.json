@@ -716,6 +716,7 @@
         28.68,
         251.2
     ],
+    "monitor_settings_path":"test/resources/monitor_settings.yaml",
     "mon_spectra_path":"test/resources/spectrum_test.nix",
     "uuid":"01860e5e-29c6-4f5b-9c5f-ad6aacdb5bee"
 }
