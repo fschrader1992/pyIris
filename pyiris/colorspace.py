@@ -336,6 +336,22 @@ class ColorSpace:
         rgb = rgb1023/1023.
         return rgb
 
+    def rgb2hex(self, rgb, cross=True):
+        """
+        Convert rgb values to hex.
+        :param rgb: (list of) 3-tuple/numpy array with rgb values [0, 1].
+        :param cross: If True, indicator "#" is added.
+        :return: hex values as numpy array.
+        """
+
+        rgb255 = self.rgb2rgb255(rgb)
+        hex_arr = []
+        start = "#" if cross else ""
+        for r in rgb255:
+            hex_arr += [start + "%02x%02x%02x" % tuple(r)]
+        hex_arr = np.asarray(hex_arr)
+        return hex_arr
+
     def measure_iso_slant(self, gray_level=None, num_fit_points=10, repeats=6, lim=0.1,
                           step_size=0.001, refresh=60):
         """
