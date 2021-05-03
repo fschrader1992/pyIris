@@ -48,11 +48,13 @@ class ColorSpace:
         self.calibration_path = None
         self.calibration = None
         self.monitor = None
+        self.bit_depth = bit_depth
         if calibration_path:
             self.calibration_path = calibration_path
             self.calibration = Calibration()
             self.calibration.load_from_file(path=calibration_path)
             self.monitor = Monitor(settings_path=self.calibration.monitor_settings_path)
+            self.bit_depth = self.monitor.bpc
 
         # else: load_latest(calibration) -> own function used by all classes
         self.subject_path = subject_path if subject_path else None
@@ -65,7 +67,6 @@ class ColorSpace:
         self.min_val = 0.00000000000001
 
         self.date = datetime.datetime.now()
-        self.bit_depth = self.monitor.bpc if self.monitor is not None else bit_depth
         self.iso_slant = dict({})
         self.iso_slant["amplitude"] = 0
         self.iso_slant["phase"] = 0
@@ -728,6 +729,7 @@ class ColorSpace:
         if self.calibration_path:
             self.calibration = Calibration()
             self.calibration.load_from_file(self.calibration_path)
+            self.monitor = Monitor(settings_path=self.calibration.monitor_settings_path)
         if self.subject_path:
             self.subject = Subject()
             self.subject.load_from_file(self.subject_path)
