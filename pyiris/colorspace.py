@@ -352,6 +352,21 @@ class ColorSpace:
         hex_arr = np.asarray(hex_arr)
         return hex_arr
 
+    def hex2rgb(self, hex_arr):
+        """
+        Convert hex values to rgb.
+
+        :param hex_arr: (3- or 6-digit) hex values (with/-out "#") as numpy array.
+        :return: (list of) 3-tuple/numpy array with rgb values [0, 1].
+        """
+
+        hs2ha = lambda t, ti, lti: int(t.lstrip("#")[ti:ti+lti] if lti == 2 else
+                                       t.lstrip("#")[ti:ti+lti] + t.lstrip("#")[ti:ti+lti], 16)
+        splitter = lambda t: tuple([hs2ha(t, 0, 2), hs2ha(t, 2, 2), hs2ha(t, 4, 2)])\
+            if len(t) == 6 or len(t) == 7 else tuple([hs2ha(t, 0, 1), hs2ha(t, 1, 1), hs2ha(t, 2, 1)])
+        rgb = self.rgb2552rgb(np.asarray(np.vectorize(splitter)(hex_arr)).T)
+        return rgb
+
     def measure_iso_slant(self, gray_level=None, num_fit_points=10, repeats=6, lim=0.1,
                           step_size=0.001, refresh=60):
         """
