@@ -24,6 +24,12 @@ except ImportError:
     pass
 
 
+def float2hex(x):
+    val = hex(int(round(x)))[2:]
+    val = "0" + val if len(val) < 2 else val
+    return val
+
+
 def sine_fitter(x, amp, phi, off):
     """
     For iso-slant fit.
@@ -340,6 +346,24 @@ class ColorSpace:
         rgb = rgb1023/1023.
         return rgb
 
+    @staticmethod
+    def rgb2552hex(rgb255, cross=True):
+        """
+        Convert rgb255 values to hex.
+        :param rgb255: (list of) 3-tuple/numpy array with rgb255 values [0, 255].
+        :param cross: If True, indicator "#" is added.
+        :return: hex values as numpy array.
+        """
+
+        hex_arr = []
+        start = "#" if cross else ""
+        thf = np.vectorize(float2hex)
+        rgb255 = thf(rgb255)
+        for r in rgb255:
+            hex_arr += [start + "".join(r)]
+        hex_arr = np.asarray(hex_arr)
+        return hex_arr
+
     def rgb2hex(self, rgb, cross=True):
         """
         Convert rgb values to hex.
@@ -349,26 +373,36 @@ class ColorSpace:
         """
 
         rgb255 = self.rgb2rgb255(rgb)
-        hex_arr = []
-        start = "#" if cross else ""
-        for r in rgb255:
-            hex_arr += [start + "%02x%02x%02x" % tuple(r)]
-        hex_arr = np.asarray(hex_arr)
+        hex_arr = self.rgb2552hex(rgb255, cross=cross)
         return hex_arr
 
-    def hex2rgb(self, hex_arr):
+    @staticmethod
+    def hex2rgb255(hex_arr):
         """
-        Convert hex values to rgb.
+        Convert hex values to rgb255.
 
         :param hex_arr: (3- or 6-digit) hex values (with/-out "#") as numpy array.
-        :return: (list of) 3-tuple/numpy array with rgb values [0, 1].
+        :return: (list of) 3-tuple/numpy array with rgb255 values [0, 255].
         """
 
         hs2ha = lambda t, ti, lti: int(t.lstrip("#")[ti:ti+lti] if lti == 2 else
                                        t.lstrip("#")[ti:ti+lti] + t.lstrip("#")[ti:ti+lti], 16)
         splitter = lambda t: tuple([hs2ha(t, 0, 2), hs2ha(t, 2, 2), hs2ha(t, 4, 2)])\
             if len(t) == 6 or len(t) == 7 else tuple([hs2ha(t, 0, 1), hs2ha(t, 1, 1), hs2ha(t, 2, 1)])
-        rgb = self.rgb2552rgb(np.asarray(np.vectorize(splitter)(hex_arr)).T)
+        rgb255 = np.asarray(np.vectorize(splitter)(hex_arr)).T
+        return rgb255
+
+    def hex2rgb(self, hex_arr):
+        """
+        Convert hex values to rgb.
+
+        :param hex_arr: (3- or 6-digit) hex values (with/-out "#") as numpy array.
+        :return: (list of) 3-tuple/numpy array with rgb255 values [0, 1].
+        """
+
+        r2 = self.hex2rgb255(hex_arr)
+        print("S1", r2)
+        rgb = self.rgb2552rgb(r2)
         return rgb
 
     def measure_iso_slant(self, gray_level=None, num_fit_points=10, repeats=6, lim=0.1,
