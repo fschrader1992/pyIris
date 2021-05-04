@@ -177,3 +177,42 @@ class TestConversion(unittest.TestCase):
         rgb = np.asarray([[1., 1., 1.]])
         rgb_conv = self.cs.rgb10232rgb(rgb1023)
         np.testing.assert_allclose(rgb, rgb_conv, atol=1e-6)
+
+    def test_rgb255_hex(self):
+        rgb255 = np.asarray([[0., 0., 0.], [128., 128., 128.],
+                             [255., 0., 0.], [0., 255., 0.], [0., 0., 255.],
+                             [255., 255., 255.]])
+        hex_arr = np.asarray(["#000000", "#808080", "#ff0000",
+                              "#00ff00", "#0000ff", "#ffffff"])
+        rgb255_conv = self.cs.rgb2552hex(rgb255)
+        np.testing.assert_equal(hex_arr, rgb255_conv)
+
+    def test_rgb_hex(self):
+        rgb = np.asarray([[0., 0., 0.], [0.5, 0.5, 0.5],
+                          [1., 0., 0.], [0., 1., 0.], [0., 0., 1.],
+                          [1., 1., 1.]])
+        hex_arr = np.asarray(["#000000", "#808080", "#ff0000",
+                              "#00ff00", "#0000ff", "#ffffff"])
+        rgb_conv = self.cs.rgb2hex(rgb)
+        np.testing.assert_equal(hex_arr, rgb_conv)
+
+    def test_hex_rgb255(self):
+        hex_arr = np.asarray(["#00ff00", "#0f0",
+                              "00ff00", "0f0",
+                              "#000000", "#808080", "#ffffff"])
+        rgb = np.asarray([[0., 255., 0.], [0., 255., 0.], [0., 255., 0.], [0., 255., 0.],
+                          [0., 0., 0.], [128., 128., 128.], [255., 255., 255.]])
+        hex_conv = self.cs.hex2rgb255(hex_arr)
+        np.testing.assert_allclose(rgb, hex_conv, atol=1e-6)
+
+    def test_hex_rgb(self):
+        hex_arr = np.asarray(["#00ff00", "#0f0",
+                              "00ff00", "0f0",
+                              "#000000", "#808080", "#ffffff"])
+        rgb = np.asarray([[0., 1., 0.], [0., 1., 0.],
+                          [0., 1., 0.], [0., 1., 0.],
+                          [0., 0., 0.], [0.50196078, 0.50196078, 0.50196078], [1., 1., 1.]])
+        hex_conv = self.cs.hex2rgb(hex_arr)
+        print("CONV", hex_conv)
+        print("NNV", rgb)
+        np.testing.assert_allclose(rgb, hex_conv, atol=1e-6)
