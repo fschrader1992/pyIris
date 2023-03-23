@@ -405,7 +405,7 @@ class ColorSpace:
         rgb = self.rgb2552rgb(r2)
         return rgb
 
-    def measure_iso_slant(self, gray_level=None, num_fit_points=10, repeats=6, lim=0.1,
+    def measure_iso_slant(self, gray_level=None, num_fit_points=8, repeats=10, lim=0.1,
                           step_size=0.001, refresh=None):
         """
         Run luminance fitting experiment and fit a sine-function to
