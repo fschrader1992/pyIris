@@ -158,7 +158,7 @@ class Spectrum:
             win.monitor = self.monitor
 
 
-        info_msg = visual.TextStim(self.win, '', color='black',pos=(0, 10), height=0.75)
+        info_msg = visual.TextStim(win, '', color='black',pos=(0, 10), height=0.75)
         # iterate through 4 dot positions and repeat each measurement 6 times
         xys = [[-1.5, 1.5], [1.5, 1.5], [-1.5, -1.5], [1.5, -1.5]]
         xy_labels = ['up_left', 'up_right', 'down_left', 'down_right']
