@@ -263,7 +263,7 @@ class Spectrum:
         nix_file = nix.File.open(path, mode=nix.FileMode.ReadOnly)
         s = nix_file.sections["meta-data"]
         self.uuid = uuid.UUID(s.props["uuid"].values[0])
-        self.date = datetime.datetime.fromisoformat(s.props["date"].values[0])
+        self.date = datetime.datetime.strptime(s.props["date"].values[0], "%Y%m%d")
         self.photometer = s.props["photometer"].values[0]
         self.stepsize = s.props["stepsize"].values[0]
         if s.props["monitor_settings_path"].values[0] != "empty":
