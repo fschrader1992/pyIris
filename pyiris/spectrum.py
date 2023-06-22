@@ -156,9 +156,11 @@ class Spectrum:
         win = visual.Window([win_h, win_w], fullscr=True)
         if self.monitor:
             win.monitor = self.monitor
+        win.colorSpace = "rgb"
+        win.color = [-1., -1., -1.]
 
 
-        info_msg = visual.TextStim(win, '', color='black',pos=(0, 10), height=0.75)
+        info_msg = visual.TextStim(win, '', color=[1., 1., 1.], pos=(0, 10), height=0.75, units='deg')
         # iterate through 4 dot positions and repeat each measurement 6 times
         xys = [[-1.5, 1.5], [1.5, 1.5], [-1.5, -1.5], [1.5, -1.5]]
         xy_labels = ['up_left', 'up_right', 'down_left', 'down_right']
@@ -166,11 +168,11 @@ class Spectrum:
             # start with stimulus in order to adjust photometer
             info_msg.text = 'Please adjust the photometer to the stimulus. Press SPACE to start measurement.'
             info_msg.draw()
-            circ = visual.Circle(win=win, radius=2, pos=xy)
+            circ = visual.Circle(win=win, radius=1, pos=xy, units='deg')
             circ.fillColorSpace = "rgb"
-            circ.fillColor = [-1., -1., -1.]
+            circ.fillColor = [1., 1., 1.]
             circ.lineColorSpace = "rgb"
-            circ.lineColor = [-1., -1., -1.]
+            circ.lineColor = [1., 1., 1.]
             circ.draw()
             win.flip()
             keys = event.waitKeys(keyList=['space'])
