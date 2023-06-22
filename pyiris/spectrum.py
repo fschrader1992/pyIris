@@ -11,7 +11,7 @@ import numpy as np
 import nixio as nix
 
 from pathlib import Path
-from psychopy import logging, visual
+from psychopy import logging, visual, event
 
 from .pr655 import PR655
 from .monitor import Monitor
@@ -134,6 +134,64 @@ class Spectrum:
             # measure spectrum
             self.add_spectrum(name=str(color))
 
+        win.close()
+
+        # set date of last measurement
+        self.date = datetime.datetime.now()
+
+    def measure_patch_colors(self, win_h=1200, win_w=1800):
+        """
+        Measure the spectra for each color stimulus, for stimuli
+        in different areas of the screen.
+        """
+
+        # shorter test-color list, around luminance values used in experiments
+        self.colors = []
+        for step in np.arange(0.55, 0.8, 0.05):
+            self.colors += [np.asarray([step, 0., 0.])]
+            self.colors += [np.asarray([0., step, 0.])]
+            self.colors += [np.asarray([0., 0., step])]
+            self.colors += [np.asarray([step, step, step])]
+
+        win = visual.Window([win_h, win_w], fullscr=True)
+        if self.monitor:
+            win.monitor = self.monitor
+
+
+        info_msg = visual.TextStim(self.win, '', color='black',pos=(0, 10), height=0.75)
+        # iterate through 4 dot positions and repeat each measurement 6 times
+        xys = [[-1.5, 1.5], [1.5, 1.5], [-1.5, -1.5], [1.5, -1.5]]
+        xy_labels = ['up_left', 'up_right', 'down_left', 'down_right']
+        for xy_label, xy in zip(xy_labels, xys):
+            # start with stimulus in order to adjust photometer
+            info_msg.text = 'Please adjust the photometer to the stimulus. Press SPACE to start measurement.'
+            info_msg.draw()
+            circ = visual.Circle(win=win, radius=2, pos=xy)
+            circ.fillColorSpace = "rgb"
+            circ.fillColor = [-1., -1., -1.]
+            circ.lineColorSpace = "rgb"
+            circ.lineColor = [-1., -1., -1.]
+            circ.draw()
+            win.flip()
+            keys = event.waitKeys(keyList=['space'])
+
+            info_msg.text = ''
+            info_msg.draw()
+
+            # start measurement
+            for color in self.colors:
+                for n_rep in range(6):
+                    # draw stimulus
+                    # get psychopy color range
+                    show_color = 2. * color - 1.
+                    circ.fillColorSpace = "rgb"
+                    circ.fillColor = show_color
+                    circ.lineColorSpace = "rgb"
+                    circ.lineColor = show_color
+                    circ.draw()
+                    win.flip()
+                    # measure spectrum
+                    self.add_spectrum(name=str(color) + '#' + xy_label + '#' + str(n_rep))
         win.close()
 
         # set date of last measurement
