@@ -79,7 +79,7 @@ class Spectrum:
     def add_spectrum(self, name):
         """
         Measure and save spectrum from photometer.
-        :param name: Name this measurement has. With measure_colors thi is equal to rgb-color code.
+        :param name: Name this measurement has. With measure_colors this is equal to rgb-color code.
         """
         self.spectra[name, "luminance"] = self.photometer.getLum()
         nm, power = self.photometer.getLastSpectrum(parse=True)
