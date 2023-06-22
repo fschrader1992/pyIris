@@ -153,12 +153,9 @@ class Spectrum:
             self.colors += [np.asarray([0., 0., step])]
             self.colors += [np.asarray([step, step, step])]
 
-        win = visual.Window([win_h, win_w], fullscr=True)
+        win = visual.Window([win_h, win_w], color=[-1., -1., -1.], fullscr=True)
         if self.monitor:
             win.monitor = self.monitor
-        win.colorSpace = "rgb"
-        win.color = [-1., -1., -1.]
-
 
         info_msg = visual.TextStim(win, '', color=[1., 1., 1.], pos=(0, 10), height=0.75, units='deg')
         # iterate through 4 dot positions and repeat each measurement 6 times
