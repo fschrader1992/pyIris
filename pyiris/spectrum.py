@@ -152,6 +152,7 @@ class Spectrum:
             self.colors += [np.asarray([0., step, 0.])]
             self.colors += [np.asarray([0., 0., step])]
             self.colors += [np.asarray([step, step, step])]
+        noc = len(self.colors) * 6
 
         win = visual.Window([win_h, win_w], color=[-1., -1., -1.], fullscr=True)
         if self.monitor:
@@ -163,6 +164,7 @@ class Spectrum:
         xy_labels = ['up_left', 'up_right', 'down_left', 'down_right']
         for xy_label, xy in zip(xy_labels, xys):
             # start with stimulus in order to adjust photometer
+            info_msg.color = [1., 1., 1.]
             info_msg.text = 'Please adjust the photometer to the stimulus. Press SPACE to start measurement.'
             info_msg.draw()
             circ = visual.Circle(win=win, radius=1, pos=xy, units='deg')
@@ -174,10 +176,10 @@ class Spectrum:
             win.flip()
             keys = event.waitKeys(keyList=['space'])
 
-            info_msg.text = ''
-            info_msg.draw()
+            info_msg.color = [-0.5, -0.5, -0.5]
 
             # start measurement
+            q = 1
             for color in self.colors:
                 for n_rep in range(6):
                     # draw stimulus
@@ -188,9 +190,12 @@ class Spectrum:
                     circ.lineColorSpace = "rgb"
                     circ.lineColor = show_color
                     circ.draw()
+                    info_msg.text = str(q) + '/' + noc
+                    info_msg.draw()
                     win.flip()
                     # measure spectrum
                     self.add_spectrum(name=str(color) + '#' + xy_label + '#' + str(n_rep))
+                    q += 1
         win.close()
 
         # set date of last measurement
