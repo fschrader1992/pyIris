@@ -154,6 +154,8 @@ class Spectrum:
             self.colors += [np.asarray([step, step, step])]
         noc = len(self.colors) * 6
 
+        colors_updated = []
+
         win = visual.Window([win_h, win_w], color=[-1., -1., -1.], fullscr=True)
         if self.monitor:
             win.monitor = self.monitor
@@ -181,13 +183,13 @@ class Spectrum:
             # start measurement
             q = 1
             for color in self.colors:
+                # get psychopy color range
+                show_color = 2. * color - 1.
                 for n_rep in range(6):
+                    # add same color to color list to save correctly
+                    colors_updated += [color]
                     # draw stimulus
-                    # get psychopy color range
-                    show_color = 2. * color - 1.
-                    circ.fillColorSpace = "rgb"
                     circ.fillColor = show_color
-                    circ.lineColorSpace = "rgb"
                     circ.lineColor = show_color
                     circ.draw()
                     info_msg.text = str(q) + '/' + noc
@@ -198,6 +200,8 @@ class Spectrum:
                     q += 1
         win.close()
 
+        # update color list
+        self.colors = colors_updated
         # set date of last measurement
         self.date = datetime.datetime.now()
 
