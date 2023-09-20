@@ -790,8 +790,8 @@ class ColorSpace:
         :param gray_level: Gray level.
         :param chromaticity: Chromaticity.
         :param color_list: List of possible colors (in rgb).
-        :param update: Whether or not to change layout (size and colors)
-        :param draw: Whether or not to draw it (e.g. for initialization).
+        :param update: Whether to change layout (size and colors)
+        :param draw: Whether to draw it (e.g. for initialization).
         """
 
         self.op_mode = True
