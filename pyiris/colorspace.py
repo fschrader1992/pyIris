@@ -741,6 +741,8 @@ class ColorSpace:
     def show_color_circle(self, num_col=16, gray_level=None):
         """
         Show color circle.
+        Use sliders to adjust phase and amplitude of isoluminance fit.
+        Then possible to save to discard, save to new file or rewrite old file.
         :param num_col: Number of colors to be shown.
         :param gray_level: Gray level.
         """
@@ -750,13 +752,59 @@ class ColorSpace:
             gray_level = self.gray_level
 
         phis = np.linspace(0, 2 * np.pi, num_col, endpoint=False)
-        m_rgb = self.dklc2rgb(phi=phis, gray_level=gray_level,)
 
-        win = visual.Window(size=[800, 600], monitor="eDc-1", fullscr=False)
+        # units='pix' important for slider to work
+        win = visual.Window([self.monitor.currentCalib['sizePix'][0],
+                             self.monitor.currentCalib['sizePix'][1]],
+                             monitor=self.monitor.name, fullscr=True,
+                             units='pix')
+
         # set background gray level
         win.colorSpace = "rgb"
         win.color = self.color2pp(np.array([gray_level, gray_level, gray_level]))[0]
-        win.flip()
+
+        tb = visual.TextBox(window=win,
+                            text="Set iso-slant values via sliders.\n"
+                                 "ESCAPE: close without saving\n"
+                                 "RETURN: save to (new) file",
+                            font_size=14, font_color=[1, 1, 1],  # grid_horz_justification='center',
+                            size=(0.25*win.size[0], 0.1*win.size[1]),
+                            pos=(-0.33*win.size[0], -0.25*win.size[1]), units='pix')
+        tb.draw()
+        # win.flip()
+
+        # add sliders
+        start_amp = -self.iso_slant["amplitude"]
+        amp_slider = visual.Slider(win=win, units="pix", ticks=(0.00, 0.01, 0.02, 0.03, 0.04,),
+                                   labels=(0.00, 0.01, 0.02, 0.03, 0.04,),
+                                   startValue=start_amp, granularity=0,
+                                   pos=(0.33 * win.size[0], -0.35 * win.size[1]),
+                                   size=(0.25 * win.size[0], 0.03 * win.size[1]),
+                                   opacity=None, color="LightGray", fillColor="Gray", borderColor="White",
+                                   colorSpace="rgb", font="Open Sans", labelHeight=12, flip=False,
+                                   )
+        amp_slider_title = visual.TextBox(window=win, text="Amplitude", font_size=14,
+                                          font_color=[1, 1, 1], grid_horz_justification='center',
+                                          pos=(0.33 * win.size[0], -0.32 * win.size[1]),
+                                          size=(0.25 * win.size[0], 0.05 * win.size[1]),
+                                          units='pix')
+
+        start_phase = self.iso_slant["phase"]/np.pi * 180.
+        phase_slider = visual.Slider(win=win, units="pix", ticks=(0, 45, 90, 135, 180, 225, 270, 315, 360),
+                                     labels=(0, 45, 90, 135, 180, 225, 270, 315, 360), startValue=start_phase,
+                                     pos=(-0.33*win.size[0], -0.35*win.size[1]),
+                                     size=(0.25*win.size[0], 0.03*win.size[1]),
+                                     opacity=None, color="LightGray", fillColor="Gray", borderColor="White",
+                                     colorSpace="rgb", font="Open Sans", labelHeight=12, flip=False,
+                                     )
+        phase_slider_title = visual.TextBox(window=win, text="Phase [deg hue angle]", font_size=14,
+                                            font_color=[1, 1, 1], grid_horz_justification='center',
+                                            pos=(-0.33 * win.size[0], -0.32 * win.size[1]),
+                                            size=(0.25 * win.size[0], 0.05 * win.size[1]),
+                                            units='pix')
+
+        # set iso_slant values accordingly
+        m_rgb = self.dklc2rgb(phi=phis, gray_level=gray_level,)
 
         rect_size = 0.4 * win.size[0] * 2 / num_col
         radius = 0.2 * win.size[0]
@@ -766,16 +814,66 @@ class ColorSpace:
                            units="pix",
                            width=int(rect_size), height=int(rect_size))
         for i_rect in range(num_col):
-            rect.fillColorSpace = "rgb"
-            rect.lineColorSpace = "rgb"
+            rect.colorSpace = "rgb"
             rect.fillColor = m_rgb[i_rect]
             rect.lineColor = m_rgb[i_rect]
             rect.pos = misc.pol2cart(alphas[i_rect], radius)
             rect.draw()
 
-        win.flip()
+        cr_amp = 0.
+        old_rating_amp = cr_amp
+        cr_phase = 0.
+        old_rating_phase = cr_phase
+        curr_keys = []
+        while 'return' not in curr_keys and 'escape' not in curr_keys:
+            if amp_slider.getRating() != old_rating_amp:
+                cr_amp = amp_slider.getRating()
+                old_rating_amp = cr_amp
+                # adjust iso slant (minus because of convention in measurements)
+                self.iso_slant['amplitude'] = -cr_amp
+                m_rgb = self.dklc2rgb(phi=phis, gray_level=gray_level,)
+            if phase_slider.getRating() != old_rating_phase:
+                cr_phase = phase_slider.getRating()
+                old_rating_phase = cr_phase
+                # adjust iso slant
+                self.iso_slant['phase'] = cr_phase/180. * np.pi
+                m_rgb = self.dklc2rgb(phi=phis, gray_level=gray_level,)
 
-        event.waitKeys()
+            amp_slider.draw()
+            phase_slider.draw()
+            amp_slider_title.draw()
+            phase_slider_title.draw()
+            tb.draw()
+            for i_rect in range(num_col):
+                rect.colorSpace = "rgb"
+                rect.fillColor = m_rgb[i_rect]
+                rect.lineColor = m_rgb[i_rect]
+                rect.pos = misc.pol2cart(alphas[i_rect], radius)
+                rect.draw()
+
+            win.flip()
+
+            curr_keys = event.getKeys()
+
+        # if return: save new values
+        if 'return' in curr_keys:
+            tb.text = "You want to save the current setting.\n" \
+                      "Please enter the save file name/path\nand press RETURN to save it."
+            tb.size = (500, 100)
+            tb.pos = (0.0, 30)
+
+            ans = visual.TextBox2(win=win, text="", color=[-1, -1, -1], font="Open Sans", size=(500, 100),
+                                  pos=(0.0, -90), units='pix', editable=True)
+
+            spath = ''
+            while '\n' not in ans.text and '\r' not in ans.text:
+                tb.draw()
+                ans.draw()
+                spath = ans.text
+                win.flip()
+            self.save_to_file(path=spath)
+        # else (= if escape): don't save values and exit
+
         win.close()
         self.op_mode = False
 
