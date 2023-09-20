@@ -286,7 +286,10 @@ class Spectrum:
         self.stepsize = s.props["stepsize"].values[0]
         if s.props["monitor_settings_path"].values[0] != "empty":
             self.monitor_settings_path = s.props["monitor_settings_path"].values[0]
-            self.add_monitor_settings()
+            try:
+                self.add_monitor_settings()
+            except FileNotFoundError:
+                print('Error, monitor settings file', self.monitor_settings_path, 'could not be found and is skipped.')
 
         self.colors = []
 
