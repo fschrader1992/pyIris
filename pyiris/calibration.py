@@ -109,7 +109,7 @@ class Calibration:
                                            np.trapz(m_spec * mon_spec),
                                            np.trapz(s_spec * mon_spec)])
 
-            # compare luminance
+            # compare luminosity
             lum_eff = np.trapz(l_spec * mon_spec) + np.trapz(m_spec * mon_spec)
             delta = lum_eff - monitor_spectra.spectra[stim, "luminance"]
             efc = delta / monitor_spectra.spectra[stim, "luminance"]
@@ -209,7 +209,7 @@ class Calibration:
             print("a\n", a)
             print("gamma", gamma)
 
-    def plot(self):
+    def plot(self, path=None, directory=None):
         """
         Plot spectra rgb and lms values and fitted functions.
         Plot luminosity as well.
@@ -220,6 +220,16 @@ class Calibration:
             from .colorspace import ColorSpace
         except ImportError:
             pass
+
+        # save file options
+        if not path:
+            path = "plot_calibration_{}".format(self.date)
+        plot_dir = "calibration_plots"
+        if directory:
+            plot_dir = os.path.join(directory, "calibration_plots")
+        if not os.path.exists(plot_dir):
+            os.makedirs(plot_dir)
+        path = os.path.join(plot_dir, path)
 
         # RGB Values
         fig, ax = pl.subplots(ncols=2, nrows=2)
@@ -250,6 +260,7 @@ class Calibration:
         fig.suptitle("RGB Values")
         pl.legend()
         pl.tight_layout()
+        pl.savefig(path + "_RGB.pdf")
         pl.show()
 
         # Luminosity
@@ -283,6 +294,7 @@ class Calibration:
         fig.suptitle("Luminosity")
         pl.legend()
         pl.tight_layout()
+        pl.savefig(path + "_luminosity.pdf")
         pl.show()
 
     def save_to_file(self, path=None, directory=None):
