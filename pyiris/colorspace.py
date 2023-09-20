@@ -78,6 +78,7 @@ class ColorSpace:
         self.iso_slant["phase"] = 0
         self.iso_slant["xdata"] = []
         self.iso_slant["ydata"] = []
+        self.iso_slant_sep = dict({})
         self.color_list = dict({})
 
         # dklc values
@@ -513,6 +514,166 @@ class ColorSpace:
         self.iso_slant["ydata"] = res
         self.iso_slant["chromaticity"] = self.chromaticity
         self.iso_slant["gray_level"] = gray_level
+        self.op_mode = False
+
+    def measure_iso_slant_sep(self, gray_level=None, num_fit_points=8, repeats=6, lim=0.1,
+                              step_size=0.001, refresh=None, posxs=None, posys=None,
+                              pos_labels=None, size=6):
+        """
+        Run luminance fitting experiment and fit a sine-function to
+        get the iso-slant for iso-luminance plane.
+        Depends on the current calibration.
+
+        :param gray_level: Luminance value.
+        :param num_fit_points: Number of angles for fitting.
+        :param repeats: Number of trials for each point.
+        :param step_size: Change in luminance with each key event.
+        :param lim: Limit for mouse range.
+        :param refresh: 1/refresh is frame length.
+        :param posxs: x-positions of test patches. If not given
+                      four test patches will be placed at +/-3.5 deg, also for the height.
+        :param posys: y-position of test patches, should have same length as posxs.
+        :param pos_labels: Labels for the respective patches for later analysis.
+                      If not given "up_left", "up_right", "down_left", "down_right" are used correspondingly.
+        :param size: Size of test patches.
+        """
+
+        self.op_mode = True
+        if gray_level is None:
+            gray_level = self.gray_level
+        if refresh is None:
+            refresh = self.monitor.refresh
+
+        # response = np.zeros((2, repeats * num_fit_points))
+        response = dict({})
+        stimulus = np.linspace(0., 2. * np.pi, num_fit_points, endpoint=False)
+        # randstim = np.random.permutation(np.repeat(stimulus, repeats))
+
+        #  get correct frames, frequency should be between 10-20 Hz
+        # number of frames with stimulus (half of the frames for the frequency)
+        keep = int(refresh/(2.*15.))
+        freq = refresh / keep / 2.
+
+        # win = visual.Window([self.monitor.currentCalib['sizePix'][0],
+        #                      self.monitor.currentCalib['sizePix'][1]],
+        #                     monitor=self.monitor.name, fullscr=True, units='deg')
+        win = visual.window.Window(
+            size=[self.monitor.currentCalib['sizePix'][0], self.monitor.currentCalib['sizePix'][1]],
+            monitor=self.monitor, fullscr=True, colorSpace='rgb',
+        )
+
+        # set background gray level
+        win.colorSpace = "rgb"
+        win.color = self.color2pp(np.array([gray_level, gray_level, gray_level]))[0]
+
+        mouse = event.Mouse()
+
+        info = visual.TextStim(win, pos=[0, 12], height=0.5, units='deg')
+        info.autoDraw = True
+
+        if posxs is None:
+            pos_labels = ['up_left', 'up_right', 'down_left', 'down_right']
+            posxs = [-3.5, 3.5, -3.5, 3.5]
+            posys = [3.5, 3.5, -3.5, -3.5]
+        # poss = [[-3.5, 3.5], [3.5, 3.5], [-3.5, -3.5], [3.5, -3.5]]
+        fix = visual.TextStim(win, text="+", pos=[0, 0], height=0.6, color='black', units='deg')
+        fix.autoDraw = True
+
+        for pos_label in pos_labels:
+            response[pos_label] = dict({})
+            response[pos_label]['x'] = []
+            response[pos_label]['y'] = []
+
+        self.iso_slant_sep = dict({})
+
+        # print(poss)
+        # print('---')
+        stim_r = np.tile(stimulus, (repeats * len(pos_labels),))
+        posxs_r = np.repeat(posxs, repeats * num_fit_points)
+        posys_r = np.repeat(posys, repeats * num_fit_points)
+        # print(poss_r)
+        pos_labels_r = np.repeat(pos_labels, repeats * num_fit_points)
+        num_r = np.random.permutation(np.arange(len(stim_r)))
+        stim_r = stim_r[num_r]
+        posxs_r = posxs_r[num_r]
+        posys_r = posys_r[num_r]
+        pos_labels_r = pos_labels_r[num_r]
+
+        for idx, (phi, pos_label, posx, posy) in enumerate(zip(stim_r, pos_labels_r, posxs_r, posys_r)):
+
+            pos = (posx, posy)
+            # randstim = np.random.permutation(np.repeat(stimulus, repeats))
+
+            rect = visual.Rect(win, pos=pos, width=size, height=size, units='deg')
+            # rect = visual.Rect(win, pos=[0.06, 0.06], width=0.06, height=0.08)
+
+            # for idx, phi in enumerate(randstim):
+            info.text = str(idx + 1) + ' of ' + str(len(stim_r)) +\
+                        ' stimuli at ' + str(freq) + 'Hz'
+
+            color = self.color2pp(self.dklc2rgb(phi, gray_level=gray_level))[0]
+            rect.setColor(color, "rgb")
+
+            d_gray = 0.
+            i_frame = 0
+            curr_color = color
+            mouse.setPos(0.)
+            pos, _ = mouse.getPos()
+
+            while True:
+                if i_frame % (2 * keep) < keep:
+                    # get mouse position.
+                    x, _ = mouse.getPos()
+                    if x != pos:
+                        d_gray = lim * x
+                        pos = x
+                        ref_gray_level = gray_level + d_gray
+                        color = self.color2pp(self.dklc2rgb(phi, gray_level=ref_gray_level))[0]
+                        if len(color[color > 1.]) == 0 and not np.isnan(np.sum(color)):
+                            curr_color = color
+
+                    rect.setColor(curr_color, "rgb")
+                    rect.draw()
+
+                    if event.getKeys('right'):
+                        ref_gray_level = gray_level + np.ones(3) * (d_gray + step_size)
+                        color = self.color2pp(self.dklc2rgb(phi, gray_level=ref_gray_level))[0]
+                        if len(color[color > 1.]) == 0 and not np.isnan(np.sum(color)):
+                            curr_color = color
+                            d_gray += step_size
+
+                    if event.getKeys('left'):
+                        ref_gray_level = gray_level + np.ones(3) * (d_gray - step_size)
+                        color = self.color2pp(self.dklc2rgb(phi, gray_level=ref_gray_level))[0]
+                        if len(color[color < -1.]) == 0 and not np.isnan(np.sum(color)):
+                            curr_color = color
+                            d_gray -= step_size
+
+                    if event.getKeys('space'):
+                        break
+
+                win.flip()
+
+                i_frame += 1
+
+            # response[0][idx] = phi
+            response[pos_label]['x'] += [phi]
+            response[pos_label]['y'] += [d_gray]
+
+        for pos_label in pos_labels:
+            stim, res = response[pos_label]['x'], response[pos_label]['y']
+            params, _ = optimize.curve_fit(sine_fitter, stim, res)
+
+            self.iso_slant_sep[pos_label] = dict({})
+            self.iso_slant_sep[pos_label]["amplitude"] = params[0]
+            self.iso_slant_sep[pos_label]["phase"] = params[1]
+            self.iso_slant_sep[pos_label]["offset"] = params[2]
+            self.iso_slant_sep[pos_label]["xdata"] = stim
+            self.iso_slant_sep[pos_label]["ydata"] = res
+            self.iso_slant_sep[pos_label]["chromaticity"] = self.chromaticity
+            self.iso_slant_sep[pos_label]["gray_level"] = gray_level
+        win.close()
+
         self.op_mode = False
 
     def create_color_list(self, hue_res=0.2, gray_level=None):
