@@ -3,7 +3,8 @@
 PyIris is a tool that helps creating visual experiments with psychopy.
 It is possible to calibrate a monitor in order to be able to set LSM-colors 
 that can be adjusted to individual subjects.
-It is tested for python versions > 3.5.
+Tested for python versions > 3.6.
+
 
 ## Contents
 
@@ -69,7 +70,7 @@ You can see, whether you are able to connect to the device by using screen:
 screen /dev/ttyUSB0 9600
 ```
 (where 9600 is the baudrate, change, if needed) and then type `PHOTOMETER`. The photometer should now be in remote mode.
-You can quit by typing `Q`, hitting `Ctrl + A` and `k` to exit screen.
+You can quit by pressing `Q`, then `Ctrl + A` and `k` to exit screen.
 
 ## 4. Commandline Tool
 
