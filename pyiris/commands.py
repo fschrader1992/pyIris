@@ -115,6 +115,40 @@ def measure_iso_slant():
     color_space.save_to_file(directory=f_d, path=f_p)
 
 
+def measure_iso_slant_sep():
+    """
+    Measure a subject's iso-slant.
+    """
+    parser = argparse.ArgumentParser(description="Measure isoslant separately.")
+    parser.add_argument("-C", "--calibration", metavar="",
+                        help="Path to file with measured spectra object.")
+    parser.add_argument("-S", "--subject", metavar="",
+                        help="Path to file with subject data.")
+    parser.add_argument("-b", "--bitdepth", metavar="", type=int, default=10,
+                        help="Color bit-depth.")
+    parser.add_argument("-c", "--chromaticity", metavar="", type=float, default=0.12,
+                        help="Chromaticity (<= 0.36).")
+    parser.add_argument("-g", "--graylevel", metavar="", type=float, default=0.66,
+                        help="Gray level.")
+    parser.add_argument("-s", "--sscale", metavar="", type=float, default=2.6,
+                        help="Scale S-cone values for better viewing.")
+
+    parser.add_argument("-d", "--directory", metavar="", help="Directory for colorspace file.")
+    parser.add_argument("-p", "--path", metavar="", help="Path for colorspace file.")
+
+    args = parser.parse_args()
+
+    # photo = args.photometer if args.photometer else None
+    color_space = ColorSpace(calibration_path=args.calibration, subject_path=args.subject,
+                             bit_depth=args.bitdepth, chromaticity=args.chromaticity,
+                             gray_level=args.graylevel, s_scale=args.sscale)
+
+    f_d = args.directory if args.directory else None
+    f_p = args.path if args.path else None
+    color_space.measure_iso_slant_sep()
+    color_space.save_to_file(directory=f_d, path=f_p)
+
+
 def color_circle():
     """
     Plot the iso-slant corrected color circle.
