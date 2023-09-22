@@ -497,8 +497,6 @@ class ColorSpace:
                     rect.draw()
                     if 'ecc' in field or 'peri' in field:
                         rect2.draw()
-                    if field != 'norm':
-                        fix.draw()
 
                     if event.getKeys('right'):
                         ref_gray_level = gray_level + np.ones(3) * (d_gray + step_size)
@@ -517,6 +515,8 @@ class ColorSpace:
                     if event.getKeys('space'):
                         break
 
+                if field != 'norm':
+                    fix.draw()
                 win.flip()
 
                 i_frame += 1
