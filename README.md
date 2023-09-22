@@ -1,6 +1,17 @@
 # PyIris
 
-PyIris is a tool that helps creating visual experiments with psychopy.
+---
+## Latest Changes
+
+- Autosave calibration plots
+- Added script to repeat calibration for different subsections of a monitor, to control for uniformity of color values.
+- The isoluminance test can now be run separately for different sections of the screen to investigate differences.
+- Isoluminance test results can now be adjusted during plot_color_circle.
+
+---
+
+PyIris is a tool to color calibrate screens in order to conduct visual
+experiments with psychopy.
 It is possible to calibrate a monitor in order to be able to set LSM-colors 
 that can be adjusted to individual subjects.
 Tested for python versions > 3.6.
