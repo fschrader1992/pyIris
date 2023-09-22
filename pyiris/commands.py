@@ -98,6 +98,8 @@ def measure_iso_slant():
                         help="Gray level.")
     parser.add_argument("-s", "--sscale", metavar="", type=float, default=2.6,
                         help="Scale S-cone values for better viewing.")
+    parser.add_argument("-f", "--field", metavar="", type=float, default="norm",
+                        help="Area for which isoslant should be measured (norm/center/ecc).")
 
     parser.add_argument("-d", "--directory", metavar="", help="Directory for colorspace file.")
     parser.add_argument("-p", "--path", metavar="", help="Path for colorspace file.")
@@ -111,7 +113,7 @@ def measure_iso_slant():
 
     f_d = args.directory if args.directory else None
     f_p = args.path if args.path else None
-    color_space.measure_iso_slant()
+    color_space.measure_iso_slant(field=args.field)
     color_space.save_to_file(directory=f_d, path=f_p)
 
 
