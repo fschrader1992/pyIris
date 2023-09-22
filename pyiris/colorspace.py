@@ -458,11 +458,13 @@ class ColorSpace:
 
         rect2 = None
         if 'ecc' in field or 'peri' in field:
-            rect = visual.Rect(win, pos=[0, 0], width=12, height=12, units='deg')
-            rect2 = visual.Rect(win, pos=[0, 0], width=8, height=8, units='deg')
+            rect = visual.Rect(win, pos=[0, 0], width=24, height=24, units='deg')
+            rect2 = visual.Rect(win, pos=[0, 0], width=16, height=16, units='deg')
             rect2.setColor(win_color, "rgb")
         elif field == 'center':
-            rect = visual.Rect(win, pos=[0, 0], width=3, height=3, units='deg')
+            rect = visual.Rect(win, pos=[0, 0], width=4, height=4, units='deg')
+        elif field == 'fovea':
+            rect = visual.Rect(win, pos=[0, 0], width=1.5, height=1.5, units='deg')
         else:
             rect = visual.Rect(win, pos=[0, 0], width=8, height=8, units='deg')
 
