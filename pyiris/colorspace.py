@@ -407,7 +407,7 @@ class ColorSpace:
         return rgb
 
     def measure_iso_slant(self, gray_level=None, num_fit_points=8, repeats=10, lim=0.1,
-                          step_size=0.001, refresh=None):
+                          step_size=0.001, refresh=None, field='norm'):
         """
         Run luminance fitting experiment and fit a sine-function to
         get the iso-slant for iso-luminance plane.
@@ -419,6 +419,9 @@ class ColorSpace:
         :param step_size: Change in luminance with each key event.
         :param lim: Limit for mouse range.
         :param refresh: 1/refresh is frame length.
+        :param field: Whether to test with normal stimulus (8x8deg),
+                      only "center" region (3x3) or the "periphery/ecc"entricity
+                      (12x12, with 8x8 cutout)
         """
 
         self.op_mode = True
@@ -443,14 +446,23 @@ class ColorSpace:
 
         # set background gray level
         win.colorSpace = "rgb"
-        win.color = self.color2pp(np.array([gray_level, gray_level, gray_level]))[0]
+        win_color = self.color2pp(np.array([gray_level, gray_level, gray_level]))[0]
+        win.color = win_color
 
         mouse = event.Mouse()
 
         info = visual.TextStim(win, pos=[0, 12], height=0.5, units='deg')
         info.autoDraw = True
 
-        rect = visual.Rect(win, pos=[0, 0], width=8, height=8)
+        rect2 = None
+        if 'ecc' in field or 'peri' in field:
+            rect = visual.Rect(win, pos=[0, 0], width=12, height=12)
+            rect2 = visual.Rect(win, pos=[0, 0], width=8, height=8)
+            rect2.setColor(win_color, "rgb")
+        elif field == 'center':
+            rect = visual.Rect(win, pos=[0, 0], width=3, height=3)
+        else:
+            rect = visual.Rect(win, pos=[0, 0], width=8, height=8)
 
         for idx, phi in enumerate(randstim):
             info.text = str(idx + 1) + ' of ' + str(len(randstim)) +\
@@ -479,6 +491,8 @@ class ColorSpace:
 
                     rect.setColor(curr_color, "rgb")
                     rect.draw()
+                    if 'ecc' in field or 'peri' in field:
+                        rect2.draw()
 
                     if event.getKeys('right'):
                         ref_gray_level = gray_level + np.ones(3) * (d_gray + step_size)
