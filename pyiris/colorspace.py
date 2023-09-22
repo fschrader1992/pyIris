@@ -456,13 +456,13 @@ class ColorSpace:
 
         rect2 = None
         if 'ecc' in field or 'peri' in field:
-            rect = visual.Rect(win, pos=[0, 0], width=12, height=12)
-            rect2 = visual.Rect(win, pos=[0, 0], width=8, height=8)
+            rect = visual.Rect(win, pos=[0, 0], width=12, height=12, units='deg')
+            rect2 = visual.Rect(win, pos=[0, 0], width=8, height=8, units='deg')
             rect2.setColor(win_color, "rgb")
         elif field == 'center':
-            rect = visual.Rect(win, pos=[0, 0], width=3, height=3)
+            rect = visual.Rect(win, pos=[0, 0], width=3, height=3, units='deg')
         else:
-            rect = visual.Rect(win, pos=[0, 0], width=8, height=8)
+            rect = visual.Rect(win, pos=[0, 0], width=8, height=8, units='deg')
 
         for idx, phi in enumerate(randstim):
             info.text = str(idx + 1) + ' of ' + str(len(randstim)) +\
