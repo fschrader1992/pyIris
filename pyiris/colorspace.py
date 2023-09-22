@@ -436,9 +436,10 @@ class ColorSpace:
         keep = int(refresh/(2.*15.))
         freq = refresh / keep / 2.
 
-        win = visual.Window([self.monitor.currentCalib['sizePix'][0],
-                             self.monitor.currentCalib['sizePix'][1]],
-                            monitor=self.monitor.name, fullscr=True)
+        win = visual.window.Window(
+            size=[self.monitor.currentCalib['sizePix'][0], self.monitor.currentCalib['sizePix'][1]],
+            monitor=self.monitor, fullscr=True, colorSpace='rgb',
+        )
 
         # set background gray level
         win.colorSpace = "rgb"
@@ -446,10 +447,10 @@ class ColorSpace:
 
         mouse = event.Mouse()
 
-        info = visual.TextStim(win, pos=[-0.7, 0.95], height=0.03)
+        info = visual.TextStim(win, pos=[0, 12], height=0.5, units='deg')
         info.autoDraw = True
 
-        rect = visual.Rect(win, pos=[0, 0], width=0.35, height=0.5)
+        rect = visual.Rect(win, pos=[0, 0], width=8, height=8)
 
         for idx, phi in enumerate(randstim):
             info.text = str(idx + 1) + ' of ' + str(len(randstim)) +\
