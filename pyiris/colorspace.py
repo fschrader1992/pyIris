@@ -454,6 +454,8 @@ class ColorSpace:
         info = visual.TextStim(win, pos=[0, 12], height=0.5, units='deg')
         info.autoDraw = True
 
+        fix = visual.TextStim(win, text="+", pos=[0, 0], height=0.6, color='black', units='deg')
+
         rect2 = None
         if 'ecc' in field or 'peri' in field:
             rect = visual.Rect(win, pos=[0, 0], width=12, height=12, units='deg')
@@ -493,6 +495,8 @@ class ColorSpace:
                     rect.draw()
                     if 'ecc' in field or 'peri' in field:
                         rect2.draw()
+                    if field != 'norm':
+                        fix.draw()
 
                     if event.getKeys('right'):
                         ref_gray_level = gray_level + np.ones(3) * (d_gray + step_size)
