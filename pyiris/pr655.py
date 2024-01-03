@@ -27,7 +27,7 @@ class PR655(pr.PR655):
                 self.com.write(i.encode())
                 time.sleep(0.1)
 
-    def sendMessage(self, message, timeout=None, DEBUG=False):
+    def sendMessage_old(self, message, timeout=None, DEBUG=False):
         """
         Send a command to the photometer and wait an allotted
         timeout for a response (Timeout should be long for low
