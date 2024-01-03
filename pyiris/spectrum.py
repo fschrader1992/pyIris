@@ -111,7 +111,7 @@ class Spectrum:
         self.spectra[name, "power"] = mon_spectra["spectra"][i]
         self.names += [name]
 
-    def measure_colors(self, win_h=1200, win_w=1800):
+    def measure_colors(self, win_h=1200, win_w=1800, add_background=False, background_gray=0.67):
         """
         Measure the spectra for each color stimulus.
         """
@@ -120,15 +120,36 @@ class Spectrum:
         if self.monitor:
             win.monitor = self.monitor
 
+        info_msg = visual.TextStim(win, '', color=[1., 1., 1.], pos=(0., 10.), height=0.75, units='deg')
+        info_msg.color = [1., 1., 1.]
+        info_msg.text = 'Please adjust the photometer to the stimulus. Press SPACE to start measurement.'
+        info_msg.draw()
+        circ = visual.Circle(win=win, radius=1, pos=(0., 0.), units='deg')
+        circ.fillColorSpace = "rgb"
+        circ.fillColor = [1., 1., 1.]
+        circ.lineColorSpace = "rgb"
+        circ.lineColor = [1., 1., 1.]
+        circ.draw()
+        win.flip()
+        event.waitKeys(keyList=['space'])
+
+        rect = visual.Rect(win=win, width=win_w, height=win_h)
+        if add_background:
+            bgd = visual.Rect(win=win, width=win_w, height=win_h)
+            bgd.fillColorSpace = "rgb"
+            bgd.fillColor = 2. * background_gray * np.array([1., 1., 1.]) - 1.
+            rect = visual.Rect(win=win, width=8, height=8, pos=(0., 0.), units='deg')
+
         for color in self.colors:
             # draw stimulus
             # get psychopy color range
             show_color = 2. * color - 1.
-            rect = visual.Rect(win=win, width=win_w, height=win_h)
             rect.fillColorSpace = "rgb"
             rect.fillColor = show_color
             rect.lineColorSpace = "rgb"
             rect.lineColor = show_color
+            if add_background:
+                bgd.draw()
             rect.draw()
             win.flip()
             # measure spectrum
