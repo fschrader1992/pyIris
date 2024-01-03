@@ -74,7 +74,7 @@ sudo usermod -a -G dialout USER
 ```
 Alternatively you can set the access to the port by 
 ```shell script
-sudo chmod /dev/ttyUSB0 0666
+sudo chmod 0666 /dev/ttyUSB0
 ```
 You can see, whether you are able to connect to the device by using screen:
 ```shell script
