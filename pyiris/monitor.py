@@ -41,9 +41,28 @@ class Monitor(mon.Monitor):
         with open(settings_path, "r") as file:
             d = yaml.load(file, Loader=yaml.FullLoader)
         self.name = d["id"]
-        self.setWidth(d["size"]["width"]/10.)
-        self.setSizePix([d["preferred_mode"]["width"], d["preferred_mode"]["height"]])
-        self.setDistance(d["preferred_mode"]["distance"])
+
+        if "width_mm" in d["size"].keys():
+            wmm = d["size"]["width_mm"]/10.
+        elif "width_cm" in d["size"].keys():
+            wmm = d["size"]["width_cm"]
+        else:
+            wmm = d["size"]["width"]
+        self.setWidth(wmm)
+
+        wpx = d["preferred_mode"]["width_px"] if "width_px" in d["preferred_mode"].keys()\
+            else d["preferred_mode"]["width"]
+        hpx = d["preferred_mode"]["height_px"] if "height_px" in d["preferred_mode"].keys()\
+            else d["preferred_mode"]["height"]
+        self.setSizePix([wpx, hpx])
+
+        if "distance_mm" in d["preferred_mode"].keys():
+            distance = d["preferred_mode"]["distance_mm"]/10.
+        elif "distance_cm" in d["preferred_mode"].keys():
+            distance = d["preferred_mode"]["distance_cm"]
+        else:
+            distance = d["preferred_mode"]["distance"]
+        self.setDistance(distance)
 
         # for window settings
         self.bpc = d["preferred_mode"]["color-depth"]
