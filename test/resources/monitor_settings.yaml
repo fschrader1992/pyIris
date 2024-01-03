@@ -4,13 +4,13 @@ vendor: Sony
 serial: 2804477
 year: 2001
 size:
- width: 400
- height: 300
+  width_mm: 400
+  height_mm: 300
 preferred_mode:
-  width: 1280
-  height: 1024
+  width_px: 1280
+  height_px: 1024
   refresh: 60
-  distance: 57
+  distance_cm: 57
   color-depth: [8, 8, 8]
 settings:
   contrast: 95
