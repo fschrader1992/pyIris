@@ -27,7 +27,7 @@ Tested for python versions > 3.6.
 
 ## 1. Installation - Building From Source
 
-You can install the package by cloning the github repository:
+You can install the package by cloning the GitHub repository:
 ```shell script
 git clone https://github.com/fschrader1992/pyIris
 cd pyIris
