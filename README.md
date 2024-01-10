@@ -165,7 +165,7 @@ pyiris.colorspace.isoslant [-h/--help] [-C/--calibration] [-S/--subject] [-b/--b
     -S/--subject            Path to file with subject.
     -b/--bitdepth           Bit depth of one color of the current monitor (e.g. 8 or 10).
                             Default is 10bit.
-    -c/--saturation         Saturation (contrast) for colorcircle, maximum 0.36. Default is 0.12.
+    -c/--saturation         Saturation (contrast) for colorcircle, maximum 0.36. Default is 0.16.
     -g/--graylevel          Gray level [0-1]. Default is 0.66.
     -s/--sscale             Scaling for S-cone values for better viewing. Default is 2.6.
     -d/--directory          Directory the calibration file should be stored in. If no filename is 

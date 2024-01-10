@@ -92,7 +92,7 @@ def measure_iso_slant():
                         help="Path to file with subject data.")
     parser.add_argument("-b", "--bitdepth", metavar="", type=int, default=10,
                         help="Color bit-depth.")
-    parser.add_argument("-c", "--saturation", metavar="", type=float, default=0.12,
+    parser.add_argument("-c", "--saturation", metavar="", type=float, default=0.16,
                         help="saturation (<= 0.36).")
     parser.add_argument("-g", "--graylevel", metavar="", type=float, default=0.66,
                         help="Gray level.")
@@ -128,7 +128,7 @@ def measure_iso_slant_sep():
                         help="Path to file with subject data.")
     parser.add_argument("-b", "--bitdepth", metavar="", type=int, default=10,
                         help="Color bit-depth.")
-    parser.add_argument("-c", "--saturation", metavar="", type=float, default=0.12,
+    parser.add_argument("-c", "--saturation", metavar="", type=float, default=0.16,
                         help="saturation (<= 0.36).")
     parser.add_argument("-g", "--graylevel", metavar="", type=float, default=0.66,
                         help="Gray level.")
