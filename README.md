@@ -3,6 +3,10 @@
 ---
 ## Latest Changes
 
+- The abbreviation for functions using the cone opponent colorspace changed from "dklc" to "cnop".
+    Conversion functions using "dklc" are still usable with the Colorspace class for the moment.
+    With new code please use cnop2rgb etc.
+- Default saturation changed from 0.12 to 0.16% cone contrast.
 - Autosave calibration plots
 - Added script to repeat calibration for different subsections of a monitor, to control for uniformity of color values.
 - The isoluminance test can now be run separately for different sections of the screen to investigate differences.
