@@ -157,7 +157,7 @@ pyiris.subject [-h/--help] [-s/--short] [-N/--name] [-S/--surname] [-b/--birthda
 
 ```	
 pyiris.colorspace.isoslant [-h/--help] [-C/--calibration] [-S/--subject] [-b/--bitdepth]
-                           [-c/--chromaticity] [-g/--graylevel] [-u/--unit] [-s/--sscale]
+                           [-c/--saturation] [-g/--graylevel] [-u/--unit] [-s/--sscale]
                            [-d/--directory] [-p/--path] 
     -h/--help               Show help.
     -C/--calibration        Path to file with calibration. Without this you can only use functions
@@ -165,7 +165,7 @@ pyiris.colorspace.isoslant [-h/--help] [-C/--calibration] [-S/--subject] [-b/--b
     -S/--subject            Path to file with subject.
     -b/--bitdepth           Bit depth of one color of the current monitor (e.g. 8 or 10).
                             Default is 10bit.
-    -c/--chromaticity       Chromaticity (contrast) for colorcircle, maximum 0.36. Default is 0.12.
+    -c/--saturation         Saturation (contrast) for colorcircle, maximum 0.36. Default is 0.12.
     -g/--graylevel          Gray level [0-1]. Default is 0.66.
     -s/--sscale             Scaling for S-cone values for better viewing. Default is 2.6.
     -d/--directory          Directory the calibration file should be stored in. If no filename is 

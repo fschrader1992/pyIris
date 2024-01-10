@@ -47,7 +47,7 @@ class ColorSpace:
     Class Colorspace
     """
 
-    def __init__(self, calibration_path=None, subject_path=None, bit_depth=10, chromaticity=0.12,
+    def __init__(self, calibration_path=None, subject_path=None, bit_depth=10, saturation=0.12,
                  gray_level=0.66, unit="rad", s_scale=2.6):
 
         self.uuid = uuid.uuid4()
@@ -82,7 +82,7 @@ class ColorSpace:
         self.color_list = dict({})
 
         # cnop values
-        self.chromaticity = chromaticity
+        self.saturation = saturation
         self.gray_level = gray_level
         self.unit = unit
         self.s_scale = s_scale
@@ -161,20 +161,20 @@ class ColorSpace:
         phi = np.arccos(a/r)
         return phi
 
-    def dklc2lms(self, phi, gray_level=None, chromaticity=None, unit=None, s_scale=None):
+    def dklc2lms(self, phi, gray_level=None, saturation=None, unit=None, s_scale=None):
         """
         Wrapper for old nomenclature.
         """
-        return self.cnop2lms(phi, gray_level=gray_level, chromaticity=chromaticity, unit=unit, s_scale=s_scale)
+        return self.cnop2lms(phi, gray_level=gray_level, saturation=saturation, unit=unit, s_scale=s_scale)
 
-    def cnop2lms(self, phi, gray_level=None, chromaticity=None, unit=None, s_scale=None):
+    def cnop2lms(self, phi, gray_level=None, saturation=None, unit=None, s_scale=None):
         """
         Conversion of a dkl-similar value (gray/lum, phi) to a corresponding lms value.
         If a subject is given, this also depends on its iso-slant.
 
         :param phi: color angle(s) as list/numpy array.
         :param gray_level: luminance/gray value(s).
-        :param chromaticity: Chromaticity.
+        :param saturation: saturation.
         :param unit: unit for phi: rad or deg
         :param s_scale: Scaling factor for blue values.
         :return: lms values as numpy array.
@@ -184,10 +184,10 @@ class ColorSpace:
         if phi.ndim == 0:
             phi = np.asarray([phi])
         phi_len = len(phi)
-        if chromaticity is None:
-            chromaticity = self.chromaticity
+        if saturation is None:
+            saturation = self.saturation
         if phi.ndim == 0:
-            chromaticity = chromaticity * np.ones(phi_len)
+            saturation = saturation * np.ones(phi_len)
         if gray_level is None:
             gray_level = np.array([self.gray_level])
         gray_level = np.asarray(gray_level)
@@ -205,7 +205,7 @@ class ColorSpace:
         amplitude = 0.
         phase = 0.
         offset = 0.
-        chrom_0 = self.chromaticity
+        chrom_0 = self.saturation
         if self.iso_slant["amplitude"] == 0.:
             if not self.op_mode:
                 print("WARNING: Amplitude of iso-slant is 0.\n"
@@ -214,13 +214,13 @@ class ColorSpace:
             amplitude = self.iso_slant["amplitude"]
             phase = self.iso_slant["phase"]
             offset = self.iso_slant["offset"]
-            chrom_0 = self.iso_slant["chromaticity"]
+            chrom_0 = self.iso_slant["saturation"]
 
         gray_level = np.repeat(gray_level, phi_len, axis=0)
         phase = phase * np.ones(phi_len)
         phi_lum = phi + phase
 
-        gray_level = [gray_level + chromaticity/chrom_0 * amplitude * np.sin(phi_lum) + offset]
+        gray_level = [gray_level + saturation/chrom_0 * amplitude * np.sin(phi_lum) + offset]
         gray = self.rgb2lms(np.repeat(gray_level, 3, axis = 0).T)
         gray[gray == 0] = self.min_val
 
@@ -228,9 +228,9 @@ class ColorSpace:
         lm_ratio = 1.0 * gray.T[0] / gray.T[1]
 
         vec = np.asarray([
-            1.0 + chromaticity * np.cos(phi) / (1.0 + lm_ratio),
-            1.0 - chromaticity * np.cos(phi) / (1.0 + 1.0/lm_ratio),
-            1.0 + s_scale * chromaticity * np.sin(phi)
+            1.0 + saturation * np.cos(phi) / (1.0 + lm_ratio),
+            1.0 - saturation * np.cos(phi) / (1.0 + 1.0/lm_ratio),
+            1.0 + s_scale * saturation * np.sin(phi)
         ]).T
 
         lms = gray * vec
@@ -253,25 +253,25 @@ class ColorSpace:
         cnop = self.lms2cnop(lms)
         return cnop
 
-    def dklc2rgb(self, phi, gray_level=None, chromaticity=None, unit=None, s_scale=None):
+    def dklc2rgb(self, phi, gray_level=None, saturation=None, unit=None, s_scale=None):
         """
         Wrapper for old nomenclature.
         """
-        return self.cnop2rgb(phi, gray_level=gray_level, chromaticity=chromaticity, unit=unit, s_scale=s_scale)
+        return self.cnop2rgb(phi, gray_level=gray_level, saturation=saturation, unit=unit, s_scale=s_scale)
 
-    def cnop2rgb(self, phi, gray_level=None, chromaticity=None, unit=None, s_scale=None):
+    def cnop2rgb(self, phi, gray_level=None, saturation=None, unit=None, s_scale=None):
         """
         Conversion of a dkl-similar value (gray/lum, phi) to a corresponding rgb value.
         If a subject is given, this also depends on its iso-slant.
 
         :param phi: color angle(s).
         :param gray_level: luminance/gray value(s).
-        :param chromaticity: Chromaticity.
+        :param saturation: saturation.
         :param unit: unit for phi: rad or deg
         :param s_scale: Scaling factor for blue values.
         :return: rgb values as numpy array.
         """
-        lms = self.cnop2lms(phi, gray_level, chromaticity, unit, s_scale)
+        lms = self.cnop2lms(phi, gray_level, saturation, unit, s_scale)
         rgb = self.lms2rgb([lms])[0]
         return rgb
 
@@ -557,7 +557,7 @@ class ColorSpace:
         self.iso_slant["offset"] = params[2]
         self.iso_slant["xdata"] = stim
         self.iso_slant["ydata"] = res
-        self.iso_slant["chromaticity"] = self.chromaticity
+        self.iso_slant["saturation"] = self.saturation
         self.iso_slant["gray_level"] = gray_level
         self.op_mode = False
 
@@ -715,7 +715,7 @@ class ColorSpace:
             self.iso_slant_sep[pos_label]["offset"] = params[2]
             self.iso_slant_sep[pos_label]["xdata"] = stim
             self.iso_slant_sep[pos_label]["ydata"] = res
-            self.iso_slant_sep[pos_label]["chromaticity"] = self.chromaticity
+            self.iso_slant_sep[pos_label]["saturation"] = self.saturation
             self.iso_slant_sep[pos_label]["gray_level"] = gray_level
         win.close()
 
@@ -923,7 +923,7 @@ class ColorSpace:
         self.op_mode = False
 
     def show_checkerboard(self, low=1, high=13, win=None, gray_level=None,
-                          chromaticity=None, color_list=None, update=True,
+                          saturation=None, color_list=None, update=True,
                           draw=True):
         """
         Show randomly colored checkerboard.
@@ -931,7 +931,7 @@ class ColorSpace:
         :param high: Highest number of rectangles.
         :param win: Window, which should be filled.
         :param gray_level: Gray level.
-        :param chromaticity: Chromaticity.
+        :param saturation: saturation.
         :param color_list: List of possible colors (in rgb).
         :param update: Whether to change layout (size and colors)
         :param draw: Whether to draw it (e.g. for initialization).
@@ -978,7 +978,7 @@ class ColorSpace:
                 if color_list is None:
                     angles = np.asarray(np.random.randint(low=0, high=360, size=cb.nElements))
                     cb.setColors(self.color2pp(self.cnop2rgb(phi=angles, unit="deg",
-                                                         chromaticity=chromaticity,
+                                                         saturation=saturation,
                                                          gray_level=gray_level)))
                 else:
                     indices = np.asarray(np.random.randint(low=0, high=len(color_list), size=cb.nElements))
