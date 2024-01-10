@@ -168,7 +168,7 @@ def color_circle():
 
 def color_list():
     """
-    Create a rgb-color list for dklc-angles.
+    Create a rgb-color list for cnop-angles.
     """
     parser = argparse.ArgumentParser(description="Create color list for resolution.")
     parser.add_argument("-p", "--path", metavar="", help="Path for colorspace file.")

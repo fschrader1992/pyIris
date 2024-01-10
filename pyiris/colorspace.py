@@ -81,7 +81,7 @@ class ColorSpace:
         self.iso_slant_sep = dict({})
         self.color_list = dict({})
 
-        # dklc values
+        # cnop values
         self.chromaticity = chromaticity
         self.gray_level = gray_level
         self.unit = unit
@@ -138,6 +138,12 @@ class ColorSpace:
 
     def lms2dklc(self, lms):
         """
+        Wrapper for old nomenclature.
+        """
+        return self.lms2cnop(lms)
+
+    def lms2cnop(self, lms):
+        """
         Conversion of a lms value to dkl-similar coordinates,
         such that a gray value and color_angle can be given.
         If a subject is given, this also depends on its isoslant.
@@ -156,6 +162,12 @@ class ColorSpace:
         return phi
 
     def dklc2lms(self, phi, gray_level=None, chromaticity=None, unit=None, s_scale=None):
+        """
+        Wrapper for old nomenclature.
+        """
+        return self.cnop2lms(phi, gray_level=gray_level, chromaticity=chromaticity, unit=unit, s_scale=s_scale)
+
+    def cnop2lms(self, phi, gray_level=None, chromaticity=None, unit=None, s_scale=None):
         """
         Conversion of a dkl-similar value (gray/lum, phi) to a corresponding lms value.
         If a subject is given, this also depends on its iso-slant.
@@ -227,15 +239,27 @@ class ColorSpace:
 
     def rgb2dklc(self, rgb):
         """
-        Convert rgb value to dklc.
+        Wrapper for old nomenclature.
+        """
+        return self.rgb2cnop(rgb)
+
+    def rgb2cnop(self, rgb):
+        """
+        Convert rgb value to cnop.
         :param rgb: (list of) 3-tuple/numpy array with rgb values [0, 1].
-        :return: dklc values.
+        :return: cnop values.
         """
         lms = self.lms2rgb(rgb)
-        dklc = self.lms2dklc(lms)
-        return dklc
+        cnop = self.lms2cnop(lms)
+        return cnop
 
     def dklc2rgb(self, phi, gray_level=None, chromaticity=None, unit=None, s_scale=None):
+        """
+        Wrapper for old nomenclature.
+        """
+        return self.cnop2rgb(phi, gray_level=gray_level, chromaticity=chromaticity, unit=unit, s_scale=s_scale)
+
+    def cnop2rgb(self, phi, gray_level=None, chromaticity=None, unit=None, s_scale=None):
         """
         Conversion of a dkl-similar value (gray/lum, phi) to a corresponding rgb value.
         If a subject is given, this also depends on its iso-slant.
@@ -247,7 +271,7 @@ class ColorSpace:
         :param s_scale: Scaling factor for blue values.
         :return: rgb values as numpy array.
         """
-        lms = self.dklc2lms(phi, gray_level, chromaticity, unit, s_scale)
+        lms = self.cnop2lms(phi, gray_level, chromaticity, unit, s_scale)
         rgb = self.lms2rgb([lms])[0]
         return rgb
 
@@ -472,7 +496,7 @@ class ColorSpace:
             info.text = str(idx + 1) + ' of ' + str(len(randstim)) +\
                         ' stimuli at ' + str(freq) + 'Hz'
 
-            color = self.color2pp(self.dklc2rgb(phi, gray_level=gray_level))[0]
+            color = self.color2pp(self.cnop2rgb(phi, gray_level=gray_level))[0]
             rect.setColor(color, "rgb")
 
             d_gray = 0.
@@ -489,7 +513,7 @@ class ColorSpace:
                         d_gray = lim * x
                         pos = x
                         ref_gray_level = gray_level + d_gray
-                        color = self.color2pp(self.dklc2rgb(phi, gray_level=ref_gray_level))[0]
+                        color = self.color2pp(self.cnop2rgb(phi, gray_level=ref_gray_level))[0]
                         if len(color[color > 1.]) == 0 and not np.isnan(np.sum(color)):
                             curr_color = color
 
@@ -500,14 +524,14 @@ class ColorSpace:
 
                     if event.getKeys('right'):
                         ref_gray_level = gray_level + np.ones(3) * (d_gray + step_size)
-                        color = self.color2pp(self.dklc2rgb(phi, gray_level=ref_gray_level))[0]
+                        color = self.color2pp(self.cnop2rgb(phi, gray_level=ref_gray_level))[0]
                         if len(color[color > 1.]) == 0 and not np.isnan(np.sum(color)):
                             curr_color = color
                             d_gray += step_size
 
                     if event.getKeys('left'):
                         ref_gray_level = gray_level + np.ones(3) * (d_gray - step_size)
-                        color = self.color2pp(self.dklc2rgb(phi, gray_level=ref_gray_level))[0]
+                        color = self.color2pp(self.cnop2rgb(phi, gray_level=ref_gray_level))[0]
                         if len(color[color < -1.]) == 0 and not np.isnan(np.sum(color)):
                             curr_color = color
                             d_gray -= step_size
@@ -632,7 +656,7 @@ class ColorSpace:
             info.text = str(idx + 1) + ' of ' + str(len(stim_r)) +\
                         ' stimuli at ' + str(freq) + 'Hz'
 
-            color = self.color2pp(self.dklc2rgb(phi, gray_level=gray_level))[0]
+            color = self.color2pp(self.cnop2rgb(phi, gray_level=gray_level))[0]
             rect.setColor(color, "rgb")
 
             d_gray = 0.
@@ -649,7 +673,7 @@ class ColorSpace:
                         d_gray = lim * x
                         pos = x
                         ref_gray_level = gray_level + d_gray
-                        color = self.color2pp(self.dklc2rgb(phi, gray_level=ref_gray_level))[0]
+                        color = self.color2pp(self.cnop2rgb(phi, gray_level=ref_gray_level))[0]
                         if len(color[color > 1.]) == 0 and not np.isnan(np.sum(color)):
                             curr_color = color
 
@@ -658,14 +682,14 @@ class ColorSpace:
 
                     if event.getKeys('right'):
                         ref_gray_level = gray_level + np.ones(3) * (d_gray + step_size)
-                        color = self.color2pp(self.dklc2rgb(phi, gray_level=ref_gray_level))[0]
+                        color = self.color2pp(self.cnop2rgb(phi, gray_level=ref_gray_level))[0]
                         if len(color[color > 1.]) == 0 and not np.isnan(np.sum(color)):
                             curr_color = color
                             d_gray += step_size
 
                     if event.getKeys('left'):
                         ref_gray_level = gray_level + np.ones(3) * (d_gray - step_size)
-                        color = self.color2pp(self.dklc2rgb(phi, gray_level=ref_gray_level))[0]
+                        color = self.color2pp(self.cnop2rgb(phi, gray_level=ref_gray_level))[0]
                         if len(color[color < -1.]) == 0 and not np.isnan(np.sum(color)):
                             curr_color = color
                             d_gray -= step_size
@@ -708,7 +732,7 @@ class ColorSpace:
             gray_level = self.gray_level
 
         phis = np.linspace(0, 360 - hue_res, int(360 / hue_res))
-        conv_phi = [self.dklc2rgb(phi=phi, gray_level=gray_level, unit="deg") for phi in phis]
+        conv_phi = [self.cnop2rgb(phi=phi, gray_level=gray_level, unit="deg") for phi in phis]
         rgb = [c_phi for c_phi in conv_phi]
         # resolution of N bit in [0, 1] scale
         rgb_res = 1. / np.power(2., self.bit_depth)
@@ -825,7 +849,7 @@ class ColorSpace:
                                             units='pix')
 
         # set iso_slant values accordingly
-        m_rgb = self.dklc2rgb(phi=phis, gray_level=gray_level,)
+        m_rgb = self.cnop2rgb(phi=phis, gray_level=gray_level,)
 
         rect_size = 0.4 * win.size[0] * 2 / num_col
         radius = 0.2 * win.size[0]
@@ -852,13 +876,13 @@ class ColorSpace:
                 old_rating_amp = cr_amp
                 # adjust iso slant (minus because of convention in measurements)
                 self.iso_slant['amplitude'] = -cr_amp
-                m_rgb = self.dklc2rgb(phi=phis, gray_level=gray_level,)
+                m_rgb = self.cnop2rgb(phi=phis, gray_level=gray_level,)
             if phase_slider.getRating() != old_rating_phase:
                 cr_phase = phase_slider.getRating()
                 old_rating_phase = cr_phase
                 # adjust iso slant
                 self.iso_slant['phase'] = cr_phase/180. * np.pi
-                m_rgb = self.dklc2rgb(phi=phis, gray_level=gray_level,)
+                m_rgb = self.cnop2rgb(phi=phis, gray_level=gray_level,)
 
             amp_slider.draw()
             phase_slider.draw()
@@ -953,7 +977,7 @@ class ColorSpace:
                 # speed process up for screensaver etc.
                 if color_list is None:
                     angles = np.asarray(np.random.randint(low=0, high=360, size=cb.nElements))
-                    cb.setColors(self.color2pp(self.dklc2rgb(phi=angles, unit="deg",
+                    cb.setColors(self.color2pp(self.cnop2rgb(phi=angles, unit="deg",
                                                          chromaticity=chromaticity,
                                                          gray_level=gray_level)))
                 else:
