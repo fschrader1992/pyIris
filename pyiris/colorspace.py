@@ -276,12 +276,18 @@ class ColorSpace:
         rgb = self.lms2rgb([lms])[0]
         return rgb
 
+    def color2pp(self, xyz):
+        """
+        Wrapper for old nomenclature.
+        """
+        return self.rgb2pp(xyz)
+
     @staticmethod
-    def color2pp(xyz):
+    def rgb2pp(xyz):
         """
         Convert rgb/lms values to psychopy xyz colorspace.
 
-        :param xyz: list/3-tuples/numpy array with rgb/lms values [0, 1].
+        :param xyz: list/3-tuples/numpy array with rgb values in interval [0, 1].
         :return: psychopy compatible values [-1, 1] as numpy array.
         """
         xyz = np.asarray(xyz)
@@ -290,8 +296,14 @@ class ColorSpace:
         xyz_pp = 2. * xyz - np.ones((len(xyz), len(xyz[0])))
         return xyz_pp
 
+    def pp2color(self, xyz):
+        """
+        Wrapper for old nomenclature.
+        """
+        return self.pp2rgb(xyz)
+
     @staticmethod
-    def pp2color(xyz_pp):
+    def pp2rgb(xyz_pp):
         """
         Convert psychopy rgb/lms values to psychopy xyz colorspace.
 
@@ -471,7 +483,7 @@ class ColorSpace:
 
         # set background gray level
         win.colorSpace = "rgb"
-        win_color = self.color2pp(np.array([gray_level, gray_level, gray_level]))[0]
+        win_color = self.rgb2pp(np.array([gray_level, gray_level, gray_level]))[0]
         win.color = win_color
 
         mouse = event.Mouse()
@@ -497,7 +509,7 @@ class ColorSpace:
             info.text = str(idx + 1) + ' of ' + str(len(randstim)) +\
                         ' stimuli at ' + str(freq) + 'Hz'
 
-            color = self.color2pp(self.cnop2rgb(phi, gray_level=gray_level))[0]
+            color = self.rgb2pp(self.cnop2rgb(phi, gray_level=gray_level))[0]
             rect.setColor(color, "rgb")
 
             d_gray = 0.
@@ -514,7 +526,7 @@ class ColorSpace:
                         d_gray = lim * x
                         pos = x
                         ref_gray_level = gray_level + d_gray
-                        color = self.color2pp(self.cnop2rgb(phi, gray_level=ref_gray_level))[0]
+                        color = self.rgb2pp(self.cnop2rgb(phi, gray_level=ref_gray_level))[0]
                         if len(color[color > 1.]) == 0 and not np.isnan(np.sum(color)):
                             curr_color = color
 
@@ -525,14 +537,14 @@ class ColorSpace:
 
                     if event.getKeys('right'):
                         ref_gray_level = gray_level + np.ones(3) * (d_gray + step_size)
-                        color = self.color2pp(self.cnop2rgb(phi, gray_level=ref_gray_level))[0]
+                        color = self.rgb2pp(self.cnop2rgb(phi, gray_level=ref_gray_level))[0]
                         if len(color[color > 1.]) == 0 and not np.isnan(np.sum(color)):
                             curr_color = color
                             d_gray += step_size
 
                     if event.getKeys('left'):
                         ref_gray_level = gray_level + np.ones(3) * (d_gray - step_size)
-                        color = self.color2pp(self.cnop2rgb(phi, gray_level=ref_gray_level))[0]
+                        color = self.rgb2pp(self.cnop2rgb(phi, gray_level=ref_gray_level))[0]
                         if len(color[color < -1.]) == 0 and not np.isnan(np.sum(color)):
                             curr_color = color
                             d_gray -= step_size
@@ -610,7 +622,7 @@ class ColorSpace:
 
         # set background gray level
         win.colorSpace = "rgb"
-        win.color = self.color2pp(np.array([gray_level, gray_level, gray_level]))[0]
+        win.color = self.rgb2pp(np.array([gray_level, gray_level, gray_level]))[0]
 
         mouse = event.Mouse()
 
@@ -657,7 +669,7 @@ class ColorSpace:
             info.text = str(idx + 1) + ' of ' + str(len(stim_r)) +\
                         ' stimuli at ' + str(freq) + 'Hz'
 
-            color = self.color2pp(self.cnop2rgb(phi, gray_level=gray_level))[0]
+            color = self.rgb2pp(self.cnop2rgb(phi, gray_level=gray_level))[0]
             rect.setColor(color, "rgb")
 
             d_gray = 0.
@@ -674,7 +686,7 @@ class ColorSpace:
                         d_gray = lim * x
                         pos = x
                         ref_gray_level = gray_level + d_gray
-                        color = self.color2pp(self.cnop2rgb(phi, gray_level=ref_gray_level))[0]
+                        color = self.rgb2pp(self.cnop2rgb(phi, gray_level=ref_gray_level))[0]
                         if len(color[color > 1.]) == 0 and not np.isnan(np.sum(color)):
                             curr_color = color
 
@@ -683,14 +695,14 @@ class ColorSpace:
 
                     if event.getKeys('right'):
                         ref_gray_level = gray_level + np.ones(3) * (d_gray + step_size)
-                        color = self.color2pp(self.cnop2rgb(phi, gray_level=ref_gray_level))[0]
+                        color = self.rgb2pp(self.cnop2rgb(phi, gray_level=ref_gray_level))[0]
                         if len(color[color > 1.]) == 0 and not np.isnan(np.sum(color)):
                             curr_color = color
                             d_gray += step_size
 
                     if event.getKeys('left'):
                         ref_gray_level = gray_level + np.ones(3) * (d_gray - step_size)
-                        color = self.color2pp(self.cnop2rgb(phi, gray_level=ref_gray_level))[0]
+                        color = self.rgb2pp(self.cnop2rgb(phi, gray_level=ref_gray_level))[0]
                         if len(color[color < -1.]) == 0 and not np.isnan(np.sum(color)):
                             curr_color = color
                             d_gray -= step_size
@@ -866,7 +878,7 @@ class ColorSpace:
             rgbs = self.rgb10232rgb(rgbs[uni_inds, :])
         else:
             raise ValueError("Could not convert color list with bit depth set to {}bit".format(self.bit_depth))
-        rgbs = self.color2pp(rgbs)
+        rgbs = self.rgb2pp(rgbs)
 
         # add list to subject and colorspace
         self.color_list[axes] = dict({})
@@ -930,7 +942,7 @@ class ColorSpace:
 
         # set background gray level
         win.colorSpace = "rgb"
-        win.color = self.color2pp(np.array([gray_level, gray_level, gray_level]))[0]
+        win.color = self.rgb2pp(np.array([gray_level, gray_level, gray_level]))[0]
 
         tb = visual.TextBox(window=win,
                             text="Set iso-slant values via sliders.\n"
@@ -1100,7 +1112,7 @@ class ColorSpace:
             # speed process up for screensaver etc.
             if color_list is None:
                 angles = np.asarray(np.random.randint(low=0, high=360, size=cb.nElements))
-                cb.colors = self.color2pp(
+                cb.colors = self.rgb2pp(
                     self.cnop2rgb(phi=angles, unit="deg", saturation=saturation, gray_level=gray_level)
                 )
             else:

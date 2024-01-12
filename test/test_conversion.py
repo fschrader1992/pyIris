@@ -21,16 +21,16 @@ class TestConversion(unittest.TestCase):
         self.cal.load_from_file(path=cs_path)
         self.cs.calibration = self.cal
 
-    def test_color2pp(self):
+    def test_rgb2pp(self):
         colors = np.asarray([[0., 0., 0.], [0.5, 0.5, 0.5], [1., 1., 1.]])
         pp_colors = np.asarray([[-1., -1., -1.], [0., 0., 0.], [1., 1., 1.]])
-        pp_colors_conv = self.cs.color2pp(colors)
+        pp_colors_conv = self.cs.rgb2pp(colors)
         np.testing.assert_allclose(pp_colors, pp_colors_conv, atol=1e-8)
 
-    def test_pp2color(self):
+    def test_pp2rgb(self):
         pp_colors = np.asarray([[-1., -1., -1.], [0., 0., 0.], [1., 1., 1.]])
         colors = np.asarray([[0., 0., 0.], [0.5, 0.5, 0.5], [1., 1., 1.]])
-        colors_conv = self.cs.pp2color(pp_colors)
+        colors_conv = self.cs.pp2rgb(pp_colors)
         np.testing.assert_allclose(colors, colors_conv, atol=1e-8)
 
     def test_rgb_lms_rgb(self):
@@ -94,16 +94,16 @@ class TestConversion(unittest.TestCase):
         lms_conv = self.cs.rgb2lms(rgb)
         np.testing.assert_allclose(np.asarray([lms]), lms_conv, atol=1e-8)
 
-    def test_color2pp_tuple(self):
+    def test_rgb2pp_tuple(self):
         colors = (0.0, 0.5, 1.0)
         pp_colors = np.asarray([[-1.0, 0.0, 1.0]])
-        pp_colors_conv = self.cs.color2pp(colors)
+        pp_colors_conv = self.cs.rgb2pp(colors)
         np.testing.assert_allclose(pp_colors, pp_colors_conv, atol=1e-8)
 
-    def test_pp2color_tuple(self):
+    def test_pp2rgb_tuple(self):
         pp_colors = (-1.0, 0.0, 1.0)
         colors = np.asarray([[0.0, 0.5, 1.0]])
-        colors_conv = self.cs.pp2color(pp_colors)
+        colors_conv = self.cs.pp2rgb(pp_colors)
         np.testing.assert_allclose(colors, colors_conv, atol=1e-8)
 
     def test_rgb_rgb255_tuple(self):
@@ -142,16 +142,16 @@ class TestConversion(unittest.TestCase):
         lms_conv = self.cs.rgb2lms(rgb)
         np.testing.assert_allclose(np.asarray([lms]), lms_conv, atol=1e-8)
 
-    def test_color2pp_list(self):
+    def test_rgb2pp_list(self):
         colors = [0.0, 0.5, 1.0]
         pp_colors = np.asarray([[-1.0, 0.0, 1.0]])
-        pp_colors_conv = self.cs.color2pp(colors)
+        pp_colors_conv = self.cs.rgb2pp(colors)
         np.testing.assert_allclose(pp_colors, pp_colors_conv, atol=1e-8)
 
-    def test_pp2color_list(self):
+    def test_pp2rgb_list(self):
         pp_colors = [-1.0, 0.0, 1.0]
         colors = np.asarray([[0.0, 0.5, 1.0]])
-        colors_conv = self.cs.pp2color(pp_colors)
+        colors_conv = self.cs.pp2rgb(pp_colors)
         np.testing.assert_allclose(colors, colors_conv, atol=1e-8)
 
     def test_rgb_rgb255_list(self):
