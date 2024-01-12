@@ -22,16 +22,16 @@ class Spectrum:
     Class Spectrum
     """
 
-    def __init__(self, photometer=None, colors=None, stepsize=None, monitor_settings_path=None):
+    def __init__(self, photometer=None, colors=None, monitor_settings_path=None):
         self.uuid = uuid.uuid4()
         self.date = datetime.datetime.now()
         self.photometer = photometer
         self.colors = colors
-        self.stepsize = stepsize
 
         self.monitor_settings_path = monitor_settings_path
         self.monitor = None
 
+        self.params = {}
         self.names = []
         self.spectra = {}
 
@@ -40,8 +40,6 @@ class Spectrum:
 
         if colors:
             self.names = colors
-        if stepsize:
-            self.create_colorlist()
         if monitor_settings_path:
             self.add_monitor_settings(monitor_settings_path)
 
@@ -56,15 +54,13 @@ class Spectrum:
 
         self.monitor = Monitor(settings_path=monitor_settings_path)
 
-    def create_colorlist(self, stepsize=None):
+    def create_colorlist(self, stepsize=0.1, minval=0., maxval=1.):
         """
         Set list of rgb-color codes to be used for spectra.
         :param stepsize: Difference between two color steps (between 0. and 1.)
         """
-        if stepsize:
-            self.stepsize = stepsize
         self.colors = []
-        for step in np.arange(0. + self.stepsize, 1. + self.stepsize, self.stepsize):
+        for step in np.arange(minval, maxval + stepsize, stepsize):
             self.colors += [np.asarray([step, 0., 0.])]
             self.colors += [np.asarray([0., step, 0.])]
             self.colors += [np.asarray([0., 0., step])]
@@ -76,16 +72,23 @@ class Spectrum:
         """
         self.photometer = PR655(port=port)
 
-    def add_spectrum(self, name):
+    def add_spectrum(self, name, xy, rgb, label, repeat):
         """
         Measure and save spectrum from photometer.
         :param name: Name this measurement has. With measure_colors this is equal to rgb-color code.
         """
+        self.names += [name]
+        self.spectra[name, "label"] = label
+        self.spectra[name, "repeat"] = repeat
+        self.spectra[name, "monitorx"] = xy[0]
+        self.spectra[name, "monitory"] = xy[1]
+        self.spectra[name, "R"] = rgb[0]
+        self.spectra[name, "G"] = rgb[1]
+        self.spectra[name, "B"] = rgb[2]
         self.spectra[name, "luminance"] = self.photometer.getLum()
         nm, power = self.photometer.getLastSpectrum(parse=True)
         self.spectra[name, "wavelength"] = nm
         self.spectra[name, "power"] = power
-        self.names += [name]
 
         # get other data
         self.spectra[name, "tristim"] = self.photometer.getLastTristim()
@@ -111,81 +114,59 @@ class Spectrum:
         self.spectra[name, "power"] = mon_spectra["spectra"][i]
         self.names += [name]
 
-    def measure_colors(self, win_h=1200, win_w=1800, add_background=False, background_gray=0.67):
-        """
-        Measure the spectra for each color stimulus.
-        """
-
-        win = visual.Window([win_h, win_w], fullscr=True)
-        if self.monitor:
-            win.monitor = self.monitor
-
-        info_msg = visual.TextStim(win, '', color=[1., 1., 1.], pos=(0., 10.), height=0.75, units='deg')
-        info_msg.color = [1., 1., 1.]
-        info_msg.text = 'Please adjust the photometer to the stimulus. Press SPACE to start measurement.'
-        info_msg.draw()
-        circ = visual.Circle(win=win, radius=1, pos=(0., 0.), units='deg')
-        circ.fillColorSpace = "rgb"
-        circ.fillColor = [1., 1., 1.]
-        circ.lineColorSpace = "rgb"
-        circ.lineColor = [1., 1., 1.]
-        circ.draw()
-        win.flip()
-        event.waitKeys(keyList=['space'])
-
-        rect = visual.Rect(win=win, width=win_w, height=win_h)
-        if add_background:
-            bgd = visual.Rect(win=win, width=win_w, height=win_h)
-            bgd.fillColorSpace = "rgb"
-            bgd.fillColor = 2. * background_gray * np.array([1., 1., 1.]) - 1.
-            rect = visual.Rect(win=win, width=8, height=8, pos=(0., 0.), units='deg')
-
-        for color in self.colors:
-            # draw stimulus
-            # get psychopy color range
-            show_color = 2. * color - 1.
-            rect.fillColorSpace = "rgb"
-            rect.fillColor = show_color
-            rect.lineColorSpace = "rgb"
-            rect.lineColor = show_color
-            if add_background:
-                bgd.draw()
-            rect.draw()
-            win.flip()
-            # measure spectrum
-            self.add_spectrum(name=str(color))
-
-        win.close()
-
-        # set date of last measurement
-        self.date = datetime.datetime.now()
-
-    def measure_patch_colors(self, win_h=1200, win_w=1800):
+    def measure_colors(self, stepsize=0.1, minval=0., maxval=1., n_rep=1,
+                       xys=None, xy_labels=None,
+                       stim_type=None, stim_size=None, background=0.67,
+                       win_h=1200, win_w=1800):
         """
         Measure the spectra for each color stimulus, for stimuli
         in different areas of the screen.
         """
 
-        # shorter test-color list, around luminance values used in experiments
-        self.colors = []
-        for step in np.arange(0.55, 0.8, 0.05):
-            self.colors += [np.asarray([step, 0., 0.])]
-            self.colors += [np.asarray([0., step, 0.])]
-            self.colors += [np.asarray([0., 0., step])]
-            self.colors += [np.asarray([step, step, step])]
-        noc = len(self.colors) * 6
-
+        # Fill self.colorlist
+        self.create_colorlist(stepsize=stepsize, minval=minval, maxval=maxval)
+        # obtain number of measurements
+        noc = len(self.colors) * n_rep
+        # to save actual RGB values TODO: maybe remove?
         colors_updated = []
 
-        win = visual.Window([win_h, win_w], color=[-1., -1., -1.], fullscr=True)
+        # define background color during measurements
+        if isinstance(background, float) or isinstance(background, int):
+            background = np.array([background, background, background])
+        elif (isinstance(background, list) and len(background) == 1) or\
+                (isinstance(background, np.ndarray) and len(background) == 1):
+            background = np.array([background[0], background[0], background[0]])
+        background = 2. * background - 1.
+        # define background during photometer adjustments
+        info_background = [0.33, 0.33, 0.33]
+
+        # define window
+        win = visual.Window([win_h, win_w], color=info_background, fullscr=True)
         if self.monitor:
             win.monitor = self.monitor
 
+        # create info message stimulus
         info_msg = visual.TextStim(win, '', color=[1., 1., 1.], pos=(0, 10), height=0.75, units='deg')
-        # iterate through 4 dot positions and repeat each measurement 6 times
-        xys = [[-1.5, 1.5], [1.5, 1.5], [-1.5, -1.5], [1.5, -1.5]]
-        xy_labels = ['up_left', 'up_right', 'down_left', 'down_right']
+
+        # Positions: use center of monitor by default
+        if xys is None:
+            xys = [[0., 0.]]
+            xy_labels = ['main']
+
+        # Define stimulus for measurements
+        measure_stim = None
+        if stim_type == "circ" or stim_type == "circle":
+            measure_stim = visual.Circle(win=win, radius=1, pos=[0., 0.], units='deg')
+        else:
+            measure_stim = visual.Rect(win=win, width=win_w, height=win_h)
+        if stim_size is not None:
+            measure_stim.size = stim_size
+
+
+        # iterate through positions
         for xy_label, xy in zip(xy_labels, xys):
+            # Define window background color during adjustment
+            win.color = info_background
             # start with stimulus in order to adjust photometer
             info_msg.color = [1., 1., 1.]
             info_msg.text = 'Please adjust the photometer to the stimulus. Press SPACE to start measurement.'
@@ -199,6 +180,8 @@ class Spectrum:
             win.flip()
             keys = event.waitKeys(keyList=['space'])
 
+            # Define window background color
+            win.color = background
             info_msg.color = [-0.5, -0.5, -0.5]
 
             # start measurement
@@ -206,18 +189,19 @@ class Spectrum:
             for color in self.colors:
                 # get psychopy color range
                 show_color = 2. * color - 1.
-                for n_rep in range(6):
+                for n in range(n_rep):
                     # add same color to color list to save correctly
                     colors_updated += [color]
                     # draw stimulus
-                    circ.fillColor = show_color
-                    circ.lineColor = show_color
-                    circ.draw()
-                    info_msg.text = str(q) + '/' + noc
+                    measure_stim.fillColor = show_color
+                    measure_stim.lineColor = show_color
+                    measure_stim.draw()
+                    info_msg.text = str(q) + '/' + str(noc)
                     info_msg.draw()
                     win.flip()
                     # measure spectrum
-                    self.add_spectrum(name=str(color) + '#' + xy_label + '#' + str(n_rep))
+                    self.add_spectrum(name="{}#{}#{}".format(str(color), xy_label, n+1),
+                                      xy=xy, rgb=color, label=xy_label, repeat=n+1)
                     q += 1
         win.close()
 
@@ -225,6 +209,14 @@ class Spectrum:
         self.colors = colors_updated
         # set date of last measurement
         self.date = datetime.datetime.now()
+
+        # store function input for saving
+        self.params['stepsize'] = stepsize
+        self.params['stim_type'] = stim_type if stim_type is not None else 'rectangle'
+        self.params['stim_size'] = stim_size if stim_size is not None else 0.
+        self.params['background'] = background
+
+        return True
 
     def save_to_file(self, path=None, directory=None):
         """
@@ -249,22 +241,32 @@ class Spectrum:
         s.create_property(name="date", values_or_dtype=[str(self.date)])
         photometer = self.photometer.getDeviceSN() if self.photometer else ""
         s.create_property(name="photometer", values_or_dtype=[photometer])
-        stepsize = self.stepsize if self.stepsize else ""
-        s.create_property(name="stepsize", values_or_dtype=[stepsize])
         msp = "empty"
         if self.monitor_settings_path:
             msp = self.monitor_settings_path
             msp = str(Path(msp).resolve())
         s.create_property(name="monitor_settings_path", values_or_dtype=[msp])
 
+        # save params
+        s.create_property(name="stepsize", values_or_dtype=[self.params["stepsize"]])
+        s.create_property(name="stimsize", values_or_dtype=[self.params["stim_size"]])
+        s.create_property(name="stimtype", values_or_dtype=[self.params["stim_type"]])
+        bg = list(self.params["background"]) if (len(self.params["background"]) > 0) else 0.
+        p_bg = s.create_property(name="background", values_or_dtype=np.float64)
+        p_bg.values = bg
+
         ds = nix_file.create_section(name="data", type_="data")
 
         for ni, name in enumerate(self.names):
             d = ds.create_section(name=str(name), type_="measurement")
             d.create_property(name="name", values_or_dtype=[str(name)])
-            c = list(self.colors[ni]) if (len(self.colors) > 0) else 0.
-            p_c = d.create_property(name="color", values_or_dtype=np.float64)
-            p_c.values = c
+            d.create_property(name="label", values_or_dtype=[self.spectra[name, "label"]])
+            d.create_property(name="repeat", values_or_dtype=[self.spectra[name, "repeat"]])
+            d.create_property(name="monitorx", values_or_dtype=[self.spectra[name, "monitorx"]])
+            d.create_property(name="monitory", values_or_dtype=[self.spectra[name, "monitory"]])
+            d.create_property(name="R", values_or_dtype=[self.spectra[name, "R"]])
+            d.create_property(name="G", values_or_dtype=[self.spectra[name, "G"]])
+            d.create_property(name="B", values_or_dtype=[self.spectra[name, "B"]])
             d.create_property(name="luminance", values_or_dtype=[self.spectra[name, "luminance"]])
             p_w = d.create_property(name="wavelength", values_or_dtype=np.float64)
             p_w.values = list(self.spectra[name, "wavelength"])
@@ -282,6 +284,8 @@ class Spectrum:
         nix_file.close()
 
         print("Successfully saved spectra to file {}".format(path))
+
+        return True
 
     def load_from_file(self, path):
         """
@@ -318,7 +322,16 @@ class Spectrum:
         for d in ds.sections:
             name = d.props["name"].values[0]
             self.names += [name]
-            self.colors += [np.asarray(d.props["color"].values)]
+            self.spectra[name, "label"] = d.props["label"].values[0]
+            self.spectra[name, "repeat"] = d.props["repeat"].values[0]
+            self.spectra[name, "R"] = d.props["R"].values[0]
+            self.spectra[name, "G"] = d.props["G"].values[0]
+            self.spectra[name, "B"] = d.props["B"].values[0]
+            self.spectra[name, "RGB"] = [np.array([
+                self.spectra[name, "R"], self.spectra[name, "G"], self.spectra[name, "B"]
+            ])]
+            self.spectra[name, "monitorx"] = d.props["monitorx"].values[0]
+            self.spectra[name, "monitory"] = d.props["monitory"].values[0]
             self.spectra[name, "luminance"] = d.props["luminance"].values[0]
             self.spectra[name, "wavelength"] = np.asarray(d.props["wavelength"].values)
             self.spectra[name, "power"] = np.asarray(d.props["power"].values)
