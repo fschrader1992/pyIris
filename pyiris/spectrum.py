@@ -64,6 +64,9 @@ class Spectrum:
             self.colors += [np.asarray([step, 0., 0.])]
             self.colors += [np.asarray([0., step, 0.])]
             self.colors += [np.asarray([0., 0., step])]
+            self.colors += [np.asarray([step, step, 0.])]
+            self.colors += [np.asarray([0., step, step])]
+            self.colors += [np.asarray([step, 0., step])]
             self.colors += [np.asarray([step, step, step])]
 
     def add_pr655(self, port="/dev/ttyUSB0"):
