@@ -24,12 +24,13 @@ class Calibration:
     Class Calibration
     """
 
-    def __init__(self, corr_type="gamma_corr", mon_spectra_path="", cone_spectra_path=""):
+    def __init__(self, corr_type="gamma_corr", mon_spectra_path="", cone_spectra_path="", label="main"):
         self.uuid = uuid.uuid4()
         self.date = datetime.datetime.now()
         self.corr_type = corr_type
         self.cone_spectra_path = cone_spectra_path
         self.mon_spectra_path = mon_spectra_path
+        self.label = label
         self.monitor_settings_path = None
         self._rgb_mat = None
         self._lms_mat = None
@@ -80,11 +81,15 @@ class Calibration:
 
         self._rgb_mat = np.zeros(shape=(len(monitor_spectra.names), 3))
         self._lms_mat = np.zeros(shape=(len(monitor_spectra.names), 3))
+        stims = []
+        for mn in monitor_spectra.names:
+            if self.label == mn.split("#")[1]:
+                stims += [mn]
 
         lum_eff_l = []
         lum_ms_l = []
 
-        for i, stim in enumerate(monitor_spectra.names):
+        for i, stim in enumerate(stims):
 
             # get wavelength array
             lams = np.arange(max(min(cone_spectra["wavelength"]),
@@ -104,7 +109,7 @@ class Calibration:
                                 monitor_spectra.spectra[stim, "power"], kind="cubic")(lams)
 
             # stim can also be list or 3-tuple
-            self._rgb_mat[i] = np.asarray(monitor_spectra.colors[i])
+            self._rgb_mat[i] = np.asarray(monitor_spectra.spectra[stim, "RGB"])
             self._lms_mat[i] = np.asarray([np.trapz(l_spec * mon_spec),
                                            np.trapz(m_spec * mon_spec),
                                            np.trapz(s_spec * mon_spec)])
