@@ -312,7 +312,7 @@ class Calibration:
         dt = {}
         dt.update(vars(self))
         dt["uuid"] = str(self.uuid)
-        dt["date"] = str(self.date)
+        dt["date"] = self.date.isoformat()
         dt["_rgb_mat"] = self._rgb_mat.tolist()
         dt["_lms_mat"] = self._lms_mat.tolist()
         dt["calibration_matrix"] = self.calibration_matrix.tolist()
