@@ -1095,18 +1095,17 @@ class ColorSpace:
                         elementTex=tex,
                         elementMask=mask
                     )
+            cb = self.checkerboard[p_num]
+            # get colors
+            # speed process up for screensaver etc.
+            if color_list is None:
+                angles = np.asarray(np.random.randint(low=0, high=360, size=cb.nElements))
+                cb.colors = self.color2pp(
+                    self.cnop2rgb(phi=angles, unit="deg", saturation=saturation, gray_level=gray_level)
+                )
             else:
-                cb = self.checkerboard[p_num]
-                # get colors
-                # speed process up for screensaver etc.
-                if color_list is None:
-                    angles = np.asarray(np.random.randint(low=0, high=360, size=cb.nElements))
-                    cb.setColors(self.color2pp(self.cnop2rgb(phi=angles, unit="deg",
-                                                         saturation=saturation,
-                                                         gray_level=gray_level)))
-                else:
-                    indices = np.asarray(np.random.randint(low=0, high=len(color_list), size=cb.nElements))
-                    cb.setColors(list(itemgetter(*indices)(color_list)))
+                indices = np.asarray(np.random.randint(low=0, high=len(color_list), size=cb.nElements))
+                cb.colors = list(itemgetter(*indices)(color_list))
         if draw:
             self.checkerboard[p_num].draw()
             win.flip()
