@@ -238,30 +238,35 @@ class Calibration:
         path = os.path.join(plot_dir, path)
 
         # RGB Values
-        fig, ax = pl.subplots(ncols=2, nrows=2)
+        fig, ax = pl.subplots(ncols=3, nrows=3)
         cs = ColorSpace()
         cs.calibration = self
         x = np.arange(0, 1, 0.01)
         x_z = np.zeros(len(x))
-        x_s = [(x, x_z, x_z), (x_z, x, x_z), (x_z, x_z, x), (x, x, x)]
+        x_s = [(x, x_z, x_z), (x_z, x, x_z), (x_z, x_z, x), (x, x, x_z), (x, x_z, x), (x_z, x, x), (x, x, x)]
 
-        titles = ["R", "G", "B", "RGB"]
+        titles = ["R", "G", "B", "RG", "RB", "GB", "RGB"]
 
-        for i in range(4):
-            l_e = self._lms_mat[0][i::4]
-            m_e = self._lms_mat[1][i::4]
-            s_e = self._lms_mat[2][i::4]
-            rgb_e = self._rgb_mat[i % 3][i::4]
+        ch_rgb_mat = np.where(self._rgb_mat > self._min_val, 1, 0).T
+        ch_rgb_mat = np.where(ch_rgb_mat < 0.001, 0, 1)
+        ch_x_s = np.where(np.asarray(x_s) > 0, 1, 0).T[-1].T
+
+        for i in range(len(x_s)):
+            inds = np.argwhere(np.all(np.equal(ch_rgb_mat, ch_x_s[i]), axis=1))
+            l_e = self._lms_mat[0][inds]
+            m_e = self._lms_mat[1][inds]
+            s_e = self._lms_mat[2][inds]
+            rgb_e = np.max(self._rgb_mat.T[inds].T, axis=0)[0]
 
             l, m, s = cs.rgb2lms(np.asarray(x_s[i]).T).T
 
-            ax[int(i / 2)][i % 2].plot(x, l, label="l", c="r")
-            ax[int(i / 2)][i % 2].plot(x, m, label="m", c="g")
-            ax[int(i / 2)][i % 2].plot(x, s, label="s", c="b")
-            ax[int(i / 2)][i % 2].plot(rgb_e, l_e, "rx")
-            ax[int(i / 2)][i % 2].plot(rgb_e, m_e, "gx")
-            ax[int(i / 2)][i % 2].plot(rgb_e, s_e, "bx")
-            ax[int(i / 2)][i % 2].set_title(titles[i])
+            ax[int(i / 3)][i % 3].plot(x, l, label="l", c="r")
+            ax[int(i / 3)][i % 3].plot(x, m, label="m", c="g")
+            ax[int(i / 3)][i % 3].plot(x, s, label="s", c="b")
+            ax[int(i / 3)][i % 3].plot(rgb_e, l_e, "rx")
+            ax[int(i / 3)][i % 3].plot(rgb_e, m_e, "gx")
+            ax[int(i / 3)][i % 3].plot(rgb_e, s_e, "bx")
+            ax[int(i / 3)][i % 3].set_title(titles[i])
 
         fig.suptitle("RGB Values")
         pl.legend()
@@ -270,32 +275,31 @@ class Calibration:
         pl.show()
 
         # Luminosity
-        fig, ax = pl.subplots(ncols=2, nrows=2)
+        fig, ax = pl.subplots(ncols=3, nrows=3)
 
         x = np.arange(0, 1, 0.01)
-        x_z = np.zeros(len(x))
-        x_s = [(x, x_z, x_z), (x_z, x, x_z), (x_z, x_z, x), (x, x, x)]
+        # x_z = np.zeros(len(x))
+        # x_s = [(x, x_z, x_z), (x_z, x, x_z), (x_z, x_z, x), (x, x, x)]
 
-        titles = ["R", "G", "B", "RGB"]
-
-        for i in range(4):
-            lum_ms = self.lum_ms[i::4]
-            lum_eff = self.lum_eff[i::4]
+        for i in range(len(x_s)):
+            inds = np.argwhere(np.all(np.equal(ch_rgb_mat, ch_x_s[i]), axis=1))
+            lum_ms = self.lum_ms[inds]
+            lum_eff = self.lum_eff[inds]
             l, m, s = cs.rgb2lms(np.asarray(x_s[i]).T).T
 
-            rgb_e = self._rgb_mat[i % 3][i::4]
+            rgb_e = np.max(self._rgb_mat.T[inds].T, axis=0)[0]
 
             # account for difference between measured
             # luminosity and luminance
             lum_const = 100.
             lum_calc = lum_const*(l + m)
 
-            ax[int(i / 2)][i % 2].plot(rgb_e, lum_ms, c="k",
+            ax[int(i / 3)][i % 3].plot(rgb_e, lum_ms, c="k",
                                        marker="x", linestyle=":", label="Measured")
-            ax[int(i / 2)][i % 2].plot(rgb_e, lum_eff, c="lightblue",
+            ax[int(i / 3)][i % 3].plot(rgb_e, lum_eff, c="lightblue",
                                        marker="+", linestyle=":", label="Integrated")
-            ax[int(i / 2)][i % 2].plot(x, lum_calc, "r", label="Calculated")
-            ax[int(i / 2)][i % 2].set_title(titles[i])
+            ax[int(i / 3)][i % 3].plot(x, lum_calc, "r", label="Calculated")
+            ax[int(i / 3)][i % 3].set_title(titles[i])
 
         fig.suptitle("Luminosity")
         pl.legend()
