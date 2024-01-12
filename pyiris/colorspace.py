@@ -8,6 +8,7 @@ import datetime
 import uuid
 import json
 import codecs
+import itertools
 from pathlib import Path
 from operator import itemgetter
 from psychopy import event, misc, visual
@@ -721,42 +722,165 @@ class ColorSpace:
 
         self.op_mode = False
 
-    def create_color_list(self, hue_res=0.2, gray_level=None):
+    def create_color_list(self, axes="cnop_hues",
+                          hue_angle=None, hue_res=0.2,
+                          saturation=None, sat_res=0.01, max_sat=0.3001,
+                          gray_level=None, lum_res=0.01):
         """
         Generate colors that are realizable in a N-bit display and save them in a color list.
-        :param hue_res: Resolution of hue angles, i.e. hue angle bins. Given in DEG!
-        :param gray_level: Luminance value.
+        :param axes: Tuple containing the definitions of dimensions along which the color list should be built.
+               Possible axes are "cnop_hues" (hue angle), "cnop_sat" (saturation) and "cnop_lum" (luminance).
+               If only one value is given, it can be set as simple string.
+               If only two are given, the respective entries/keys in the color list's "cnop" field will be ordered
+               in the way given.
+               If all three dimensions are listed, the respective entries/keys in the color list's "cnop" field
+               will always bein the order ["cnop_hues", "cnop_sat", "cnop_lum"].
+               Default is "cnop_hues".
+        :param hue_angle: Optional hue angle, used when only "cnop_sat" or cnop_lum" is given. Default is None.
+        :param hue_res: Resolution of hue angles, i.e. hue angle bins. Given in DEG hue angle!
+        :param saturation: Base saturation,used for "cnop_hues" and "cnop_lum".
+               If not given, class attribute settings are used.
+        :param sat_res: Resolution for saturation steps. Default is 0.01.
+        :param max_sat: Maximum saturation up to which values are generated. Default is 0.3001
+        :param gray_level: Luminance value with "cnop_hues" or "cnop_sat".
+               If not given, class attribute settings are used.
+        :param lum_res: Resolution for luminance steps. Default is 0.01.
+        :return: True.
         """
+
         self.op_mode = True
         if gray_level is None:
             gray_level = self.gray_level
+        if saturation is None:
+            saturation = self.saturation
 
-        phis = np.linspace(0, 360 - hue_res, int(360 / hue_res))
-        conv_phi = [self.cnop2rgb(phi=phi, gray_level=gray_level, unit="deg") for phi in phis]
-        rgb = [c_phi for c_phi in conv_phi]
+        # list containing values in cnop colorspace, can be scalars or arrays/lists for each dimension
+        cnop_vals = None
+        # array containing RGB values for each list entry
+        rgbs = None
+
+        if isinstance(axes, str) or len(axes) == 1:
+            if "cnop_hues" in axes:
+                cnop_vals = np.arange(0., 360., hue_res)
+                rgbs = np.array([
+                    self.cnop2rgb(
+                        phi=phi, saturation=saturation, gray_level=gray_level, unit="deg"
+                    )[0].tolist() for phi in cnop_vals
+                ])
+            elif "cnop_sat" in axes:
+                cnop_vals = np.arange(0.0, max_sat, sat_res)
+                rgbs = np.array([
+                    self.cnop2rgb(
+                        phi=hue_angle, saturation=sat, gray_level=gray_level, unit="deg"
+                    )[0].tolist() for sat in cnop_vals
+                ])
+            elif "cnop_lum" in axes:
+                cnop_vals = np.arange(0.0, 1.0, lum_res)
+                rgbs = np.array([
+                    self.cnop2rgb(
+                        phi=hue_angle, saturation=saturation, gray_level=gray_lev, unit="deg"
+                    )[0].tolist() for gray_lev in cnop_vals
+                ])
+            else:
+                raise ValueError('Unknown type "{}" for color list "axes" parameter.'.format(axes[0]))
+        elif not isinstance(axes, str) and len(axes) == 2:
+            if axes == ("cnop_hues", "cnop_sat") or axes == ("cnop_sat", "cnop_hues"):
+                hues = np.arange(0., 360., hue_res).tolist()
+                sat = np.arange(0.0, max_sat, sat_res).tolist()
+                if axes == ("cnop_hues", "cnop_sat"):
+                    cnop_vals = np.array(list(itertools.product(hues, sat)))
+                    rgbs = np.array([
+                        self.cnop2rgb(
+                            phi=phi, saturation=sat, gray_level=gray_level, unit="deg"
+                        )[0].tolist() for (phi, sat) in cnop_vals
+                    ])
+                else:
+                    cnop_vals = np.array(list(itertools.product(sat, hues)))
+                    rgbs = np.array([
+                        self.cnop2rgb(
+                            phi=phi, saturation=sat, gray_level=gray_level, unit="deg"
+                        )[0].tolist() for (sat, phi) in cnop_vals
+                    ])
+            elif axes == ("cnop_hues", "cnop_lum") or axes == ("cnop_lum", "cnop_hues"):
+                hues = np.arange(0., 360., hue_res).tolist()
+                lum = np.arange(0.0, 1.0, lum_res).tolist()
+                if axes == ("cnop_hues", "cnop_lum"):
+                    cnop_vals = np.array(list(itertools.product(hues, lum)))
+                    rgbs = np.array([
+                        self.cnop2rgb(
+                            phi=phi, saturation=saturation, gray_level=lum, unit="deg"
+                        )[0].tolist() for (phi, lum) in cnop_vals
+                    ])
+                else:
+                    cnop_vals = np.array(list(itertools.product(lum, hues)))
+                    rgbs = np.array([
+                        self.cnop2rgb(
+                            phi=phi, saturation=saturation, gray_level=lum, unit="deg"
+                        )[0].tolist() for (lum, phi) in cnop_vals
+                    ])
+            elif axes == ("cnop_sat", "cnop_lum") or axes == ("cnop_lum", "cnop_sat"):
+                sats = np.arange(0.0, max_sat, sat_res).tolist()
+                lum = np.arange(0.0, 1.0, lum_res).tolist()
+                if axes == ("cnop_sat", "cnop_lum"):
+                    cnop_vals = np.array(list(itertools.product(sats, lum)))
+                    rgbs = np.array([
+                        self.cnop2rgb(
+                            phi=hue_angle, saturation=sat, gray_level=lum, unit="deg"
+                        )[0].tolist() for (sat, lum) in cnop_vals
+                    ])
+                else:
+                    cnop_vals = np.array(list(itertools.product(lum, sats)))
+                    rgbs = np.array([
+                        self.cnop2rgb(
+                            phi=hue_angle, saturation=sat, gray_level=lum, unit="deg"
+                        )[0].tolist() for (lum, sat) in cnop_vals
+                    ])
+            else:
+                raise ValueError('Unknown 2d color list type "{}"'.format(axes))
+        elif not isinstance(axes, str) and len(axes) == 3:
+            hues = np.arange(0., 360., hue_res).tolist()
+            sat = np.arange(0.0, max_sat, sat_res).tolist()
+            lum = np.arange(0.0, 1.0, lum_res).tolist()
+            cnop_vals = np.array(list(itertools.product(hues, sat, lum)))
+            rgbs = np.array([
+                self.cnop2rgb(
+                    phi=phi, saturation=sat, gray_level=lum, unit="deg"
+                )[0].tolist() for (phi, sat, lum) in cnop_vals
+            ])
+        else:
+            raise ValueError("Color lists can be created from 1, 2 or 3 value tuples,"
+                "but currently is {} with length {}".format(axes, len(axes)))
+
         # resolution of N bit in [0, 1] scale
         rgb_res = 1. / np.power(2., self.bit_depth)
-        sel_rgb = []
-        sel_phi = []
-        rgb_len = len(rgb)
-        it = iter(list(range(0, len(rgb) + 2)))
+        rgbs = (rgbs/rgb_res).astype(np.int64)
 
-        for idx in it:
-            if idx < rgb_len:
-                sel_rgb.append(rgb[idx][0])
-                sel_phi.append(phis[idx])
-                # prevent multiple entries
-                if abs(rgb[idx][0][1] - rgb[(idx + 1) % rgb_len][0][1]) <= rgb_res:
-                    next(it)
-                if abs(rgb[idx][0][1] - rgb[(idx + 2) % rgb_len][0][1]) <= rgb_res:
-                    next(it)
-                    next(it)
+        # generate set of unique RGB values
+        uni_inds = np.sort(np.unique(rgbs, axis=0, return_index=True)[1])
+        #
+        cnop_vals = cnop_vals[uni_inds]
+
+        if self.bit_depth == 8 or self.bit_depth == [8, 8, 8]:
+            rgbs = self.rgb2552rgb(rgbs[uni_inds, :])
+        elif self.bit_depth == 10 or self.bit_depth == [10, 10, 10]:
+            rgbs = self.rgb10232rgb(rgbs[uni_inds, :])
+        else:
+            raise ValueError("Could not convert color list with bit depth set to {}bit".format(self.bit_depth))
+        rgbs = self.color2pp(rgbs)
 
         # add list to subject and colorspace
-        self.color_list[hue_res] = dict({})
-        self.color_list[hue_res]["hue_angles"] = sel_phi
-        self.color_list[hue_res]["rgb"] = sel_rgb
+        self.color_list[axes] = dict({})
+        self.color_list[axes]["res_hues"] = hue_res
+        self.color_list[axes]["res_sat"] = sat_res
+        self.color_list[axes]["res_lum"] = lum_res
+        self.color_list[axes]["hue_angle"] = hue_angle
+        self.color_list[axes]["saturation"] = saturation
+        self.color_list[axes]["gray_level"] = gray_level
+        self.color_list[axes]["cnop"] = cnop_vals
+        self.color_list[axes]["rgb"] = rgbs
         self.op_mode = False
+
+        return True
 
     def plot_iso_slant(self):
         """
@@ -999,9 +1123,8 @@ class ColorSpace:
         win = visual.Window(fullscr=True, monitor="eDc-1")
 
         # create color_list
-        if 2. not in self.color_list.keys():
-            self.create_color_list(hue_res=2., gray_level=gray_level)
-        color_list = self.color_list[2.]["rgb"]
+        self.create_color_list(hue_res=2.)
+        color_list = self.color_list["cnop_hues"]["rgb"]
 
         while True:
             self.show_checkerboard(win=win, color_list=color_list)
