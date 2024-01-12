@@ -39,6 +39,8 @@ class Calibration:
 
         self.lum_ms = np.ones(1)
         self.lum_eff = np.ones(1)
+        # avoid division by zero during fitting
+        self._min_val = 0.00000001
 
     def set_mock_values(self):
         """
@@ -169,10 +171,9 @@ class Calibration:
         l, m, s = self._lms_mat
 
         # avoid division by zero errors
-        min_val = 0.00000001
-        r[r == 0] = min_val
-        g[g == 0] = min_val
-        b[b == 0] = min_val
+        r[r == 0] = self._min_val
+        g[g == 0] = self._min_val
+        b[b == 0] = self._min_val
 
         fit = Fit(model, r=r, g=g, b=b, l=l, m=m, s=s)
         fit_res = fit.execute()
