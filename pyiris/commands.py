@@ -17,8 +17,10 @@ def spectrum():
     parser = argparse.ArgumentParser(description="Measure spectra.")
     parser.add_argument("-s", "--stepsize", type=float, metavar="",
                         help="Stepsize as float in range [0-1] for differences in colors. "
-                             "Each step measures spectra in single r, g, b and gray "
+                             "Each step measures spectra in single r, g, b, their combinations and gray "
                              "values of this intensity.")
+    parser.add_argument("-r", "--repeats", type=int, metavar="",
+                        help="Number of repeats for each measurement. Default is 1.")
     parser.add_argument("-M", "--monitor", metavar="",
                         help="Path to file with monitor settings.")
     parser.add_argument("-P", "--photometer", metavar="",
@@ -30,11 +32,11 @@ def spectrum():
     args = parser.parse_args()
 
     photo = args.photometer if args.photometer else None
-    spec = Spectrum(photometer=photo, stepsize=args.stepsize,
+    spec = Spectrum(photometer=photo,
                     monitor_settings_path=args.monitor)
 
     spec.add_pr655()
-    spec.measure_colors()
+    spec.measure_colors(stepsize=args.stepsize, n_rep=args.repeats)
 
     f_d = args.directory if args.directory else None
     f_p = args.path if args.path else None
