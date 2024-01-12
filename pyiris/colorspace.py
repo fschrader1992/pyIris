@@ -1122,6 +1122,9 @@ class ColorSpace:
             gray_level = self.gray_level
         win = visual.Window(fullscr=True, monitor="eDc-1")
 
+        # Don't show cursor
+        event.Mouse(visible=False)
+
         # create color_list
         self.create_color_list(hue_res=2.)
         color_list = self.color_list["cnop_hues"]["rgb"]
