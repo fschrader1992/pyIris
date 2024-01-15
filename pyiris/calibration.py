@@ -7,13 +7,11 @@ import os
 import datetime
 import uuid
 import json
-import codecs
 import ruamel.yaml
 import numpy as np
 import pandas as pd
 import matplotlib.pylab as pl
 
-from pathlib import Path
 from scipy.interpolate import interp1d
 from symfit import variables, parameters, Model, Fit
 
