@@ -7,9 +7,8 @@ import os
 import datetime
 import uuid
 import json
-import codecs
 import itertools
-from pathlib import Path
+import ruamel.yaml
 from operator import itemgetter
 from psychopy import event, misc, visual
 from scipy import optimize
@@ -1130,59 +1129,75 @@ class ColorSpace:
                 win.close()
                 break
 
-    def save_to_file(self, path=None, directory=None):
+    def save_to_file(self, path=None, directory=None, filetype="yaml", absolute_paths=False, save_color_list=False):
         """
         Save object data to file.
         :param path: location of file.
         :param directory: directory, if file name should be filled automatically.
         """
+
+        if path is not None and "." in path:
+            filetype = path.split(".")[-1]
+
         dt = {}
         dt.update(vars(self))
         del dt["calibration"]
         del dt["subject"]
         del dt["monitor"]
+        del dt["checkerboard"]
         dt["uuid"] = str(self.uuid)
-        dt["date"] = str(self.date)
+        dt["date"] = self.date.isoformat()
         if dt["calibration_path"]:
-            dt["calibration_path"] = str(Path(dt["calibration_path"]).resolve())
+            if absolute_paths:
+                dt["calibration_path"] = os.path.abspath(dt["calibration_path"])
         if dt["subject_path"]:
-            dt["subject_path"] = str(Path(dt["subject_path"]).resolve())
+            if absolute_paths:
+                dt["subject_path"] = os.path.abspath(dt["subject_path"])
         iso_slant = self.iso_slant
         iso_slant["xdata"] = np.asarray(iso_slant["xdata"]).tolist()
         iso_slant["ydata"] = np.asarray(iso_slant["ydata"]).tolist()
-        iso_slant = json.dumps(iso_slant)
+        if filetype.lower() == "json":
+            iso_slant = json.dumps(iso_slant)
         dt["iso_slant"] = iso_slant
-        for key, val in self.color_list.items():
-            self.color_list[key]["hue_angles"] = np.asarray(val["hue_angles"]).tolist()
-            self.color_list[key]["rgb"] = np.asarray(val["rgb"]).tolist()
-        dt["color_list"] = json.dumps(self.color_list)
+        if save_color_list:
+            for key, val in self.color_list.items():
+                self.color_list[key]["cnop"] = np.asarray(val["cnop"]).tolist()
+                self.color_list[key]["rgb"] = np.asarray(val["rgb"]).tolist()
+            if filetype.lower() == "json":
+                dt["color_list"] = json.dumps(self.color_list)
+        else:
+            del dt["color_list"]
+        dt = dict(sorted(dt.items()))
 
         if not path:
-            path = "colorspace_{}.json".format(self.date)
+            path = "colorspace_{}.yaml".format(self.date)
         if directory:
             path = os.path.join(directory, path)
-        save_dir, save_file = os.path.split(path)
-        if save_dir and not os.path.isdir(save_dir):
-            os.mkdir(save_dir)
-        if ".json" not in save_file:
-            path = path + ".json"
-        json.dump(dt, codecs.open(path, 'w', encoding='utf-8'),
-                  separators=(',', ':'), sort_keys=True, indent=4)
+        dump_file(dt, path, filetype)
 
         print("Successfully saved colorspace to file {}".format(path))
 
-    def load_from_file(self, path=None):
+    def load_from_file(self, path=None, filetype="yaml"):
         """
         Load from file.
         :param path: location of file.
         """
 
+        if "." in path:
+            filetype = path.split(".")[-1]
+
         with open(path, "r") as f:
-            d = json.load(f)
+            if filetype == "yaml":
+                d = ruamel.yaml.YAML().load(f)
+            else:
+                d = json.load(f)
+
         for a, b in d.items():
-            setattr(self, a, self.__class__(b) if isinstance(b, dict) else b)
+            # setattr(self, a, self.__class__(b) if isinstance(b, dict) else b)
+            setattr(self, a, b)
 
         self.uuid = uuid.UUID(str(self.uuid))
+        self.date = datetime.datetime.fromisoformat(d["date"])
 
         if self.calibration_path:
             self.calibration = Calibration()
@@ -1192,7 +1207,10 @@ class ColorSpace:
             self.subject = Subject()
             self.subject.load_from_file(self.subject_path)
 
-        self.iso_slant = json.loads(self.iso_slant)
-        self.color_list = json.loads(self.color_list)
+        if filetype.lower() == "json":
+            if len(self.iso_slant) > 0:
+                self.iso_slant = json.loads(self.iso_slant)
+            if len(self.color_list) > 0:
+                self.color_list = json.loads(self.color_list)
 
         print("Successfully loaded colorspace from file {}".format(path))
