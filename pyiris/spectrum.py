@@ -56,6 +56,8 @@ class Spectrum:
 
         self.monitor = Monitor(settings_path=monitor_settings_path)
 
+        return True
+
     def create_colorlist(self, stepsize=0.1, minval=0., maxval=1.):
         """
         Set list of rgb-color codes to be used for spectra.
@@ -71,11 +73,15 @@ class Spectrum:
             self.colors += [np.asarray([step, 0., step])]
             self.colors += [np.asarray([step, step, step])]
 
+        return True
+
     def add_pr655(self, port="/dev/ttyUSB0"):
         """
         Automatically add PR655, if connected.
         """
         self.photometer = PR655(port=port)
+
+        return True
 
     def add_spectrum(self, name, xy, rgb, label, repeat):
         """
@@ -102,6 +108,8 @@ class Spectrum:
         self.spectra[name, "colortemp"] = self.photometer.getLastColorTemp()
         self.spectra[name, "date"] = datetime.datetime.now().isoformat()
 
+        return True
+
     def add_mock_spectrum(self, name, i):
         """
         TODO: REMOVE
@@ -119,6 +127,8 @@ class Spectrum:
         self.spectra[name, "wavelength"] = lams_ms
         self.spectra[name, "power"] = mon_spectra["spectra"][i]
         self.names += [name]
+
+        return True
 
     def measure_colors(self, stepsize=0.1, minval=0., maxval=1., n_rep=1,
                        xys=None, xy_labels=None,
@@ -291,6 +301,8 @@ class Spectrum:
 
         print("Successfully saved spectra to file {}".format(path))
 
+        return True
+
     def save_as_yaml(self, path=None, directory=None):
         """
         Save spectrum data to yaml file.
@@ -399,6 +411,8 @@ class Spectrum:
 
         print("Successfully loaded spectra from file {}".format(path))
 
+        return True
+
     def load_from_yaml(self, path):
         """
         Load from yaml file.
@@ -424,3 +438,5 @@ class Spectrum:
                 self.spectra[sk0, sk1] = sd["spectra"][sk0][sk1]
 
         print("Successfully loaded spectra from file {}".format(path))
+
+        return True

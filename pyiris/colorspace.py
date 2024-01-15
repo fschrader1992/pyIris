@@ -555,6 +555,8 @@ class ColorSpace:
         self.iso_slant["gray_level"] = gray_level
         self.op_mode = False
 
+        return True
+
     def measure_iso_slant_sep(self, gray_level=None, num_fit_points=8, repeats=6, lim=0.1,
                               step_size=0.001, refresh=None, posxs=None, posys=None,
                               pos_labels=None, size=6):
@@ -714,6 +716,8 @@ class ColorSpace:
         win.close()
 
         self.op_mode = False
+
+        return True
 
     def create_color_list(self, axes="cnop_hues",
                           hue_angle=None, hue_res=0.2,
@@ -900,6 +904,8 @@ class ColorSpace:
         pl.show()
         self.op_mode = False
 
+        return True
+
     def show_color_circle(self, num_col=16, gray_level=None):
         """
         Show color circle.
@@ -1039,6 +1045,8 @@ class ColorSpace:
         win.close()
         self.op_mode = False
 
+        return True
+
     def show_checkerboard(self, low=1, high=13, win=None, gray_level=None,
                           saturation=None, color_list=None, update=True,
                           draw=True):
@@ -1105,6 +1113,8 @@ class ColorSpace:
         win.units = old_units
         self.op_mode = False
 
+        return True
+
     def screensaver(self, gray_level=None):
         """
         Show random checkerboards as screensaver.
@@ -1127,6 +1137,8 @@ class ColorSpace:
             if keys and "escape" in keys:
                 win.close()
                 break
+
+        return True
 
     def save_to_file(self, path=None, directory=None, filetype="yaml", absolute_paths=False, save_color_list=False):
         """
@@ -1176,6 +1188,8 @@ class ColorSpace:
 
         print("Successfully saved colorspace to file {}".format(path))
 
+        return True
+
     def load_from_file(self, path=None, filetype="yaml"):
         """
         Load from file.
@@ -1212,3 +1226,5 @@ class ColorSpace:
                 self.color_list = json.loads(self.color_list)
 
         print("Successfully loaded colorspace from file {}".format(path))
+
+        return True

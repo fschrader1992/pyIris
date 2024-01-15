@@ -50,6 +50,8 @@ class Subject:
 
         print("Successfully saved subject data to file {}".format(path))
 
+        return True
+
     def load_from_file(self, path=None, filetype="yaml"):
         """
         Load from file.
@@ -71,3 +73,5 @@ class Subject:
         self.uuid = uuid.UUID(str(self.uuid))
 
         print("Successfully loaded subject data from file {}".format(path))
+
+        return True

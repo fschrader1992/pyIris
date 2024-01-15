@@ -62,6 +62,8 @@ class Calibration:
              [0.48076052921868406, 0.47366677744387564, 0.4873112079952422]]
         )
 
+        return True
+
     def calc_lms_vals(self, cone_spectra_path=None, monitor_spectra_path=None):
         """
         Generate fit values for calibration.
@@ -146,6 +148,8 @@ class Calibration:
         for r in (0, 1, 2):
             self._lms_mat[r] = self._lms_mat[r]/max(self._lms_mat[r])
 
+        return True
+
     def calibrate(self, corr_type="gamma_corr"):
         """
         Get the calibration matrix.
@@ -209,6 +213,8 @@ class Calibration:
 
         self.inv_calibration_matrix = inv_mat
 
+        return True
+
     def pprint(self):
         """
         Print data to CLI.
@@ -227,6 +233,8 @@ class Calibration:
             print("a_0\n", a_0)
             print("a\n", a)
             print("gamma", gamma)
+
+        return True
 
     def plot(self, path=None, directory=None):
         """
@@ -320,6 +328,8 @@ class Calibration:
         pl.savefig(path + "_luminosity.pdf")
         pl.show()
 
+        return True
+
     def save_to_file(self, path=None, directory=None, filetype="yaml", absolute_paths=False):
         """
         Save object data to file.
@@ -359,6 +369,8 @@ class Calibration:
 
         print("Successfully saved calibration to file {}".format(path))
 
+        return True
+
     def load_from_file(self, path=None, filetype="yaml"):
         """
         Load from file.
@@ -386,3 +398,5 @@ class Calibration:
         self.lum_ms = np.asarray(self.lum_ms)
 
         print("Successfully loaded calibration from file {}".format(path))
+
+        return True
