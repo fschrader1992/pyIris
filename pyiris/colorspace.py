@@ -19,28 +19,11 @@ import matplotlib.pylab as pl
 
 from .monitor import Monitor
 from .subject import Subject
+from .functions import dump_file, float2hex, sine_fitter
 try:
     from .calibration import Calibration
 except ImportError:
     pass
-
-
-def float2hex(x):
-    val = hex(int(round(x)))[2:]
-    val = "0" + val if len(val) < 2 else val
-    return val
-
-
-def sine_fitter(x, amp, phi, off):
-    """
-    For iso-slant fit.
-    :param x: Hue angle.
-    :param amp: Amplitude.
-    :param phi: Phase.
-    :param off: Offset.
-    :return: Sine value.
-    """
-    return amp * np.sin(x + phi) + off
 
 
 class ColorSpace:
