@@ -112,7 +112,6 @@ class Spectrum:
 
     def add_mock_spectrum(self, name, i):
         """
-        TODO: REMOVE
         :param name: Name of patch.
         """
         mon_file_path = os.path.join(os.path.dirname(os.path.realpath(__file__)),
