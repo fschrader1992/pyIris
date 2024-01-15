@@ -332,9 +332,13 @@ class Calibration:
 
     def save_to_file(self, path=None, directory=None, filetype="yaml", absolute_paths=False):
         """
-        Save object data to file.
-        :param path: location of file.
-        :param directory: directory, if file name should be filled automatically.
+        Save calibration data to file.
+        :param path: Location of file. Default in None.
+        :param directory: Directory, if file name should be filled automatically.
+        :param filetype: Filetype, "json" or "yaml".
+               Default is "yaml" but set to file extension if found in path.
+        :param absolute_paths: If True, absolute file paths are saved. Default is False.
+        :return: True.
         """
 
         if path is not None and "." in path:
@@ -373,8 +377,11 @@ class Calibration:
 
     def load_from_file(self, path=None, filetype="yaml"):
         """
-        Load from file.
-        :param path: location of file.
+        Load calibration from file.
+        :param path: Location of file. Default in None.
+        :param filetype: Filetype, "json" or "yaml".
+               Default is "yaml" but set to file extension if found in path.
+        :return: True.
         """
 
         if "." in path:

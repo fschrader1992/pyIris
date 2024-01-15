@@ -1141,9 +1141,14 @@ class ColorSpace:
 
     def save_to_file(self, path=None, directory=None, filetype="yaml", absolute_paths=False, save_color_list=False):
         """
-        Save object data to file.
-        :param path: location of file.
-        :param directory: directory, if file name should be filled automatically.
+        Save colorspace data to file.
+        :param path: Location of file. Default in None.
+        :param directory: Directory, if file name should be filled automatically.
+        :param filetype: Filetype, "json" or "yaml".
+               Default is "yaml" but set to file extension if found in path.
+        :param absolute_paths: If True, absolute file paths are saved. Default is False.
+        :param save_color_list: If True, created color list will be saved as well. Default is False.
+        :return: True.
         """
 
         if path is not None and "." in path:
@@ -1191,8 +1196,11 @@ class ColorSpace:
 
     def load_from_file(self, path=None, filetype="yaml"):
         """
-        Load from file.
-        :param path: location of file.
+        Load colorspace from file.
+        :param path: Location of file. Default in None.
+        :param filetype: Filetype, "json" or "yaml".
+               Default is "yaml" but set to file extension if found in path.
+        :return: True.
         """
 
         if "." in path:

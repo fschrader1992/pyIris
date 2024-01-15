@@ -29,11 +29,13 @@ class Subject:
 
     def save_to_file(self, path=None, directory=None, filetype="yaml"):
         """
-        Save object data to file.
-        :param path: location of file.
-        :param directory: directory, if file name should be filled automatically.
+        Save subject data to file.
+        :param path: Location of file. Default in None.
+        :param directory: Directory, if file name should be filled automatically.
+        :param filetype: Filetype, "json" or "yaml".
+               Default is "yaml" but set to file extension if found in path.
+        :return: True.
         """
-
         if path is not None and "." in path:
             filetype = path.split(".")[-1]
 
@@ -54,8 +56,11 @@ class Subject:
 
     def load_from_file(self, path=None, filetype="yaml"):
         """
-        Load from file.
-        :param path: location of file.
+        Load subject from file.
+        :param path: Location of file. Default in None.
+        :param filetype: Filetype, "json" or "yaml".
+               Default is "yaml" but set to file extension if found in path.
+        :return: True.
         """
 
         if "." in path:
