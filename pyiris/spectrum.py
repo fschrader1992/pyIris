@@ -360,7 +360,8 @@ class Spectrum:
             pass
 
         self.photometer = s.props["photometer"].values[0]
-        self.stepsize = s.props["stepsize"].values[0]
+        if len(self.photometer) == 0:
+            self.photometer = None
         if s.props["monitor_settings_path"].values[0] != "empty":
             self.monitor_settings_path = s.props["monitor_settings_path"].values[0]
             try:
