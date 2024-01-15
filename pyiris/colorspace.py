@@ -420,7 +420,6 @@ class ColorSpace:
         """
 
         r2 = self.hex2rgb255(hex_arr)
-        print("S1", r2)
         rgb = self.rgb2552rgb(r2)
         return rgb
 
