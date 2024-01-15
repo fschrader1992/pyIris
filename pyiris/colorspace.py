@@ -51,7 +51,6 @@ class ColorSpace:
         if subject_path:
             self.subject = Subject()
             self.subject = self.subject.load_from_file(subject_path)
-            # self.subject.colorspaces += [self]
 
         self.min_val = 0.00000000000001
 
@@ -1193,7 +1192,6 @@ class ColorSpace:
                 d = json.load(f)
 
         for a, b in d.items():
-            # setattr(self, a, self.__class__(b) if isinstance(b, dict) else b)
             setattr(self, a, b)
 
         self.uuid = uuid.UUID(str(self.uuid))
