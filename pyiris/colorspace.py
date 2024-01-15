@@ -719,9 +719,9 @@ class ColorSpace:
         return True
 
     def create_color_list(self, axes="cnop_hues",
-                          hue_angle=None, hue_res=0.2,
-                          saturation=None, sat_res=0.01, max_sat=0.3001,
-                          gray_level=None, lum_res=0.01):
+                          hue_angle=None, hue_res=0.2, min_hue=0., max_hue=360.0001,
+                          saturation=None, sat_res=0.01, min_sat=0.0, max_sat=0.3001,
+                          gray_level=None, lum_res=0.01, min_lum=0.0, max_lum=1.0001):
         """
         Generate colors that are realizable in a N-bit display and save them in a color list.
         :param axes: Tuple containing the definitions of dimensions along which the color list should be built.
@@ -734,13 +734,18 @@ class ColorSpace:
                Default is "cnop_hues".
         :param hue_angle: Optional hue angle, used when only "cnop_sat" or cnop_lum" is given. Default is None.
         :param hue_res: Resolution of hue angles, i.e. hue angle bins. Given in DEG hue angle!
+        :param min_hue: Minimum hue angle. Default is 0.0.
+        :param max_hue: Maximum hue angle up to which values are generated. Default is 360.0001.
         :param saturation: Base saturation,used for "cnop_hues" and "cnop_lum".
                If not given, class attribute settings are used.
         :param sat_res: Resolution for saturation steps. Default is 0.01.
-        :param max_sat: Maximum saturation up to which values are generated. Default is 0.3001
+        :param min_sat: Minimum saturation value. Default is 0.0.
+        :param max_sat: Maximum saturation up to which values are generated. Default is 0.3001.
         :param gray_level: Luminance value with "cnop_hues" or "cnop_sat".
                If not given, class attribute settings are used.
         :param lum_res: Resolution for luminance steps. Default is 0.01.
+        :param min_lum: Minimum luminance value. Default is 0.0.
+        :param max_lum: Maximum luminance up to which values are generated. Default is 1.0001.
         :return: True.
         """
 
@@ -757,21 +762,21 @@ class ColorSpace:
 
         if isinstance(axes, str) or len(axes) == 1:
             if "cnop_hues" in axes:
-                cnop_vals = np.arange(0., 360., hue_res)
+                cnop_vals = np.arange(min_hue, max_hue, hue_res)
                 rgbs = np.array([
                     self.cnop2rgb(
                         phi=phi, saturation=saturation, gray_level=gray_level, unit="deg"
                     )[0].tolist() for phi in cnop_vals
                 ])
             elif "cnop_sat" in axes:
-                cnop_vals = np.arange(0.0, max_sat, sat_res)
+                cnop_vals = np.arange(min_sat, max_sat, sat_res)
                 rgbs = np.array([
                     self.cnop2rgb(
                         phi=hue_angle, saturation=sat, gray_level=gray_level, unit="deg"
                     )[0].tolist() for sat in cnop_vals
                 ])
             elif "cnop_lum" in axes:
-                cnop_vals = np.arange(0.0, 1.0, lum_res)
+                cnop_vals = np.arange(min_lum, max_lum, lum_res)
                 rgbs = np.array([
                     self.cnop2rgb(
                         phi=hue_angle, saturation=saturation, gray_level=gray_lev, unit="deg"
@@ -781,8 +786,8 @@ class ColorSpace:
                 raise ValueError('Unknown type "{}" for color list "axes" parameter.'.format(axes[0]))
         elif not isinstance(axes, str) and len(axes) == 2:
             if axes == ("cnop_hues", "cnop_sat") or axes == ("cnop_sat", "cnop_hues"):
-                hues = np.arange(0., 360., hue_res).tolist()
-                sat = np.arange(0.0, max_sat, sat_res).tolist()
+                hues = np.arange(min_hue, max_hue, hue_res).tolist()
+                sat = np.arange(min_sat, max_sat, sat_res).tolist()
                 if axes == ("cnop_hues", "cnop_sat"):
                     cnop_vals = np.array(list(itertools.product(hues, sat)))
                     rgbs = np.array([
@@ -798,8 +803,8 @@ class ColorSpace:
                         )[0].tolist() for (sat, phi) in cnop_vals
                     ])
             elif axes == ("cnop_hues", "cnop_lum") or axes == ("cnop_lum", "cnop_hues"):
-                hues = np.arange(0., 360., hue_res).tolist()
-                lum = np.arange(0.0, 1.0, lum_res).tolist()
+                hues = np.arange(min_hue, max_hue, hue_res).tolist()
+                lum = np.arange(min_lum, max_lum, lum_res).tolist()
                 if axes == ("cnop_hues", "cnop_lum"):
                     cnop_vals = np.array(list(itertools.product(hues, lum)))
                     rgbs = np.array([
@@ -815,8 +820,8 @@ class ColorSpace:
                         )[0].tolist() for (lum, phi) in cnop_vals
                     ])
             elif axes == ("cnop_sat", "cnop_lum") or axes == ("cnop_lum", "cnop_sat"):
-                sats = np.arange(0.0, max_sat, sat_res).tolist()
-                lum = np.arange(0.0, 1.0, lum_res).tolist()
+                sats = np.arange(min_sat, max_sat, sat_res).tolist()
+                lum = np.arange(min_lum, max_lum, lum_res).tolist()
                 if axes == ("cnop_sat", "cnop_lum"):
                     cnop_vals = np.array(list(itertools.product(sats, lum)))
                     rgbs = np.array([
@@ -834,9 +839,9 @@ class ColorSpace:
             else:
                 raise ValueError('Unknown 2d color list type "{}"'.format(axes))
         elif not isinstance(axes, str) and len(axes) == 3:
-            hues = np.arange(0., 360., hue_res).tolist()
-            sat = np.arange(0.0, max_sat, sat_res).tolist()
-            lum = np.arange(0.0, 1.0, lum_res).tolist()
+            hues = np.arange(min_hue, max_hue, hue_res).tolist()
+            sat = np.arange(min_sat, max_sat, sat_res).tolist()
+            lum = np.arange(min_lum, max_lum, lum_res).tolist()
             cnop_vals = np.array(list(itertools.product(hues, sat, lum)))
             rgbs = np.array([
                 self.cnop2rgb(
