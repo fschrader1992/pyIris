@@ -7,6 +7,7 @@ import os
 import datetime
 import uuid
 import h5py
+import ruamel.yaml
 import numpy as np
 import nixio as nix
 
@@ -15,6 +16,7 @@ from psychopy import logging, visual, event
 
 from .pr655 import PR655
 from .monitor import Monitor
+from .functions import prepare_for_yaml
 
 
 class Spectrum:
@@ -288,6 +290,52 @@ class Spectrum:
 
         print("Successfully saved spectra to file {}".format(path))
 
+    def save_as_yaml(self, path=None, directory=None):
+        """
+        Save spectrum data to yaml file.
+        :param path: Location of file.
+        :param directory: Directory, if file name should be filled automatically.
+        """
+
+        if not path:
+            path = "spectrum_{}.yaml".format(self.date)
+        if directory:
+            path = os.path.join(directory, path)
+        save_dir, save_file = os.path.split(path)
+        if save_dir and not os.path.isdir(save_dir):
+            os.mkdir(save_dir)
+        if ".yaml" not in save_file:
+            path = path + ".yaml"
+
+        sd = dict({})
+        sd.update(vars(self))
+        sd["date"] = self.date.isoformat()
+        sd["uuid"] = str(self.uuid)
+        sd["photometer"] = int(self.photometer.getDeviceSN()) if self.photometer else ""
+        # sd["monitor_settings_path"] = self.monitor_settings_path
+        del sd["monitor"]
+        del sd["spectra"]
+
+        # create dict with 2 layers from tuple keys to make file more readable
+        sd["spectra"] = dict.fromkeys(self.names, None)
+        for sk, sv in self.spectra.items():
+            if sd["spectra"][sk[0]] is None:
+                sd["spectra"][sk[0]] = dict({})
+            if sk[1] in ["tristim", "uv", "xy", "colortemp"]:
+                sv = list(map(lambda v: float(v.replace("\n", "").replace("\r", "")), sv))
+            sd["spectra"][sk[0]][sk[1]] = sv
+
+        # process trial data
+        sd = prepare_for_yaml(sd, list_compression=True)
+
+        # sort keys
+        sd = dict(sorted(sd.items()))
+
+        # append datafile
+        with open(path, "w") as outfile:
+            ruamel.yaml.YAML().dump(sd, outfile)
+
+        print("Successfully saved spectra to yaml-file {}".format(path))
         return True
 
     def load_from_file(self, path):
@@ -346,5 +394,31 @@ class Spectrum:
         self.colors = np.asarray(self.colors)
 
         nix_file.close()
+
+        print("Successfully loaded spectra from file {}".format(path))
+
+    def load_from_yaml(self, path):
+        """
+        Load from yaml file.
+        :param path: Location of file.
+        """
+
+        with open(path, "r") as f:
+            sd = ruamel.yaml.YAML().load(f)
+        for a, b in sd.items():
+            if a != "spectra":
+                setattr(self, a, self.__class__(b) if isinstance(b, dict) else b)
+        self.uuid = uuid.UUID(sd["uuid"])
+        self.date = datetime.datetime.fromisoformat(sd["date"])
+        if len(sd["monitor_settings_path"]) > 0:
+            self.monitor_settings_path = sd["monitor_settings_path"]
+            try:
+                self.add_monitor_settings()
+            except FileNotFoundError:
+                print('Error, monitor settings file', self.monitor_settings_path, 'could not be found and is skipped.')
+
+        for sk0 in sd["spectra"].keys():
+            for sk1 in sd["spectra"][sk0].keys():
+                self.spectra[sk0, sk1] = sd["spectra"][sk0][sk1]
 
         print("Successfully loaded spectra from file {}".format(path))
