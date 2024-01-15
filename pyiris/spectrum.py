@@ -100,6 +100,7 @@ class Spectrum:
         self.spectra[name, "uv"] = self.photometer.getLastUV()
         self.spectra[name, "xy"] = self.photometer.getLastXY()
         self.spectra[name, "colortemp"] = self.photometer.getLastColorTemp()
+        self.spectra[name, "date"] = datetime.datetime.now().isoformat()
 
     def add_mock_spectrum(self, name, i):
         """
