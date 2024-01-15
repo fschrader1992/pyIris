@@ -77,16 +77,21 @@ class Calibration:
             monitor_spectra_path = self.mon_spectra_path
 
         cone_spectra = pd.read_csv(cone_spectra_path, sep=",", header=0)
+
         monitor_spectra = Spectrum()
-        monitor_spectra.load_from_file(path=monitor_spectra_path)
+        stims = []
+        if ".nix" in monitor_spectra_path:
+            monitor_spectra.load_from_file(path=monitor_spectra_path)
+            for mn in monitor_spectra.names:
+                if self.label == mn.split("#")[1]:
+                    stims += [mn]
+        else:
+            monitor_spectra.load_from_yaml(path=monitor_spectra_path)
+            stims = monitor_spectra.names
         self.monitor_settings_path = monitor_spectra.monitor_settings_path
 
         self._rgb_mat = np.zeros(shape=(len(monitor_spectra.names), 3))
         self._lms_mat = np.zeros(shape=(len(monitor_spectra.names), 3))
-        stims = []
-        for mn in monitor_spectra.names:
-            if self.label == mn.split("#")[1]:
-                stims += [mn]
 
         lum_eff_l = []
         lum_ms_l = []
@@ -111,7 +116,15 @@ class Calibration:
                                 monitor_spectra.spectra[stim, "power"], kind="cubic")(lams)
 
             # stim can also be list or 3-tuple
-            self._rgb_mat[i] = np.asarray(monitor_spectra.spectra[stim, "RGB"])
+
+            if ".nix" in monitor_spectra_path:
+                self._rgb_mat[i] = np.asarray(monitor_spectra.spectra[stim, "RGB"])
+            else:
+                self._rgb_mat[i] = np.array([
+                    monitor_spectra.spectra[stim, "R"],
+                    monitor_spectra.spectra[stim, "G"],
+                    monitor_spectra.spectra[stim, "B"],
+                ])
             self._lms_mat[i] = np.asarray([np.trapz(l_spec * mon_spec),
                                            np.trapz(m_spec * mon_spec),
                                            np.trapz(s_spec * mon_spec)])
