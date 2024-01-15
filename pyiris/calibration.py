@@ -8,6 +8,7 @@ import datetime
 import uuid
 import json
 import codecs
+import ruamel.yaml
 import numpy as np
 import pandas as pd
 import matplotlib.pylab as pl
@@ -17,6 +18,7 @@ from scipy.interpolate import interp1d
 from symfit import variables, parameters, Model, Fit
 
 from .spectrum import Spectrum
+from .functions import dump_file
 
 
 class Calibration:
@@ -320,12 +322,16 @@ class Calibration:
         pl.savefig(path + "_luminosity.pdf")
         pl.show()
 
-    def save_to_file(self, path=None, directory=None):
+    def save_to_file(self, path=None, directory=None, filetype="yaml", absolute_paths=False):
         """
         Save object data to file.
         :param path: location of file.
         :param directory: directory, if file name should be filled automatically.
         """
+
+        if path is not None and "." in path:
+            filetype = path.split(".")[-1]
+
         dt = {}
         dt.update(vars(self))
         dt["uuid"] = str(self.uuid)
@@ -336,39 +342,44 @@ class Calibration:
         dt["inv_calibration_matrix"] = self.inv_calibration_matrix.tolist()
         dt["lum_eff"] = self.lum_eff.tolist()
         dt["lum_ms"] = self.lum_ms.tolist()
-        if "cone_spetcra_path" in dt.keys() and dt["cone_spetcra_path"]:
-            dt["cone_spectra_path"] = str(Path(dt["cone_spetcra_path"]).resolve())
-        if "mon_spetcra_path" in dt.keys() and dt["mon_spetcra_path"]:
-            dt["mon_spetcra_path"] = str(Path(dt["mon_spetcra_path"]).resolve())
+        if "cone_spectra_path" in dt.keys():
+            if absolute_paths:
+                dt["cone_spectra_path"] = os.path.abspath(dt["cone_spectra_path"])
+        if "mon_spectra_path" in dt.keys():
+            if absolute_paths:
+                dt["mon_spectra_path"] = os.path.abspath(dt["mon_spectra_path"])
         if dt["monitor_settings_path"]:
-            dt["monitor_settings_path"] = str(Path(dt["monitor_settings_path"]).resolve())
+            if absolute_paths:
+                dt["monitor_settings_path"] = os.path.abspath(dt["monitor_settings_path"])
+        dt = dict(sorted(dt.items()))
 
         if not path:
-            path = "calibration_{}.json".format(self.date)
+            path = "calibration_{}.yaml".format(self.date)
         if directory:
             path = os.path.join(directory, path)
-        save_dir, save_file = os.path.split(path)
-        if save_dir and not os.path.isdir(save_dir):
-            os.mkdir(save_dir)
-        if ".json" not in save_file:
-            path = path + ".json"
-        json.dump(dt, codecs.open(path, 'w', encoding='utf-8'),
-                  separators=(',', ':'), sort_keys=True, indent=4)
+        dump_file(dt, path, filetype)
 
         print("Successfully saved calibration to file {}".format(path))
 
-    def load_from_file(self, path=None):
+    def load_from_file(self, path=None, filetype="yaml"):
         """
         Load from file.
         :param path: location of file.
         """
 
+        if "." in path:
+            filetype = path.split(".")[-1]
+
         with open(path, "r") as f:
-            d = json.load(f)
+            if filetype == "yaml":
+                d = ruamel.yaml.YAML().load(f)
+            else:
+                d = json.load(f)
         for a, b in d.items():
             setattr(self, a, self.__class__(b) if isinstance(b, dict) else b)
 
         self.uuid = uuid.UUID(str(self.uuid))
+        self.date = datetime.datetime.fromisoformat(d["date"])
         self._rgb_mat = np.asarray(self._rgb_mat)
         self._lms_mat = np.asarray(self._lms_mat)
         self.calibration_matrix = np.asarray(self.calibration_matrix)
