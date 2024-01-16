@@ -772,10 +772,13 @@ class ColorSpace:
                 ])
             elif "cnop_sat" in axes:
                 cnop_vals = np.arange(min_sat, max_sat, sat_res)
+                hue_angles = hue_angle * np.ones(len(cnop_vals))
+                hue_angles[np.argwhere(cnop_vals < 0.)] += 180.
+                hue_angles %= 360.
                 rgbs = np.array([
                     self.cnop2rgb(
-                        phi=hue_angle, saturation=sat, gray_level=gray_level, unit="deg"
-                    )[0].tolist() for sat in cnop_vals
+                        phi=phi, saturation=sat, gray_level=gray_level, unit="deg"
+                    )[0].tolist() for phi, sat in zip(hue_angles, np.abs(cnop_vals))
                 ])
             elif "cnop_lum" in axes:
                 cnop_vals = np.arange(min_lum, max_lum, lum_res)
