@@ -754,6 +754,8 @@ class ColorSpace:
             gray_level = self.gray_level
         if saturation is None:
             saturation = self.saturation
+        if min_hue > max_hue:
+            max_hue += 360.
 
         # list containing values in cnop colorspace, can be scalars or arrays/lists for each dimension
         cnop_vals = None
@@ -858,8 +860,15 @@ class ColorSpace:
 
         # generate set of unique RGB values
         uni_inds = np.sort(np.unique(rgbs, axis=0, return_index=True)[1])
-        #
         cnop_vals = cnop_vals[uni_inds]
+
+        if "cnop_hues" in axes:
+            if cnop_vals.ndim > 1:
+                cnop_vals = cnop_vals.T
+                cnop_vals[axes.index("cnop_hues")] %= 360.
+                cnop_vals = cnop_vals.T
+            else:
+                cnop_vals %= 360.
 
         if self.bit_depth == 8 or self.bit_depth == [8, 8, 8]:
             rgbs = self.rgb2552rgb(rgbs[uni_inds, :])
