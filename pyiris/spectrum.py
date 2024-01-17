@@ -319,33 +319,38 @@ class Spectrum:
         if ".yaml" not in save_file:
             path = path + ".yaml"
 
-        sd = dict({})
-        sd.update(vars(self))
-        sd["date"] = self.date.isoformat()
-        sd["uuid"] = str(self.uuid)
-        sd["photometer"] = int(self.photometer.getDeviceSN()) if self.photometer else ""
-        # sd["monitor_settings_path"] = self.monitor_settings_path
-        del sd["monitor"]
-        del sd["spectra"]
+        dt = dict({})
+        md = dict({})
 
-        # create dict with 2 layers from tuple keys to make file more readable
-        sd["spectra"] = dict.fromkeys(self.names, None)
-        for sk, sv in self.spectra.items():
-            if sd["spectra"][sk[0]] is None:
-                sd["spectra"][sk[0]] = dict({})
-            if sk[1] in ["tristim", "uv", "xy", "colortemp"]:
-                sv = list(map(lambda v: float(v.replace("\n", "").replace("\r", "")), sv))
-            sd["spectra"][sk[0]][sk[1]] = sv
-
-        # process trial data
-        sd = prepare_for_yaml(sd, list_compression=True)
+        # add metadata
+        md.update(vars(self))
+        md["date"] = self.date.isoformat()
+        md["uuid"] = str(self.uuid)
+        md["photometer"] = int(self.photometer.getDeviceSN()) if self.photometer else ""
+        del md["monitor"]
+        del md["path"]
+        del md["spectra"]
 
         # sort keys
-        sd = dict(sorted(sd.items()))
+        dt["metadata"] = dict(sorted(md.items()))
 
-        # append datafile
+        # add spectral data
+        # create dict with 2 layers from tuple keys to make file more readable
+        sd = dict.fromkeys(self.names, None)
+        for sk, sv in self.spectra.items():
+            if sd[sk[0]] is None:
+                sd[sk[0]] = dict({})
+            if sk[1] in ["tristim", "uv", "xy", "colortemp"]:
+               sv = list(map(lambda v: str(v).replace("\n", "").replace("\r", ""), sv))
+            sd[sk[0]][sk[1]] = sv
+
+        dt.update(sd)
+        # process trial data
+        dt = prepare_for_yaml(dt, list_compression=True)
+
+        # write datafile
         with open(path, "w") as outfile:
-            ruamel.yaml.YAML().dump(sd, outfile)
+            ruamel.yaml.YAML().dump(dt, outfile)
 
         print("Successfully saved spectra to yaml-file {}".format(path))
         return True
@@ -420,21 +425,24 @@ class Spectrum:
 
         with open(path, "r") as f:
             sd = ruamel.yaml.YAML().load(f)
-        for a, b in sd.items():
-            if a != "spectra":
-                setattr(self, a, self.__class__(b) if isinstance(b, dict) else b)
-        self.uuid = uuid.UUID(sd["uuid"])
-        self.date = datetime.datetime.fromisoformat(sd["date"])
-        if len(sd["monitor_settings_path"]) > 0:
-            self.monitor_settings_path = sd["monitor_settings_path"]
+        for a, b in sd["metadata"].items():
+            setattr(self, a, self.__class__(b) if isinstance(b, dict) else b)
+        self.uuid = uuid.UUID(self.uuid)
+        self.date = datetime.datetime.fromisoformat(self.date)
+        if len(self.monitor_settings_path) > 0:
             try:
                 self.add_monitor_settings()
             except FileNotFoundError:
                 print('Error, monitor settings file', self.monitor_settings_path, 'could not be found and is skipped.')
 
-        for sk0 in sd["spectra"].keys():
-            for sk1 in sd["spectra"][sk0].keys():
-                self.spectra[sk0, sk1] = sd["spectra"][sk0][sk1]
+        del sd['metadata']
+        names_from_keys = True if len(self.names) == 0 else False
+
+        for sk0 in sd.keys():
+            if names_from_keys:
+                self.names += [sk0]
+            for sk1 in sd[sk0].keys():
+                self.spectra[sk0, sk1] = sd[sk0][sk1]
 
         print("Successfully loaded spectra from file {}".format(path))
 
