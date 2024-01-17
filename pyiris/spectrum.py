@@ -24,11 +24,12 @@ class Spectrum:
     Class Spectrum
     """
 
-    def __init__(self, photometer=None, colors=None, monitor_settings_path=None):
+    def __init__(self, photometer=None, colors=None, monitor_settings_path=None, path=None):
         self.uuid = uuid.uuid4()
         self.date = datetime.datetime.now()
         self.photometer = photometer
         self.colors = colors
+        self.path = path if path is not None else "spectrum_{}".format(self.date.isoformat(timespec="seconds"))
 
         self.monitor_settings_path = monitor_settings_path
         self.monitor = None
@@ -240,7 +241,7 @@ class Spectrum:
         """
 
         if not path:
-            path = "spectrum_{}.nix".format(self.date)
+            path = self.path.replace(".yaml", "").replace(".yml", "")
         if directory:
             path = os.path.join(directory, path)
         save_dir, save_file = os.path.split(path)
@@ -309,7 +310,7 @@ class Spectrum:
         """
 
         if not path:
-            path = "spectrum_{}.yaml".format(self.date)
+            path = self.path.replace(".nix", "")
         if directory:
             path = os.path.join(directory, path)
         save_dir, save_file = os.path.split(path)
@@ -360,6 +361,7 @@ class Spectrum:
         :param path: location of file.
         """
 
+        self.path = path
         nix_file = nix.File.open(path, mode=nix.FileMode.ReadOnly)
         s = nix_file.sections["meta-data"]
         self.uuid = uuid.UUID(s.props["uuid"].values[0])
@@ -422,6 +424,7 @@ class Spectrum:
         :param path: Location of file.
         """
 
+        self.path = path
         with open(path, "r") as f:
             sd = ruamel.yaml.YAML().load(f)
         for a, b in sd["metadata"].items():
