@@ -24,7 +24,7 @@ class Calibration:
     Class Calibration
     """
 
-    def __init__(self, corr_type="gamma_corr", mon_spectra_path="", cone_spectra_path="", label="main"):
+    def __init__(self, corr_type="gamma", mon_spectra_path="", cone_spectra_path="", label="main"):
         self.uuid = uuid.uuid4()
         self.date = datetime.datetime.now()
         self.corr_type = corr_type
@@ -150,17 +150,17 @@ class Calibration:
 
         return True
 
-    def calibrate(self, corr_type="gamma_corr"):
+    def calibrate(self, corr_type="gamma"):
         """
         Get the calibration matrix.
         :param corr_type: Type of fit/correction. Default is gamma correction.
         :return: Calibration matrix.
         """
 
-        if corr_type != "gamma_corr":
+        if corr_type != "gamma":
             # here could be setting for other fit types
             raise ValueError('Correction type {} is not recognized. '
-                             'Possible values are: "gamma_corr"'.format(corr_type))
+                             'Possible values are: "gamma"'.format(corr_type))
 
         self.corr_type = corr_type
 
@@ -170,7 +170,7 @@ class Calibration:
         # define models
         model = None
 
-        if self.corr_type == "gamma_corr":
+        if self.corr_type == "gamma":
             a_0l, a_0m, a_0s = parameters('a_0l, a_0m, a_0s', min=0.0, value=0.0)
             a_lr, a_lg, a_lb, a_mr, a_mg, a_mb, a_sr, a_sg, a_sb = \
                 parameters('a_lr, a_lg, a_lb, a_mr, a_mg, a_mb, '
@@ -197,7 +197,7 @@ class Calibration:
         p_r = fit_res.params
 
         cm = np.ones(1)
-        if self.corr_type == "gamma_corr":
+        if self.corr_type == "gamma":
             cm = np.asarray([[p_r["a_0l"], p_r["a_0m"], p_r["a_0s"]],
                              [p_r["a_lr"], p_r["a_lg"], p_r["a_lb"]],
                              [p_r["a_mr"], p_r["a_mg"], p_r["a_mb"]],
