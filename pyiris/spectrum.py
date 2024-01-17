@@ -84,7 +84,7 @@ class Spectrum:
 
         return True
 
-    def add_spectrum(self, name, xy, rgb, label, repeat):
+    def add_spectrum(self, name, xy, rgb, label, repeat, save_append=True):
         """
         Measure and save spectrum from photometer.
         :param name: Name this measurement has. With measure_colors this is equal to rgb-color code.
@@ -108,6 +108,9 @@ class Spectrum:
         self.spectra[name, "xy"] = self.photometer.getLastXY()
         self.spectra[name, "colortemp"] = self.photometer.getLastColorTemp()
         self.spectra[name, "date"] = datetime.datetime.now().isoformat()
+
+        if save_append:
+            self.save_addend_to_yaml(name)
 
         return True
 
@@ -133,7 +136,7 @@ class Spectrum:
     def measure_colors(self, stepsize=0.1, minval=0., maxval=1., n_rep=1,
                        xys=None, xy_labels=None,
                        stim_type=None, stim_size=None, background=0.67,
-                       win_h=1200, win_w=1800):
+                       win_h=1200, win_w=1800, save_append=True):
         """
         Measure the spectra for each color stimulus, for stimuli
         in different areas of the screen.
@@ -177,6 +180,15 @@ class Spectrum:
         if stim_size is not None:
             measure_stim.size = stim_size
 
+        # store function input for saving
+        self.params['stepsize'] = stepsize
+        self.params['stim_type'] = stim_type if stim_type is not None else 'rectangle'
+        self.params['stim_size'] = stim_size if stim_size is not None else 0.
+        self.params['background'] = background
+        self.params['win-units'] = "deg"
+
+        if save_append:
+            self.save_as_yaml()
 
         # iterate through positions
         for xy_label, xy in zip(xy_labels, xys):
@@ -216,20 +228,12 @@ class Spectrum:
                     win.flip()
                     # measure spectrum
                     self.add_spectrum(name="{}#{}#{}".format(str(color), xy_label, n+1),
-                                      xy=xy, rgb=color, label=xy_label, repeat=n+1)
+                                      xy=xy, rgb=color, label=xy_label, repeat=n+1, save_append=save_append)
                     q += 1
         win.close()
 
         # update color list
         self.colors = colors_updated
-        # set date of last measurement
-        self.date = datetime.datetime.now()
-
-        # store function input for saving
-        self.params['stepsize'] = stepsize
-        self.params['stim_type'] = stim_type if stim_type is not None else 'rectangle'
-        self.params['stim_size'] = stim_size if stim_size is not None else 0.
-        self.params['background'] = background
 
         return True
 
@@ -353,6 +357,40 @@ class Spectrum:
             ruamel.yaml.YAML().dump(dt, outfile)
 
         print("Successfully saved spectra to yaml-file {}".format(path))
+        return True
+
+    def save_addend_to_yaml(self, name, path=None, directory=None):
+        """
+        Append spectrum data to yaml file.
+        :param name: Spectrum measurement name.
+        :param path: Location of file.
+        :param directory: Directory, if file name should be filled automatically.
+        """
+
+        if not path:
+            path = self.path.replace(".nix", "")
+        if directory:
+            path = os.path.join(directory, path)
+        save_dir, save_file = os.path.split(path)
+        if ".yaml" not in save_file:
+            path = path + ".yaml"
+
+        sd = dict({name: dict({})})
+        for sk, sv in self.spectra.items():
+            if sk[0] != name:
+                continue
+            sv = self.spectra[sk]
+            if sk[1] in ["tristim", "uv", "xy", "colortemp"]:
+                sv = list(map(lambda v: str(v).replace("\n", "").replace("\r", ""), sv))
+            sd[sk[0]][sk[1]] = sv
+
+        # process trial data
+        sd = prepare_for_yaml(sd, list_compression=True)
+
+        # write datafile
+        with open(path, "a+") as outfile:
+            ruamel.yaml.YAML().dump(sd, outfile)
+
         return True
 
     def load_from_file(self, path):
