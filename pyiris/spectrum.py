@@ -92,8 +92,8 @@ class Spectrum:
         self.names += [name]
         self.spectra[name, "label"] = label
         self.spectra[name, "repeat"] = repeat
-        self.spectra[name, "monitorx"] = xy[0]
-        self.spectra[name, "monitory"] = xy[1]
+        self.spectra[name, "screen-pos-x"] = xy[0]
+        self.spectra[name, "screen-pos-y"] = xy[1]
         self.spectra[name, "R"] = rgb[0]
         self.spectra[name, "G"] = rgb[1]
         self.spectra[name, "B"] = rgb[2]
@@ -281,8 +281,8 @@ class Spectrum:
             d.create_property(name="name", values_or_dtype=[str(name)])
             d.create_property(name="label", values_or_dtype=[self.spectra[name, "label"]])
             d.create_property(name="repeat", values_or_dtype=[self.spectra[name, "repeat"]])
-            d.create_property(name="monitorx", values_or_dtype=[self.spectra[name, "monitorx"]])
-            d.create_property(name="monitory", values_or_dtype=[self.spectra[name, "monitory"]])
+            d.create_property(name="screen-pos-x", values_or_dtype=[self.spectra[name, "screen-pos-x"]])
+            d.create_property(name="screen-pos-y", values_or_dtype=[self.spectra[name, "screen-pos-y"]])
             d.create_property(name="R", values_or_dtype=[self.spectra[name, "R"]])
             d.create_property(name="G", values_or_dtype=[self.spectra[name, "G"]])
             d.create_property(name="B", values_or_dtype=[self.spectra[name, "B"]])
@@ -438,8 +438,8 @@ class Spectrum:
             self.spectra[name, "RGB"] = [np.array([
                 self.spectra[name, "R"], self.spectra[name, "G"], self.spectra[name, "B"]
             ])]
-            self.spectra[name, "monitorx"] = d.props["monitorx"].values[0]
-            self.spectra[name, "monitory"] = d.props["monitory"].values[0]
+            self.spectra[name, "screen-pos-x"] = d.props["screen-pos-x"].values[0]
+            self.spectra[name, "screen-pos-y"] = d.props["screen-pos-y"].values[0]
             self.spectra[name, "luminance"] = d.props["luminance"].values[0]
             self.spectra[name, "wavelength"] = np.asarray(d.props["wavelength"].values)
             self.spectra[name, "power"] = np.asarray(d.props["power"].values)
