@@ -142,7 +142,6 @@ class Spectrum:
         self.create_colorlist(stepsize=stepsize, minval=minval, maxval=maxval)
         # obtain number of measurements
         noc = len(self.colors) * n_rep
-        # to save actual RGB values TODO: maybe remove?
         colors_updated = []
 
         # define background color during measurements
