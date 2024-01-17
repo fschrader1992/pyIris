@@ -10,7 +10,7 @@ import json
 import ruamel.yaml
 import numpy as np
 import pandas as pd
-import matplotlib.pylab as pl
+import matplotlib.pyplot as plt
 
 from scipy.interpolate import interp1d
 from symfit import variables, parameters, Model, Fit
@@ -259,7 +259,7 @@ class Calibration:
         path = os.path.join(plot_dir, path)
 
         # RGB Values
-        fig, ax = pl.subplots(ncols=3, nrows=3)
+        fig, ax = plt.subplots(ncols=3, nrows=3, sharex=True, figsize=(10, 8))
         cs = ColorSpace()
         cs.calibration = self
         x = np.arange(0, 1, 0.01)
@@ -281,22 +281,24 @@ class Calibration:
 
             l, m, s = cs.rgb2lms(np.asarray(x_s[i]).T).T
 
-            ax[int(i / 3)][i % 3].plot(x, l, label="l", c="r")
-            ax[int(i / 3)][i % 3].plot(x, m, label="m", c="g")
-            ax[int(i / 3)][i % 3].plot(x, s, label="s", c="b")
-            ax[int(i / 3)][i % 3].plot(rgb_e, l_e, "rx")
-            ax[int(i / 3)][i % 3].plot(rgb_e, m_e, "gx")
-            ax[int(i / 3)][i % 3].plot(rgb_e, s_e, "bx")
+            ax[int(i / 3)][i % 3].plot(x, l, label="Matrix L", c="tab:red", linewidth=1)
+            ax[int(i / 3)][i % 3].plot(x, m, label="Matrix M", c="tab:green", linewidth=1)
+            ax[int(i / 3)][i % 3].plot(x, s, label="Matrix S", c="tab:blue", linewidth=1)
+            ax[int(i / 3)][i % 3].plot(rgb_e, l_e, marker="+", c="tab:red", linestyle="", label="Meas. L")
+            ax[int(i / 3)][i % 3].plot(rgb_e, m_e, marker="+", c="tab:green", linestyle="", label="Meas. M")
+            ax[int(i / 3)][i % 3].plot(rgb_e, s_e, marker="+", c="tab:blue", linestyle="", label="Meas. S")
             ax[int(i / 3)][i % 3].set_title(titles[i])
+            if i == 6:
+                ax[int(i / 3)][i % 3].legend()
 
         fig.suptitle("RGB Values")
-        pl.legend()
-        pl.tight_layout()
-        pl.savefig(path + "_RGB.pdf")
-        pl.show()
+        fig.text(0.5, 0.0, "Ratio Component Intensity", va="bottom", ha="center", size=12)
+        plt.tight_layout()
+        plt.savefig(path + "_RGB.pdf")
+        plt.show()
 
-        # Luminosity
-        fig, ax = pl.subplots(ncols=3, nrows=3)
+        # Luminance
+        fig, ax = plt.subplots(ncols=3, nrows=3, sharex=True, figsize=(10, 8))
 
         x = np.arange(0, 1, 0.01)
         # x_z = np.zeros(len(x))
@@ -315,18 +317,19 @@ class Calibration:
             lum_const = 100.
             lum_calc = lum_const*(l + m)
 
-            ax[int(i / 3)][i % 3].plot(rgb_e, lum_ms, c="k",
-                                       marker="x", linestyle=":", label="Measured")
-            ax[int(i / 3)][i % 3].plot(rgb_e, lum_eff, c="lightblue",
-                                       marker="+", linestyle=":", label="Integrated")
-            ax[int(i / 3)][i % 3].plot(x, lum_calc, "r", label="Calculated")
+            ax[int(i / 3)][i % 3].plot(rgb_e, lum_ms, c="k", linewidth=1,
+                                       marker="x", label="Measured")
+            ax[int(i / 3)][i % 3].plot(rgb_e, lum_eff, c="tab:blue", linewidth=1,
+                                       marker="+", label="Integrated")
+            ax[int(i / 3)][i % 3].plot(x, lum_calc, linewidth=1, c="tab:red", label="Calculated")
             ax[int(i / 3)][i % 3].set_title(titles[i])
+            if i == 0:
+                ax[int(i / 3)][i % 3].legend()
 
-        fig.suptitle("Luminosity")
-        pl.legend()
-        pl.tight_layout()
-        pl.savefig(path + "_luminosity.pdf")
-        pl.show()
+        fig.suptitle("Luminance")
+        plt.tight_layout()
+        plt.savefig(path + "_luminace.pdf")
+        plt.show()
 
         return True
 
