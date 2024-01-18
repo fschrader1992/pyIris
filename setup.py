@@ -10,7 +10,7 @@ with open('README.md', encoding="utf8") as f:
     description_text = f.read()
 
 install_req = ["psychopy", "nixio>=1.5.0b1", "numpy", "scipy",
-               "matplotlib", "pandas", "seaborn", "symfit", "h5py", "pyyaml"]
+               "matplotlib", "pandas", "seaborn", "symfit", "h5py", "pyyaml", "ruamel.yaml"]
 
 setup(
     name='pyiris',
