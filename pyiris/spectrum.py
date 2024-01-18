@@ -8,6 +8,7 @@ import datetime
 import uuid
 import h5py
 import ruamel.yaml
+import matplotlib.pyplot as plt
 import numpy as np
 import nixio as nix
 
@@ -236,6 +237,55 @@ class Spectrum:
         self.colors = colors_updated
 
         return True
+
+    def plot_spectra(self, path=None):
+        """
+        Plot measured spectra.
+        """
+
+        # save file options
+        if not path:
+            path = "measured_spectra_{}.pdf".format(self.date)
+        plot_dir = "calibration_plots"
+        if not os.path.exists(plot_dir):
+            os.makedirs(plot_dir)
+        path = os.path.join(plot_dir, path)
+
+        plot_dict = {
+            (1., 0., 0.): {"label": "R", "plot_color": "tab:red", "ax_ind": 0},
+            (0., 1., 0.): {"label": "G", "plot_color": "tab:green", "ax_ind": 1},
+            (0., 0., 1.): {"label": "B", "plot_color": "tab:blue", "ax_ind": 2},
+            (1., 1., 0.): {"label": "RG", "plot_color": "tab:orange", "ax_ind": 3},
+            (1., 0., 1.): {"label": "RB", "plot_color": "tab:purple", "ax_ind": 4},
+            (0., 1., 1.): {"label": "GB", "plot_color": "tab:cyan", "ax_ind": 5},
+            (1., 1., 1.): {"label": "RGB", "plot_color": "k", "ax_ind": 6},
+        }
+
+        fig, ax = plt.subplots(ncols=3, nrows=3, sharex=True, sharey=True, figsize=(10, 8))
+
+        added_titles = []
+        for nm in self.names:
+            pattern = (self.spectra[nm, "R"], self.spectra[nm, "G"], self.spectra[nm, "B"])
+            # u = float(self.spectra[nm, "uv"][3])
+            # v = float(self.spectra[nm, "uv"][4].replace("\n", "").replace("\r", ""))
+            x = self.spectra[nm, "wavelength"]
+            pow = self.spectra[nm, "power"]
+            a = np.max(pattern)
+            pattern = np.sign(np.asarray(pattern))
+            pattern = (pattern[0], pattern[1], pattern[2])
+            axi = plot_dict[pattern]["ax_ind"]
+            ax[int(axi / 3)][axi % 3].plot(x, pow, c=plot_dict[pattern]["plot_color"], linewidth=1, alpha=a)
+            # ax[2][1].plot(u, v, c=plot_dict[pattern]["plot_color"], marker="o", alpha=a)
+            if plot_dict[pattern]["label"] not in added_titles:
+                ax[int(axi / 3)][axi % 3].set_title(plot_dict[pattern]["label"])
+                added_titles += [plot_dict[pattern]["label"]]
+
+        fig.suptitle("Measured Spectra")
+        fig.text(0.5, 0.0, "Wavelength [nm]", va="bottom", ha="center", size=12)
+        fig.text(0.01, 0.5, "Radiance", rotation=90, va="bottom", ha="center", size=12)
+        fig.tight_layout()
+        plt.savefig(path)
+        plt.show()
 
     def save_to_file(self, path=None, directory=None):
         """
