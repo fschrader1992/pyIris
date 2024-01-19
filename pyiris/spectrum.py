@@ -164,7 +164,7 @@ class Spectrum:
         info_background = [0.33, 0.33, 0.33]
 
         # define window
-        win = visual.Window([win_h, win_w], color=info_background, fullscr=True)
+        win = visual.Window([win_h, win_w], color=background, fullscr=True)
         if self.monitor:
             win.monitor = self.monitor
 
@@ -200,6 +200,7 @@ class Spectrum:
         for xy_label, xy in zip(xy_labels, xys):
             # Define window background color during adjustment
             win.color = info_background
+            win.flip()
             # start with stimulus in order to adjust photometer
             info_msg.color = [1., 1., 1.]
             info_msg.text = 'Please adjust the photometer to the stimulus. Press SPACE to start measurement.'
@@ -215,7 +216,8 @@ class Spectrum:
 
             # Define window background color
             win.color = background
-            info_msg.color = [-0.5, -0.5, -0.5]
+            info_msg.color = [-0.67, -0.67, -0.67]
+            win.flip()
 
             # start measurement
             q = 1
