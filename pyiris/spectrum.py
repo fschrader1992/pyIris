@@ -198,6 +198,7 @@ class Spectrum:
 
         # iterate through positions
         for xy_label, xy in zip(xy_labels, xys):
+            measure_stim.pos = xy
             # Define window background color during adjustment
             win.color = info_background
             win.flip()
