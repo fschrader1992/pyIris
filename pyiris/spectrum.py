@@ -1,6 +1,7 @@
 # -*- coding: utf-8
 """
 This class contains all properties/methods related to spectra.
+Latest version: 2.0.0.
 """
 
 import os

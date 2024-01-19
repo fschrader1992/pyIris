@@ -1,6 +1,7 @@
 # -*- coding: utf-8
 """
 This file contains all functions for the command line tool.
+Latest version: 2.0.0.
 """
 import argparse
 

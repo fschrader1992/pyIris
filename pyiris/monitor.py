@@ -1,6 +1,7 @@
 """
 Fill an object of the psychopy Monitor class with values from the monitor config file
 (simply in order to keep track of only one file).
+Latest version: 2.0.0.
 """
 
 import datetime

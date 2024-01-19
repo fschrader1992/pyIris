@@ -1,5 +1,6 @@
 """
 Functions independent of any module.
+Latest version: 2.0.0.
 """
 
 import os

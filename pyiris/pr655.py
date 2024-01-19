@@ -1,5 +1,6 @@
 """
 Changes to psychopy PR655 class, in order to make it work correctly and more reliable.
+Latest version: 2.0.0.
 """
 
 import time
