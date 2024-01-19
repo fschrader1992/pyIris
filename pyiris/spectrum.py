@@ -238,9 +238,11 @@ class Spectrum:
 
         return True
 
-    def plot_spectra(self, path=None):
+    def plot_spectra(self, path=None, show=True):
         """
         Plot measured spectra.
+        :param path: Path to file.
+        :param show: If True, plot will be shown, otherwise only saved. Default is True.
         """
 
         # save file options
@@ -285,7 +287,11 @@ class Spectrum:
         fig.text(0.01, 0.5, "Radiance", rotation=90, va="bottom", ha="center", size=12)
         fig.tight_layout()
         plt.savefig(path)
-        plt.show()
+        if show:
+            plt.show()
+        plt.cla()
+
+        return True
 
     def save_to_file(self, path=None, directory=None):
         """
