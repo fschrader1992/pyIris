@@ -169,7 +169,7 @@ class Spectrum:
             win.monitor = self.monitor
 
         # create info message stimulus
-        info_msg = visual.TextStim(win, '', color=[1., 1., 1.], pos=(0, 10), height=0.75, units='deg')
+        info_msg = visual.TextStim(win, '', color=[1., 1., 1.], pos=(0, 12), height=0.5, units='deg')
 
         # Positions: use center of monitor by default
         if xys is None:
@@ -231,7 +231,7 @@ class Spectrum:
                     measure_stim.fillColor = show_color
                     measure_stim.lineColor = show_color
                     measure_stim.draw()
-                    info_msg.text = str(q) + '/' + str(noc)
+                    info_msg.text = str(q) + '/' + str(noc) + '\n(' + str(color) + ')'
                     info_msg.draw()
                     win.flip()
                     # measure spectrum
