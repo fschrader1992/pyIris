@@ -391,7 +391,7 @@ class Spectrum:
         save_dir, save_file = os.path.split(path)
         if save_dir and not os.path.isdir(save_dir):
             os.mkdir(save_dir)
-        if ".yaml" not in save_file:
+        if ".yaml" not in save_file and ".yml" not in save_file:
             path = path + ".yaml"
 
         dt = dict({})
@@ -446,7 +446,7 @@ class Spectrum:
         if directory:
             path = os.path.join(directory, path)
         save_dir, save_file = os.path.split(path)
-        if ".yaml" not in save_file:
+        if ".yaml" not in save_file and ".yml" not in save_file:
             path = path + ".yaml"
 
         sd = dict({name: dict({})})
