@@ -18,12 +18,12 @@ def float2hex(x):
     return val
 
 
-def prepare_for_yaml(d, list_compression=False):
+def prepare_for_yaml(d, list_compression=True):
     """
     Handle dictionary to save as yaml.
 
     :param d: Dictionary.
-    :param list_compression: If True, lists will be written with brackets.
+    :param list_compression: If True, lists will be written with brackets. Default is True.
     :return: Cleaned dictionary.
     """
     for k, v in d.items():
