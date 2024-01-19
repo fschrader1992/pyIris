@@ -48,20 +48,21 @@ def prepare_for_yaml(d, list_compression=True):
     return d
 
 
-def dump_file(dt, path, filetype):
+def dump_file(dt, path, filetype, list_compression=True):
     """
     Dump a dictionary to yaml/json file.
 
     :param dt: Dictionary that should be saved.
     :param path: File path.
     :param filetype: Filetype, either json or yaml. Files get saved accordingly.
+    :param list_compression: If True, lists will be written with brackets. Default is True.
     :return: True.
     """
     save_dir, save_file = os.path.split(path)
     if save_dir and not os.path.isdir(save_dir):
         os.mkdir(save_dir)
     if filetype.lower() == "yaml" or filetype.lower() == "yml":
-        dt = prepare_for_yaml(dt, list_compression=True)
+        dt = prepare_for_yaml(dt, list_compression=list_compression)
         dt = dict(sorted(dt.items()))
         if ".yaml" not in save_file:
             path = path + ".yaml"
