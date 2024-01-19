@@ -305,7 +305,7 @@ class Spectrum:
             path = self.path
         path = path.replace(".yaml", "").replace(".yml", "")
         if directory:
-            path = os.path.join(directory, path)
+            path = os.path.join(directory, os.path.basename(path))
         save_dir, save_file = os.path.split(path)
         if save_dir and not os.path.isdir(save_dir):
             os.mkdir(save_dir)
@@ -378,7 +378,7 @@ class Spectrum:
             path = self.path
         path = path.replace(".nix", "")
         if directory:
-            path = os.path.join(directory, path)
+            path = os.path.join(directory, os.path.basename(path))
         save_dir, save_file = os.path.split(path)
         if save_dir and not os.path.isdir(save_dir):
             os.mkdir(save_dir)

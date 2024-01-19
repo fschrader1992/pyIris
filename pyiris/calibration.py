@@ -255,13 +255,10 @@ class Calibration:
 
         # save file options
         if not path:
-            path = "plot_calibration_{}".format(self.date)
-        plot_dir = "calibration_plots"
+            path = "calibration_plots/plot_calibration_{}".format(self.date)
         if directory:
-            plot_dir = os.path.join(directory, "calibration_plots")
-        if not os.path.exists(plot_dir):
-            os.makedirs(plot_dir)
-        path = os.path.join(plot_dir, path)
+            path = os.path.join(directory, os.path.basename(path))
+        os.makedirs(path, exist_ok=True)
 
         # RGB Values
         fig, ax = plt.subplots(ncols=3, nrows=3, sharex=True, figsize=(10, 8))
