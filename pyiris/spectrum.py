@@ -213,7 +213,7 @@ class Spectrum:
             circ.lineColor = [1., 1., 1.]
             circ.draw()
             win.flip()
-            keys = event.waitKeys(keyList=['space'])
+            event.waitKeys(keyList=['space'])
 
             # Define window background color
             win.color = background
