@@ -257,11 +257,8 @@ class Spectrum:
 
         # save file options
         if not path:
-            path = "measured_spectra_{}.pdf".format(self.date)
-        plot_dir = "calibration_plots"
-        if not os.path.exists(plot_dir):
-            os.makedirs(plot_dir)
-        path = os.path.join(plot_dir, path)
+            path = "calibration_plots/measured_spectra_{}.pdf".format(self.date)
+        os.makedirs(os.path.dirname(path), exist_ok=True)
 
         plot_dict = {
             (1., 0., 0.): {"label": "R", "plot_color": "tab:red", "ax_ind": 0},
