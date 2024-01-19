@@ -17,7 +17,7 @@ setup(
     description='pyIris model',
     author="Felix Schrader (LMU Munich), Yannan Su (LMU Munich)",
     packages=packages,
-    version="1.0.0",
+    version="2.0.0",
     test_suite='test',
     install_requires=install_req,
     include_package_data=True,
