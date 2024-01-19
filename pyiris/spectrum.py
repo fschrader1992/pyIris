@@ -139,6 +139,7 @@ class Spectrum:
         return True
 
     def measure_colors(self, stepsize=0.1, minval=0., maxval=1., n_rep=1,
+                       adjust_at_start=True,
                        xys=None, xy_labels=None,
                        stim_type=None, stim_size=None, background=0.67,
                        win_h=1200, win_w=1800, save_append=True):
@@ -199,26 +200,27 @@ class Spectrum:
         # iterate through positions
         for xy_label, xy in zip(xy_labels, xys):
             measure_stim.pos = xy
-            # Define window background color during adjustment
-            win.color = info_background
-            win.flip()
-            # start with stimulus in order to adjust photometer
-            info_msg.color = [1., 1., 1.]
-            info_msg.text = 'Please adjust the photometer to the stimulus. Press SPACE to start measurement.'
-            info_msg.draw()
-            circ = visual.Circle(win=win, radius=1, pos=xy, units='deg')
-            circ.fillColorSpace = "rgb"
-            circ.fillColor = [1., 1., 1.]
-            circ.lineColorSpace = "rgb"
-            circ.lineColor = [1., 1., 1.]
-            circ.draw()
-            win.flip()
-            event.waitKeys(keyList=['space'])
+            if adjust_at_start:
+                # Define window background color during adjustment
+                win.color = info_background
+                win.flip()
+                # start with stimulus in order to adjust photometer
+                info_msg.color = [1., 1., 1.]
+                info_msg.text = 'Please adjust the photometer to the stimulus. Press SPACE to start measurement.'
+                info_msg.draw()
+                circ = visual.Circle(win=win, radius=1, pos=xy, units='deg')
+                circ.fillColorSpace = "rgb"
+                circ.fillColor = [1., 1., 1.]
+                circ.lineColorSpace = "rgb"
+                circ.lineColor = [1., 1., 1.]
+                circ.draw()
+                win.flip()
+                event.waitKeys(keyList=['space'])
 
-            # Define window background color
-            win.color = background
-            info_msg.color = [-0.67, -0.67, -0.67]
-            win.flip()
+                # Define window background color
+                win.color = background
+                info_msg.color = [-0.67, -0.67, -0.67]
+                win.flip()
 
             # start measurement
             q = 1
