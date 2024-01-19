@@ -265,6 +265,7 @@ class Spectrum:
             (1., 0., 1.): {"label": "RB", "plot_color": "tab:purple", "ax_ind": 4},
             (0., 1., 1.): {"label": "GB", "plot_color": "tab:cyan", "ax_ind": 5},
             (1., 1., 1.): {"label": "RGB", "plot_color": "k", "ax_ind": 6},
+            (0., 0., 0.): {"label": "Dark", "plot_color": "k", "ax_ind": 7},
         }
 
         fig, ax = plt.subplots(ncols=3, nrows=3, sharex=True, sharey=True, figsize=(10, 8))
@@ -276,9 +277,11 @@ class Spectrum:
             # v = float(self.spectra[nm, "uv"][4].replace("\n", "").replace("\r", ""))
             x = self.spectra[nm, "wavelength"]
             pow = self.spectra[nm, "power"]
-            a = np.max(pattern)
+            a = 0.3 + 0.7 * np.max(pattern)
             pattern = np.sign(np.asarray(pattern))
             pattern = (pattern[0], pattern[1], pattern[2])
+            if pattern == (0., 0., 0.):
+                a = 1.
             axi = plot_dict[pattern]["ax_ind"]
             ax[int(axi / 3)][axi % 3].plot(x, pow, c=plot_dict[pattern]["plot_color"], linewidth=1, alpha=a)
             # ax[2][1].plot(u, v, c=plot_dict[pattern]["plot_color"], marker="o", alpha=a)
