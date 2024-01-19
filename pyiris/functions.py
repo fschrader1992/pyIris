@@ -78,6 +78,45 @@ def dump_file(dt, path, filetype, list_compression=True):
     return True
 
 
+def yaml2json(path, save_path=None):
+    """
+    Convert a YAML file to JSON.
+    :param path: Location of file.
+    :param save_path: Path to save converted file to.
+                      Default is None, which stores content under the same name with changed extension.
+    """
+
+    if save_path is None:
+        save_path = path
+    save_path = save_path.replace(".yaml", ".json").replace(".yml", ".json")
+
+    with open(path, 'r+') as file:
+        conversion_content = ruamel.yaml.YAML().load(file)
+    dump_file(conversion_content, save_path, "json")
+
+    return True
+
+
+def json2yaml(path, save_path=None, list_compression=True):
+    """
+    Convert a JSON file to YAML.
+    :param path: Location of file.
+    :param save_path: Path to save converted file to.
+                      Default is None, which stores content under the same name with changed extension.
+    :param list_compression: If True, lists will be written with brackets. Default is True.
+    """
+
+    if save_path is None:
+        save_path = path
+    save_path = save_path.replace(".json", ".yaml")
+
+    with open(path, 'r+') as file:
+        conversion_content = json.load(file)
+    dump_file(conversion_content, save_path, "yaml", list_compression=list_compression)
+
+    return True
+
+
 def sine_fitter(x, amp, phi, off):
     """
     For iso-slant fit.
