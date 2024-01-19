@@ -61,7 +61,7 @@ class Spectrum:
 
         return True
 
-    def create_colorlist(self, stepsize=0.1, minval=0., maxval=1.):
+    def create_measurement_color_list(self, stepsize=0.1, minval=0., maxval=1.):
         """
         Set list of rgb-color codes to be used for spectra.
         :param stepsize: Difference between two color steps (between 0. and 1.)
@@ -147,8 +147,8 @@ class Spectrum:
         in different areas of the screen.
         """
 
-        # Fill self.colorlist
-        self.create_colorlist(stepsize=stepsize, minval=minval, maxval=maxval)
+        # Fill self.color_list
+        self.create_measurement_color_list(stepsize=stepsize, minval=minval, maxval=maxval)
         # obtain number of measurements
         noc = len(self.colors) * n_rep
         colors_updated = []
