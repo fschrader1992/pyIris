@@ -67,6 +67,9 @@ class Spectrum:
         :param stepsize: Difference between two color steps (between 0. and 1.)
         """
         self.colors = []
+        if minval == 0.:
+            self.colors += [np.asarray([0., 0., 0.])]
+            minval += stepsize
         for step in np.arange(minval, maxval + stepsize, stepsize):
             self.colors += [np.asarray([step, 0., 0.])]
             self.colors += [np.asarray([0., step, 0.])]
