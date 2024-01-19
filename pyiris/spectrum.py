@@ -179,11 +179,12 @@ class Spectrum:
         # Define stimulus for measurements
         measure_stim = None
         if stim_type == "circ" or stim_type == "circle":
-            measure_stim = visual.Circle(win=win, radius=1, pos=[0., 0.], units='deg')
+            radius = 1 if stim_size is None else stim_size/2
+            measure_stim = visual.Circle(win=win, radius=radius, pos=[0., 0.], units='deg')
         else:
-            measure_stim = visual.Rect(win=win, width=win_w, height=win_h)
-        if stim_size is not None:
-            measure_stim.size = stim_size
+            height = stim_size if stim_size is not None else win_h
+            width = stim_size if stim_size is not None else win_w
+            measure_stim = visual.Rect(win=win, width=width, height=height, pos=[0., 0.], units='deg')
 
         # store function input for saving
         self.params['stepsize'] = stepsize
