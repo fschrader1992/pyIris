@@ -1223,6 +1223,8 @@ class ColorSpace:
 
         if "." in path:
             filetype = path.split(".")[-1]
+        else:
+            path += "." + filetype
 
         with open(path, "r") as f:
             if filetype == "yaml":

@@ -464,6 +464,8 @@ class Spectrum:
         :param path: location of file.
         """
 
+        if ".nix" not in path:
+            path += ".nix"
         self.path = path
         nix_file = nix.File.open(path, mode=nix.FileMode.ReadOnly)
         s = nix_file.sections["meta-data"]
@@ -527,6 +529,8 @@ class Spectrum:
         :param path: Location of file.
         """
 
+        if ".yaml" not in path and ".yml" not in path:
+            path += ".yaml"
         self.path = path
         with open(path, "r") as f:
             sd = ruamel.yaml.YAML().load(f)
