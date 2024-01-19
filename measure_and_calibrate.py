@@ -15,7 +15,7 @@ DEFINE PARAMETERS
 --------------------------------
 
 All files will be saved in YAML format here.
-If you want to change to JSNO or NIX, follow the instructions after the "CHANGE4JSON" tag below.
+If you want to change to JSON or NIX, follow the instructions after the "CHANGE4JSON" tag below.
 """
 
 # Short handle of the spectrum name.
