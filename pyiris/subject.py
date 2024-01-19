@@ -46,7 +46,7 @@ class Subject:
 
         if not path:
             path_var = self.short if len(self.short) > 0 else self.uuid
-            path = "subject_{}.yaml".format(path_var)
+            path = "subject_{}.{}".format(path_var, filetype)
         if directory:
             path = os.path.join(directory, path)
         dump_file(dt, path, filetype)

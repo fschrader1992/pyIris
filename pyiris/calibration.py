@@ -376,7 +376,7 @@ class Calibration:
         dt = dict(sorted(dt.items()))
 
         if not path:
-            path = "calibration_{}.yaml".format(self.date)
+            path = "calibration_{}.{}".format(self.date, filetype)
         if directory:
             path = os.path.join(directory, path)
         dump_file(dt, path, filetype)
