@@ -551,3 +551,33 @@ class Spectrum:
         print("Successfully loaded spectra from file {}".format(path))
 
         return True
+
+    def yaml2nix(self, path, save_path=None):
+        """
+        Convert a spectrum file saved in yaml format to a nix file.
+        :param path: Location of file.
+        :param save_path: Path to save converted spectrum file to.
+                          Default is None, which stores spectrum under the same name with changed extension.
+        """
+
+        if save_path is None:
+            save_path = path
+        self.load_from_yaml(path)
+        self.save_to_file(save_path)
+
+        return True
+
+    def nix2yaml(self, path, save_path=None):
+        """
+        Convert a spectrum file saved in nix format to a yaml file.
+        :param path: Location of file.
+        :param save_path: Path to save converted spectrum file to.
+                          Default is None, which stores spectrum under the same name with changed extension.
+        """
+
+        if save_path is None:
+            save_path = path
+        self.load_from_file(path)
+        self.save_as_yaml(save_path)
+
+        return True
