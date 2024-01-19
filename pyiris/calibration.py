@@ -236,11 +236,15 @@ class Calibration:
 
         return True
 
-    def plot(self, path=None, directory=None):
+    def plot(self, path=None, directory=None, show=True):
         """
         Plot spectra rgb and lms values and fitted functions.
         Plot luminosity as well.
         Works only, if monitor spectra were obtained with color-sequence.
+        :param path: Path to file. Default is None, which results in plot_calibration_<DATE>.pdf file.
+        :param directory: Directory, prepended to "path".
+                         Default is None, which creates a directory called "calibration_plots" in the current directory.
+        :param show: If True, plot will be shown, otherwise only saved. Default is True.
         """
 
         try:
@@ -295,14 +299,14 @@ class Calibration:
         fig.text(0.5, 0.0, "Ratio Component Intensity", va="bottom", ha="center", size=12)
         plt.tight_layout()
         plt.savefig(path + "_RGB.pdf")
-        plt.show()
+        if show:
+            plt.show()
+        plt.cla()
 
         # Luminance
         fig, ax = plt.subplots(ncols=3, nrows=3, sharex=True, figsize=(10, 8))
 
         x = np.arange(0, 1, 0.01)
-        # x_z = np.zeros(len(x))
-        # x_s = [(x, x_z, x_z), (x_z, x, x_z), (x_z, x_z, x), (x, x, x)]
 
         for i in range(len(x_s)):
             inds = np.argwhere(np.all(np.equal(ch_rgb_mat, ch_x_s[i]), axis=1))
@@ -329,7 +333,9 @@ class Calibration:
         fig.suptitle("Luminance")
         plt.tight_layout()
         plt.savefig(path + "_luminace.pdf")
-        plt.show()
+        if show:
+            plt.show()
+        plt.cla()
 
         return True
 
