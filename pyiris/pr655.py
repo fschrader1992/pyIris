@@ -1,6 +1,7 @@
 """
 Changes to psychopy PR655 class, in order to make it work correctly and more reliable.
 """
+
 import time
 
 from psychopy import logging
