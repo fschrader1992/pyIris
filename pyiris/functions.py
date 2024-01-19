@@ -78,12 +78,14 @@ def dump_file(dt, path, filetype, list_compression=True):
     return True
 
 
-def yaml2json(path, save_path=None):
+def yaml2json(path, save_path=None, purge_mode=False):
     """
     Convert a YAML file to JSON.
     :param path: Location of file.
     :param save_path: Path to save converted file to.
                       Default is None, which stores content under the same name with changed extension.
+    :param purge_mode: If True, all file extensions "yaml" or "yml" in entries (in the first dict layer)
+                       will be replaced with "json". Default is False.
     """
 
     if save_path is None:
@@ -92,18 +94,26 @@ def yaml2json(path, save_path=None):
 
     with open(path, 'r+') as file:
         conversion_content = ruamel.yaml.YAML().load(file)
+    if purge_mode:
+        for (ck, cv) in conversion_content.items():
+            if isinstance(cv, str):
+                if ".yaml" in cv or ".yml" in cv:
+                    conversion_content[ck] = cv.replace("yaml", "json").replace("yml", "json")
+
     dump_file(conversion_content, save_path, "json")
 
     return True
 
 
-def json2yaml(path, save_path=None, list_compression=True):
+def json2yaml(path, save_path=None, list_compression=True, purge_mode=False):
     """
     Convert a JSON file to YAML.
     :param path: Location of file.
     :param save_path: Path to save converted file to.
                       Default is None, which stores content under the same name with changed extension.
     :param list_compression: If True, lists will be written with brackets. Default is True.
+    :param purge_mode: If True, all file extensions "json" in entries (in the first dict layer)
+                       will be replaced with "yaml". Default is False.
     """
 
     if save_path is None:
@@ -112,6 +122,13 @@ def json2yaml(path, save_path=None, list_compression=True):
 
     with open(path, 'r+') as file:
         conversion_content = json.load(file)
+
+    if purge_mode:
+        for (ck, cv) in conversion_content.items():
+            if isinstance(cv, str):
+                if ".json" in cv:
+                    conversion_content[ck] = cv.replace("json", "yaml")
+
     dump_file(conversion_content, save_path, "yaml", list_compression=list_compression)
 
     return True
