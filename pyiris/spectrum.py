@@ -301,7 +301,8 @@ class Spectrum:
         """
 
         if not path:
-            path = self.path.replace(".yaml", "").replace(".yml", "")
+            path = self.path
+        path = path.replace(".yaml", "").replace(".yml", "")
         if directory:
             path = os.path.join(directory, path)
         save_dir, save_file = os.path.split(path)
@@ -314,7 +315,10 @@ class Spectrum:
         s = nix_file.create_section(name="meta-data", type_="meta-data")
         s.create_property(name="uuid", values_or_dtype=[str(self.uuid)])
         s.create_property(name="date", values_or_dtype=[str(self.date)])
-        photometer = self.photometer.getDeviceSN() if self.photometer else ""
+        try:
+            photometer = int(self.photometer.getDeviceSN())
+        except AttributeError:
+            photometer = 0
         s.create_property(name="photometer", values_or_dtype=[photometer])
         msp = "empty"
         if self.monitor_settings_path:
@@ -370,7 +374,8 @@ class Spectrum:
         """
 
         if not path:
-            path = self.path.replace(".nix", "")
+            path = self.path
+        path = path.replace(".nix", "")
         if directory:
             path = os.path.join(directory, path)
         save_dir, save_file = os.path.split(path)
@@ -386,7 +391,10 @@ class Spectrum:
         md.update(vars(self))
         md["date"] = self.date.isoformat()
         md["uuid"] = str(self.uuid)
-        md["photometer"] = int(self.photometer.getDeviceSN()) if self.photometer else ""
+        try:
+            md["photometer"] = int(self.photometer.getDeviceSN())
+        except AttributeError:
+            md["photometer"] = 0
         del md["monitor"]
         del md["path"]
         del md["spectra"]
@@ -471,7 +479,7 @@ class Spectrum:
             pass
 
         self.photometer = s.props["photometer"].values[0]
-        if len(self.photometer) == 0:
+        if self.photometer == 0:
             self.photometer = None
         if s.props["monitor_settings_path"].values[0] != "empty":
             self.monitor_settings_path = s.props["monitor_settings_path"].values[0]
@@ -522,7 +530,7 @@ class Spectrum:
         with open(path, "r") as f:
             sd = ruamel.yaml.YAML().load(f)
         for a, b in sd["metadata"].items():
-            setattr(self, a, self.__class__(b) if isinstance(b, dict) else b)
+            setattr(self, a, b)
         self.uuid = uuid.UUID(self.uuid)
         self.date = datetime.datetime.fromisoformat(self.date)
         if len(self.monitor_settings_path) > 0:
