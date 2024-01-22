@@ -330,7 +330,7 @@ class Calibration:
 
         fig.suptitle("Luminance")
         plt.tight_layout()
-        plt.savefig(path + "_luminace.pdf")
+        plt.savefig(path + "_luminance.pdf")
         if show:
             plt.show()
         plt.cla()
