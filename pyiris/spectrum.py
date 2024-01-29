@@ -182,15 +182,19 @@ class Spectrum:
         if stim_type == "circ" or stim_type == "circle":
             radius = 1 if stim_size is None else stim_size/2
             measure_stim = visual.Circle(win=win, radius=radius, pos=[0., 0.], units='deg')
+            radius_m = radius
+            stim_area = np.pi * radius_m * radius_m
         else:
             height = stim_size if stim_size is not None else win_h
             width = stim_size if stim_size is not None else win_w
             measure_stim = visual.Rect(win=win, width=width, height=height, pos=[0., 0.], units='deg')
+            stim_area = width * height
 
         # store function input for saving
         self.params['stepsize'] = stepsize
         self.params['stim_type'] = stim_type if stim_type is not None else 'rectangle'
         self.params['stim_size'] = stim_size if stim_size is not None else 0.
+        self.params['stim_area'] = stim_area
         self.params['background'] = background
         self.params['win-units'] = "deg"
 
