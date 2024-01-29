@@ -258,13 +258,13 @@ class Calibration:
             path = "calibration_plots/plot_calibration_{}".format(self.date)
         if directory:
             path = os.path.join(directory, os.path.basename(path))
-        os.makedirs(path, exist_ok=True)
+        os.makedirs(os.path.split(path)[0], exist_ok=True)
 
-        # RGB Values
-        fig, ax = plt.subplots(ncols=3, nrows=3, sharex=True, figsize=(10, 8))
+        # Fit Values
+        fig, ax = plt.subplots(ncols=3, nrows=7, figsize=(10, 16))
         cs = ColorSpace()
         cs.calibration = self
-        x = np.arange(0, 1, 0.01)
+        x = np.arange(0., 1., 0.01)
         x_z = np.zeros(len(x))
         x_s = [(x, x_z, x_z), (x_z, x, x_z), (x_z, x_z, x), (x, x, x_z), (x, x_z, x), (x_z, x, x), (x, x, x)]
 
@@ -276,27 +276,42 @@ class Calibration:
 
         for i in range(len(x_s)):
             inds = np.argwhere(np.all(np.equal(ch_rgb_mat, ch_x_s[i]), axis=1))
-            l_e = self._lms_mat[0][inds]
-            m_e = self._lms_mat[1][inds]
-            s_e = self._lms_mat[2][inds]
+            l_e = self._lms_mat[0][inds].T[0]
+            m_e = self._lms_mat[1][inds].T[0]
+            s_e = self._lms_mat[2][inds].T[0]
+            lms_e = np.asarray([l_e, m_e, s_e]).T
             rgb_e = np.max(self._rgb_mat.T[inds].T, axis=0)[0]
 
-            l, m, s = cs.rgb2lms(np.asarray(x_s[i]).T).T
+            lms = cs.rgb2lms(np.asarray(x_s[i]).T)
+            l, m, s = lms.T
+            ax[i][0].grid()
+            ax[i][1].grid()
+            ax[i][2].grid()
+            ax[i][0].plot(x, l, label="L", c="tab:red", linewidth=1)
+            ax[i][0].plot(x, m, label="M", c="tab:green", linewidth=1)
+            ax[i][0].plot(x, s, label="S", c="tab:blue", linewidth=1)
+            ax[i][0].plot(rgb_e, l_e, c="tab:red", marker="x", linestyle=None)
+            ax[i][0].plot(rgb_e, m_e, c="tab:green", marker="x", linestyle=None)
+            ax[i][0].plot(rgb_e, s_e, c="tab:blue", marker="x", linestyle=None)
+            ax[i][0].set_title(titles[i] + ", LMS-Values")
 
-            ax[int(i / 3)][i % 3].plot(x, l, label="Matrix L", c="tab:red", linewidth=1)
-            ax[int(i / 3)][i % 3].plot(x, m, label="Matrix M", c="tab:green", linewidth=1)
-            ax[int(i / 3)][i % 3].plot(x, s, label="Matrix S", c="tab:blue", linewidth=1)
-            ax[int(i / 3)][i % 3].plot(rgb_e, l_e, marker="+", c="tab:red", linestyle="", label="Meas. L")
-            ax[int(i / 3)][i % 3].plot(rgb_e, m_e, marker="+", c="tab:green", linestyle="", label="Meas. M")
-            ax[int(i / 3)][i % 3].plot(rgb_e, s_e, marker="+", c="tab:blue", linestyle="", label="Meas. S")
-            ax[int(i / 3)][i % 3].set_title(titles[i])
-            if i == 6:
-                ax[int(i / 3)][i % 3].legend()
+            ha, sat = cs.lms2cnop(lms, x)
+            ha_e, sat_e = cs.lms2cnop(lms_e, rgb_e)
 
-        fig.suptitle("RGB Values")
+            ax[i][1].plot(x, ha % 360., label="Fit", c="tab:blue", linewidth=1)
+            ax[i][2].plot(x, sat, label="Fit", c="tab:blue", linewidth=1)
+            ax[i][1].plot(rgb_e, ha_e % 360., label="Data", c="tab:blue", marker="x", linestyle=None)
+            ax[i][2].plot(rgb_e, sat_e, label="Data", c="tab:blue", marker="x", linestyle=None)
+            ax[i][1].set_title(titles[i] + ", Hue Angle")
+            ax[i][2].set_title(titles[i] + ", Saturation")
+            if i == 0:
+                ax[i][0].legend()
+                ax[i][1].legend()
+                ax[i][2].legend()
+        fig.suptitle("Calibration Data and Fits")
         fig.text(0.5, 0.0, "Ratio Component Intensity", va="bottom", ha="center", size=12)
         plt.tight_layout()
-        plt.savefig(path + "_RGB.pdf")
+        plt.savefig(path + "_Fit.pdf")
         if show:
             plt.show()
         plt.cla()
@@ -304,7 +319,9 @@ class Calibration:
         # Luminance
         fig, ax = plt.subplots(ncols=3, nrows=3, sharex=True, figsize=(10, 8))
 
-        x = np.arange(0, 1, 0.01)
+        x = np.arange(0., 1., 0.01)
+        x_z = np.zeros(len(x))
+        x_s = [(x, x_z, x_z), (x_z, x, x_z), (x_z, x_z, x), (x, x, x_z), (x, x_z, x), (x_z, x, x), (x, x, x)]
 
         for i in range(len(x_s)):
             inds = np.argwhere(np.all(np.equal(ch_rgb_mat, ch_x_s[i]), axis=1))
@@ -331,6 +348,124 @@ class Calibration:
         fig.suptitle("Luminance")
         plt.tight_layout()
         plt.savefig(path + "_luminance.pdf")
+        if show:
+            plt.show()
+        plt.cla()
+
+        return True
+
+    def plot_differences(self, path=None, directory=None, show=True):
+        """
+        Plot spectra rgb and lms values and fitted functions.
+        Plot luminosity as well.
+        Works only, if monitor spectra were obtained with color-sequence.
+        :param path: Path to file. Default is None, which results in plot_calibration_<DATE>.pdf file.
+        :param directory: Directory, prepended to "path".
+                         Default is None, which creates a directory called "calibration_plots" in the current directory.
+        :param show: If True, plot will be shown, otherwise only saved. Default is True.
+        """
+
+        try:
+            from .colorspace import ColorSpace
+        except ImportError:
+            pass
+
+        # save file options
+        if not path:
+            path = "calibration_plots/plot_calibration_{}".format(self.date)
+        if directory:
+            path = os.path.join(directory, os.path.basename(path))
+        os.makedirs(os.path.split(path)[0], exist_ok=True)
+
+        # RGB Values
+        fig, ax = plt.subplots(ncols=3, nrows=7, figsize=(10, 16))
+        cs = ColorSpace()
+        cs.calibration = self
+        x = np.arange(0, 1, 0.01)
+        x_z = np.zeros(len(x))
+        x_s = [(x, x_z, x_z), (x_z, x, x_z), (x_z, x_z, x), (x, x, x_z), (x, x_z, x), (x_z, x, x), (x, x, x)]
+
+        titles = ["R", "G", "B", "RG", "RB", "GB", "RGB"]
+
+        ch_rgb_mat = np.where(self._rgb_mat > self._min_val, 1, 0).T
+        ch_rgb_mat = np.where(ch_rgb_mat < 0.001, 0, 1)
+        ch_x_s = np.where(np.asarray(x_s) > 0, 1, 0).T[-1].T
+
+        for i in range(len(x_s)):
+            inds = np.argwhere(np.all(np.equal(ch_rgb_mat, ch_x_s[i]), axis=1))
+            l_e = self._lms_mat[0][inds].T[0]
+            m_e = self._lms_mat[1][inds].T[0]
+            s_e = self._lms_mat[2][inds].T[0]
+            lms_e = np.asarray([l_e, m_e, s_e]).T
+            rgb_e = np.max(self._rgb_mat.T[inds].T, axis=0)[0]
+
+            x = rgb_e
+            x_z = np.zeros(len(x))
+            x_s = [(x, x_z, x_z), (x_z, x, x_z), (x_z, x_z, x), (x, x, x_z), (x, x_z, x), (x_z, x, x), (x, x, x)]
+            lms = cs.rgb2lms(np.asarray(x_s[i]).T)
+            l, m, s = lms.T
+            ax[i][0].grid()
+            ax[i][1].grid()
+            ax[i][2].grid()
+            ax[i][0].plot(rgb_e, l - l_e, label="L, Fit - Data", c="tab:red", marker="x", linewidth=1)
+            ax[i][0].plot(rgb_e, m - m_e, label="M, Fit - Data", c="tab:green", marker="x", linewidth=1)
+            ax[i][0].plot(rgb_e, s - s_e, label="S, Fit - Data", c="tab:blue", marker="x", linewidth=1)
+            ax[i][0].set_title(titles[i] + ", LMS-Values")
+
+            ha, sat = cs.lms2cnop(lms, rgb_e)
+            ha_e, sat_e = cs.lms2cnop(lms_e, rgb_e)
+
+            ax[i][1].plot(rgb_e, ha - ha_e, label="HA, Fit - Data", c="tab:blue", marker="x", linewidth=1)
+            ax[i][2].plot(rgb_e, sat - sat_e, label="SAT, Fit - Data", c="tab:blue", marker="x", linewidth=1)
+            ax[i][1].set_title(titles[i] + ", mean HA: " + str(np.round(np.mean(ha_e), 2) % 360.))
+            ax[i][2].set_title(titles[i] + ", mean SAT: " + str(np.round(np.mean(sat_e), 3)))
+            if i == 0:
+                ax[i][0].legend()
+                ax[i][1].legend()
+                ax[i][2].legend()
+        fig.suptitle("Calibration Fit - Data")
+        fig.text(0.5, 0.0, "Ratio Component Intensity", va="bottom", ha="center", size=12)
+        plt.tight_layout()
+        plt.savefig(path + "_differences.pdf")
+        if show:
+            plt.show()
+        plt.cla()
+
+
+        # Luminance Differences
+        fig, ax = plt.subplots(ncols=3, nrows=3, sharex=True, figsize=(10, 8))
+
+        x = np.arange(0, 1, 0.01)
+        x_z = np.zeros(len(x))
+        x_s = [(x, x_z, x_z), (x_z, x, x_z), (x_z, x_z, x), (x, x, x_z), (x, x_z, x), (x_z, x, x), (x, x, x)]
+        for i in range(len(x_s)):
+            inds = np.argwhere(np.all(np.equal(ch_rgb_mat, ch_x_s[i]), axis=1))
+            lum_ms = self.lum_ms[inds].T[0]
+            lum_eff = self.lum_eff[inds].T[0]
+
+            rgb_e = np.max(self._rgb_mat.T[inds].T, axis=0)[0]
+            x = rgb_e
+            x_z = np.zeros(len(x))
+            x_si = [(x, x_z, x_z), (x_z, x, x_z), (x_z, x_z, x), (x, x, x_z), (x, x_z, x), (x_z, x, x), (x, x, x)]
+            l, m, s = cs.rgb2lms(np.asarray(x_si[i]).T).T
+
+            # account for difference between measured
+            # luminosity and luminance
+            lum_const = 100.
+            lum_calc = lum_const*(l + m)
+
+            ax[int(i / 3)][i % 3].plot(x, lum_eff-lum_ms, c="tab:blue", linewidth=1,
+                                       marker="x", label="Eff. - Meas.")
+            ax[int(i / 3)][i % 3].plot(x, lum_calc-lum_ms, c="tab:orange", linewidth=1,
+                                       marker="x", label="Calc. - Meas.")
+            ax[int(i / 3)][i % 3].plot(x, lum_calc-lum_eff, linewidth=1, c="tab:green", marker="x", label="Calc. - Eff.")
+            ax[int(i / 3)][i % 3].set_title(titles[i])
+            if i == 0:
+                ax[int(i / 3)][i % 3].legend()
+
+        fig.suptitle("Luminance Differences")
+        plt.tight_layout()
+        plt.savefig(path + "_luminance_differences.pdf")
         if show:
             plt.show()
         plt.cla()
