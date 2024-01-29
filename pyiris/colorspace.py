@@ -15,7 +15,7 @@ from psychopy import event, misc, visual
 from scipy import optimize
 
 import numpy as np
-import matplotlib.pylab as pl
+import matplotlib.pyplot as plt
 
 from .monitor import Monitor
 from .subject import Subject
@@ -896,13 +896,35 @@ class ColorSpace:
 
         return True
 
-    def plot_iso_slant(self):
+    def plot_iso_slant(self, path=None, directory=None, show=True):
         """
         Run input and fit a sine-function to get the iso-slant for iso-luminance plane.
         Depends on the current calibration.
+        :param path: Path to file. Default is None, which results in plot_colorspace_<SUBJECT SHORT>_<DATE>.pdf file.
+        :param directory: Directory, prepended to "path".
+                         Default is None, which creates a directory called "colorspace_plots" in the current directory.
+        :param show: If True, plot will be shown, otherwise only saved. Default is True.
         """
+        try:
+            from .colorspace import ColorSpace
+        except ImportError:
+            pass
 
         self.op_mode = True
+
+        subj_short = "UNKNOWN"
+        if self.subject is not None:
+            subj_short = self.subject.short
+
+        # save file options
+        if not path:
+            path = "colorspace_plots/plot_colorspace_{}_{}".format(subj_short, self.date)
+        if directory:
+            path = os.path.join(directory, os.path.basename(path))
+        if "pdf" not in path:
+            path += ".pdf"
+        os.makedirs(os.path.split(path)[0], exist_ok=True)
+
         x = np.arange(0., 2.*np.pi, 0.01*np.pi)
         a = self.iso_slant["amplitude"]
         ph = self.iso_slant["phase"]
@@ -910,16 +932,25 @@ class ColorSpace:
         xdata = self.iso_slant["xdata"]
         ydata = self.iso_slant["ydata"]
 
-        f = a*np.sin(x + ph)
-        pl.plot(x, f, label="fit")
-        pl.plot(xdata, ydata, 'x', label="data")
-        pl.grid()
-        pl.xlabel("Phase")
-        pl.ylabel("Delta Luminance")
-        pl.legend()
-        pl.tight_layout()
-        pl.show()
+        f = a * np.sin(x + ph)
+
+        fig, ax = plt.subplots(ncols=1, nrows=1, figsize=(5, 4))
+        ax.set_xticks(np.arange(0., 361., 45.))
+
+        ax.plot((x/np.pi * 180.) % 360., f, c="tab:blue", label="fit")
+        ax.plot((xdata/np.pi * 180.) % 360., ydata, marker='x', c="tab:red", linewidth=0, label="data")
+        ax.grid()
+        ax.set_xlabel("Phase [deg]")
+        ax.set_ylabel("Delta Luminance [gray value [0-1]]")
+        ax.legend()
         self.op_mode = False
+
+        fig.suptitle("Iso-Luminance Fit for Subject {}".format(subj_short))
+        plt.tight_layout()
+        plt.savefig(path)
+        if show:
+            plt.show()
+        plt.cla()
 
         return True
 
