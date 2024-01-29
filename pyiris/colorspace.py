@@ -183,7 +183,7 @@ class ColorSpace:
             s_scale = self.s_scale
         s_scale = s_scale * np.ones(phi_len)
         if unit != 'rad':
-            phi = 2. * phi * np.pi/360.
+            phi *= np.pi/180.
 
         amplitude = 0.
         phase = 0.
@@ -204,7 +204,7 @@ class ColorSpace:
         phi_lum = phi + phase
 
         gray_level = [gray_level + saturation/chrom_0 * amplitude * np.sin(phi_lum) + offset]
-        gray = self.rgb2lms(np.repeat(gray_level, 3, axis = 0).T)
+        gray = self.rgb2lms(np.repeat(gray_level, 3, axis=0).T)
         gray[gray == 0] = self.min_val
 
         # this ratio can be adjusted
