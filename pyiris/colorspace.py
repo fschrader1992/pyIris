@@ -1011,13 +1011,13 @@ class ColorSpace:
         old_rating_phase = cr_phase
         curr_keys = []
         while 'return' not in curr_keys and 'escape' not in curr_keys:
-            if amp_slider.getRating() != old_rating_amp:
+            if amp_slider.getRating() is not None and amp_slider.getRating() != old_rating_amp:
                 cr_amp = amp_slider.getRating()
                 old_rating_amp = cr_amp
                 # adjust iso slant (minus because of convention in measurements)
                 self.iso_slant['amplitude'] = -cr_amp
                 m_rgb = self.cnop2rgb(phi=phis, gray_level=gray_level,)
-            if phase_slider.getRating() != old_rating_phase:
+            if phase_slider.getRating() is not None and phase_slider.getRating() != old_rating_phase:
                 cr_phase = phase_slider.getRating()
                 old_rating_phase = cr_phase
                 # adjust iso slant
