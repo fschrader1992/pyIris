@@ -25,9 +25,6 @@ class Subject:
         self.birthday = birthday
         self.notes = notes
 
-        self.colorspaces = []
-        self.data = {}
-
     def save_to_file(self, path=None, directory=None, filetype="yaml"):
         """
         Save subject data to file.
@@ -74,6 +71,10 @@ class Subject:
                 d = ruamel.yaml.YAML().load(f)
             else:
                 d = json.load(f)
+        if "colorspaces" in d.keys():
+            del d["colorspaces"]
+        if "data" in d.keys():
+            del d["data"]
 
         for a, b in d.items():
             setattr(self, a, self.__class__(b) if isinstance(b, dict) else b)
