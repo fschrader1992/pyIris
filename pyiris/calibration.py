@@ -65,13 +65,15 @@ class Calibration:
 
         return True
 
-    def calc_lms_vals(self, cone_spectra_path=None, monitor_spectra_path=None):
+    def calc_lms_vals(self, cone_spectra_path=None, monitor_spectra_path=None, exclusion_list=None):
         """
         Generate fit values for calibration.
         Integration of corresponding monitor (rgb-values) and cone spectra,
         to get respective lsm-values.
         :param cone_spectra_path: Location of path with cone spectra
         :param monitor_spectra_path: Location of path with monitor spectra.
+        :param exclusion_list: Optional list of RGB list values, for example [[1., 1., 0.]],
+                               that should be excluded from calibration. Default is None.
         """
 
         if cone_spectra_path is None:
@@ -100,6 +102,12 @@ class Calibration:
         lum_ms_l = []
 
         for i, stim in enumerate(stims):
+            if exclusion_list is not None and [
+                        monitor_spectra.spectra[stim, "R"],
+                        monitor_spectra.spectra[stim, "G"],
+                        monitor_spectra.spectra[stim, "B"]
+                    ] in exclusion_list:
+                continue
 
             # get wavelength array
             lams = np.arange(max(min(cone_spectra["wavelength"]),
