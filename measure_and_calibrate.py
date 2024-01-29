@@ -229,4 +229,5 @@ for pos_label, n_pos_dict in positions_dict.items():
 
         # Plot calibration
         cal.plot(path=calibration_plot_path, show=show_plots)
+        cal.plot_differences(path=calibration_plot_path, show=show_plots)
         # """
