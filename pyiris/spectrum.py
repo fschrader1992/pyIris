@@ -8,6 +8,7 @@ import os
 import datetime
 import uuid
 import h5py
+import json
 import ruamel.yaml
 import matplotlib.pyplot as plt
 import numpy as np
@@ -18,7 +19,7 @@ from psychopy import logging, visual, event
 
 from .pr655 import PR655
 from .monitor import Monitor
-from .functions import prepare_for_yaml
+from .functions import dump_file
 
 
 class Spectrum:
@@ -307,7 +308,7 @@ class Spectrum:
 
         return True
 
-    def save_to_file(self, path=None, directory=None):
+    def save_to_nix(self, path=None, directory=None):
         """
         Save object data to nix file.
         :param path: location of file.
@@ -380,23 +381,29 @@ class Spectrum:
 
         return True
 
-    def save_as_yaml(self, path=None, directory=None):
+    def save_to_file(self, path=None, directory=None, filetype="yaml"):
         """
         Save spectrum data to yaml file.
         :param path: Location of file.
         :param directory: Directory, if file name should be filled automatically.
+        :param filetype: Filetype, "nix", "json" or "yaml".
+               Default is "yaml" but set to file extension if found in path.
+        :return: True.
         """
 
         if not path:
             path = self.path
-        path = path.replace(".nix", "")
         if directory:
             path = os.path.join(directory, os.path.basename(path))
         save_dir, save_file = os.path.split(path)
         if save_dir and not os.path.isdir(save_dir):
             os.mkdir(save_dir)
-        if ".yaml" not in save_file and ".yml" not in save_file:
-            path = path + ".yaml"
+        if "." in path:
+            filetype = path.split(".")[-1]
+
+        if "nix" in filetype.lower():
+            self.save_to_nix(path=path, directory=directory)
+            return True
 
         dt = dict({})
         md = dict({})
@@ -428,30 +435,36 @@ class Spectrum:
 
         dt.update(sd)
         # process trial data
-        dt = prepare_for_yaml(dt, list_compression=True)
+        if not path:
+            path = "spectrum_{}.{}".format(self.date, filetype)
+        if directory:
+            path = os.path.join(directory, path)
+        dump_file(dt, path, filetype, sort_keys=False)
 
-        # write datafile
-        with open(path, "w") as outfile:
-            ruamel.yaml.YAML().dump(dt, outfile)
-
-        print("Successfully saved spectra to yaml-file {}".format(path))
+        print("Successfully saved spectra to file {}".format(path))
         return True
 
-    def save_addend_to_yaml(self, name, path=None, directory=None):
+    def save_addend(self, name, path=None, directory=None, filetype="yaml"):
         """
         Append spectrum data to yaml file.
         :param name: Spectrum measurement name.
         :param path: Location of file.
         :param directory: Directory, if file name should be filled automatically.
+        :param filetype: Filetype, "json" or "yaml", this does not work for "nix" files.
+               Default is "yaml" but set to file extension if found in path.
+        :return: True.
         """
 
         if not path:
-            path = self.path.replace(".nix", "")
+            path = self.path
+        path = path.replace(".nix", "")
         if directory:
-            path = os.path.join(directory, path)
+            path = os.path.join(directory, os.path.basename(path))
         save_dir, save_file = os.path.split(path)
-        if ".yaml" not in save_file and ".yml" not in save_file:
-            path = path + ".yaml"
+        if save_dir and not os.path.isdir(save_dir):
+            os.mkdir(save_dir)
+        if "." in path:
+            filetype = path.split(".")[-1]
 
         sd = dict({name: dict({})})
         for sk, sv in self.spectra.items():
@@ -463,15 +476,15 @@ class Spectrum:
             sd[sk[0]][sk[1]] = sv
 
         # process trial data
-        sd = prepare_for_yaml(sd, list_compression=True)
-
-        # write datafile
-        with open(path, "a+") as outfile:
-            ruamel.yaml.YAML().dump(sd, outfile)
+        if not path:
+            path = "spectrum_{}.{}".format(self.date, filetype)
+        if directory:
+            path = os.path.join(directory, path)
+        dump_file(sd, path, filetype, open_mode="a+", sort_keys=False)
 
         return True
 
-    def load_from_file(self, path):
+    def load_from_nix(self, path):
         """
         Load from file.
         :param path: location of file.
@@ -536,17 +549,31 @@ class Spectrum:
 
         return True
 
-    def load_from_yaml(self, path):
+    def load_from_file(self, path, filetype="yaml"):
         """
         Load from yaml file.
         :param path: Location of file.
+        :param filetype: Filetype, "nix", "json" or "yaml".
+               Default is "yaml" but set to file extension if found in path.
+        :return: True.
         """
 
-        if ".yaml" not in path and ".yml" not in path:
-            path += ".yaml"
+        if "." in path:
+            filetype = path.split(".")[-1]
+        else:
+            path += "." + filetype
+
+        if "nix" in filetype.lower():
+            self.load_from_nix(path=path)
+            return True
+
         self.path = path
+
         with open(path, "r") as f:
-            sd = ruamel.yaml.YAML().load(f)
+            if filetype == "yaml":
+                sd = ruamel.yaml.YAML().load(f)
+            else:
+                sd = json.load(f)
         for a, b in sd["metadata"].items():
             setattr(self, a, b)
         self.uuid = uuid.UUID(self.uuid)
@@ -580,7 +607,10 @@ class Spectrum:
 
         if save_path is None:
             save_path = path
-        self.load_from_yaml(path)
+        if os.path.splitext(save_path)[1] != ".nix":
+            save_path = os.path.splitext(path)[0] + ".nix"
+
+        self.load_from_file(path)
         self.save_to_file(save_path)
 
         return True
@@ -595,7 +625,9 @@ class Spectrum:
 
         if save_path is None:
             save_path = path
+        if os.path.splitext(path)[1] != ".nix":
+            path = os.path.splitext(path)[0] + ".nix"
         self.load_from_file(path)
-        self.save_as_yaml(save_path)
+        self.save_to_file(save_path)
 
         return True
