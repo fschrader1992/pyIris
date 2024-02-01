@@ -253,7 +253,7 @@ class Spectrum:
 
         return True
 
-    def plot_spectra(self, path=None, show=True):
+    def plot_spectra(self, path=None, directory=None, show=True):
         """
         Plot measured spectra.
         :param path: Path to file.
@@ -263,7 +263,9 @@ class Spectrum:
         # save file options
         if not path:
             path = "calibration_plots/measured_spectra_{}.pdf".format(self.date)
-        os.makedirs(os.path.dirname(path), exist_ok=True)
+        if directory:
+            path = os.path.join(directory, os.path.basename(path))
+        os.makedirs(os.path.split(path)[0], exist_ok=True)
 
         plot_dict = {
             (1., 0., 0.): {"label": "R", "plot_color": "tab:red", "ax_ind": 0},
@@ -281,8 +283,6 @@ class Spectrum:
         added_titles = []
         for nm in self.names:
             pattern = (self.spectra[nm, "R"], self.spectra[nm, "G"], self.spectra[nm, "B"])
-            # u = float(self.spectra[nm, "uv"][3])
-            # v = float(self.spectra[nm, "uv"][4].replace("\n", "").replace("\r", ""))
             x = self.spectra[nm, "wavelength"]
             pow = self.spectra[nm, "power"]
             a = 0.3 + 0.7 * np.max(pattern)
@@ -292,16 +292,68 @@ class Spectrum:
                 a = 1.
             axi = plot_dict[pattern]["ax_ind"]
             ax[int(axi / 3)][axi % 3].plot(x, pow, c=plot_dict[pattern]["plot_color"], linewidth=1, alpha=a)
-            # ax[2][1].plot(u, v, c=plot_dict[pattern]["plot_color"], marker="o", alpha=a)
             if plot_dict[pattern]["label"] not in added_titles:
                 ax[int(axi / 3)][axi % 3].set_title(plot_dict[pattern]["label"])
                 added_titles += [plot_dict[pattern]["label"]]
 
         fig.suptitle("Measured Spectra")
-        fig.text(0.5, 0.0, "Wavelength [nm]", va="bottom", ha="center", size=12)
-        fig.text(0.01, 0.5, "Radiance", rotation=90, va="bottom", ha="center", size=12)
+        ax[2][1].set_xlabel("Wavelength [nm]")
+        ax[1][0].set_ylabel("Radiance")
+        plt.tight_layout()
         fig.tight_layout()
         plt.savefig(path)
+        if show:
+            plt.show()
+        plt.cla()
+
+        # PLOT CIE VALUES
+        fig, ax = plt.subplots(ncols=4, nrows=7, figsize=(12, 16))
+
+        added_titles = []
+        is_first = True
+        for nm in self.names:
+            pattern = (self.spectra[nm, "R"], self.spectra[nm, "G"], self.spectra[nm, "B"])
+            x = float(self.spectra[nm, "xy"][3])
+            y = float(self.spectra[nm, "xy"][4].replace("\n", "").replace("\r", ""))
+            u = float(self.spectra[nm, "uv"][3])
+            v = float(self.spectra[nm, "uv"][4].replace("\n", "").replace("\r", ""))
+            lum = np.max(pattern)
+            a = 0.3 + 0.7 * np.max(pattern)
+            pattern = np.sign(np.asarray(pattern))
+            pattern = (pattern[0], pattern[1], pattern[2])
+            if pattern == (0., 0., 0.):
+                a = 1.
+            axi = plot_dict[pattern]["ax_ind"]
+            is_red = plot_dict[pattern]["label"] == "R" and is_first
+            ax[axi][0].plot(x, y, c=plot_dict[pattern]["plot_color"], marker="o", alpha=a)
+            ax[axi][1].plot(lum, x, c="tab:blue", marker="x", label="x" if is_red else None)
+            ax[axi][1].plot(lum, y, c="tab:red", marker="x", label="y" if is_red else None)
+            ax[axi][2].plot(u, v, c=plot_dict[pattern]["plot_color"], marker="o", alpha=a)
+            ax[axi][3].plot(lum, u, c="tab:blue", marker="x", label="u" if is_red else None)
+            ax[axi][3].plot(lum, v, c="tab:red", marker="x", label="v" if is_red else None)
+            if plot_dict[pattern]["label"] not in added_titles:
+                ax[axi][0].set_title(plot_dict[pattern]["label"] + " CIE XY")
+                ax[axi][0].set_xlabel("x")
+                ax[axi][0].set_ylabel("y")
+                ax[axi][1].set_title("CIE XY")
+                ax[axi][1].set_xlabel("Input RGB Level (Max.)")
+                ax[axi][1].set_ylabel("Amplitude")
+                ax[axi][2].set_title("CIE UV")
+                ax[axi][2].set_xlabel("u")
+                ax[axi][2].set_ylabel("v")
+                ax[axi][3].set_title("CIE UV")
+                ax[axi][3].set_xlabel("Input RGB Level (Max.)")
+                ax[axi][3].set_ylabel("Amplitude")
+                added_titles += [plot_dict[pattern]["label"]]
+            if is_red:
+                ax[axi][1].legend()
+                ax[axi][3].legend()
+                is_first = False
+
+        fig.suptitle("Measured Spectra CIE Values")
+        plt.tight_layout()
+        fig.tight_layout()
+        plt.savefig(os.path.splitext(path)[0] + "_CIE.pdf")
         if show:
             plt.show()
         plt.cla()
