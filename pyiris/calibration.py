@@ -91,7 +91,7 @@ class Calibration:
                 if self.label == mn.split("#")[1]:
                     stims += [mn]
         else:
-            monitor_spectra.load_from_yaml(path=monitor_spectra_path)
+            monitor_spectra.load_from_file(path=monitor_spectra_path)
             stims = monitor_spectra.names
         self.monitor_settings_path = monitor_spectra.monitor_settings_path
 
