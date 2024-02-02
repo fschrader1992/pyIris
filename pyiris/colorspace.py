@@ -930,7 +930,11 @@ class ColorSpace:
         ph = self.iso_slant["phase"]
 
         xdata = self.iso_slant["xdata"]
+        if not isinstance(xdata, np.ndarray):
+            xdata = np.asarray(xdata)
         ydata = self.iso_slant["ydata"]
+        if not isinstance(ydata, np.ndarray):
+            ydata = np.asarray(ydata)
 
         f = a * np.sin(x + ph)
 
