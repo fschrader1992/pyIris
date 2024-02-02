@@ -49,7 +49,7 @@ def prepare_for_yaml(d, list_compression=True):
     return d
 
 
-def dump_file(dt, path, filetype, list_compression=True):
+def dump_file(dt, path, filetype, list_compression=True, open_mode="w", sort_keys=True):
     """
     Dump a dictionary to yaml/json file.
 
@@ -57,6 +57,8 @@ def dump_file(dt, path, filetype, list_compression=True):
     :param path: File path.
     :param filetype: Filetype, either json or yaml. Files get saved accordingly.
     :param list_compression: If True, lists will be written with brackets. Default is True.
+    :param open_mode: Mod ein which files should be opened, for example "a+". Default is "w".
+    :param sort_keys: If True, items get sorted before saved. Default is True.
     :return: True.
     """
     save_dir, save_file = os.path.split(path)
@@ -64,17 +66,20 @@ def dump_file(dt, path, filetype, list_compression=True):
         os.mkdir(save_dir)
     if filetype.lower() == "yaml" or filetype.lower() == "yml":
         dt = prepare_for_yaml(dt, list_compression=list_compression)
-        dt = dict(sorted(dt.items()))
+        if sort_keys:
+            dt = dict(sorted(dt.items()))
         if ".yaml" not in save_file:
             path = path + ".yaml"
         elif filetype == "yml" and ".yml" not in save_file:
             path = path + ".yml"
-        with open(path, "w") as outfile:
+        with open(path, open_mode) as outfile:
             ruamel.yaml.YAML().dump(dt, outfile)
     elif filetype.lower() == "json":
+        if sort_keys:
+            dt = dict(sorted(dt.items()))
         if ".json" not in save_file:
             path = path + ".json"
-        json.dump(dt, codecs.open(path, 'w', encoding='utf-8'),
+        json.dump(dt, codecs.open(path, open_mode, encoding='utf-8'),
                   separators=(',', ':'), sort_keys=True, indent=4)
     return True
 
