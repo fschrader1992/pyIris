@@ -155,12 +155,12 @@ class ColorSpace:
         Conversion of a dkl-similar value (gray/lum, phi) to a corresponding lms value.
         If a subject is given, this also depends on its iso-slant.
 
-        :param phi: color angle(s) as list/numpy array.
-        :param gray_level: luminance/gray value(s).
-        :param saturation: saturation.
-        :param unit: unit for phi: rad or deg
+        :param phi: Color angle(s) as list/numpy array.
+        :param gray_level: Luminance/gray value(s).
+        :param saturation: Saturation.
+        :param unit: Unit for phi: rad or deg.
         :param s_scale: Scaling factor for blue values.
-        :return: lms values as numpy array.
+        :return: LMS values as numpy array.
         """
 
         phi = np.asarray(phi)
@@ -176,7 +176,6 @@ class ColorSpace:
         gray_level = np.asarray(gray_level)
         if gray_level.ndim == 0:
             gray_level = np.asarray([gray_level])
-        gray = np.tile(gray_level, (3, 1)).T
         if unit is None:
             unit = self.unit
         if s_scale is None:
