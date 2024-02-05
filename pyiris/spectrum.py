@@ -140,7 +140,7 @@ class Spectrum:
         return True
 
     def measure_colors(self, stepsize=0.1, minval=0., maxval=1., n_rep=1,
-                       adjust_at_start=True,
+                       adjust_at_start=True, create_color_list=True,
                        xys=None, xy_labels=None,
                        stim_type=None, stim_size=None, background=0.67,
                        win_h=1200, win_w=1800, save_append=True):
@@ -150,7 +150,8 @@ class Spectrum:
         """
 
         # Fill self.color_list
-        self.create_measurement_color_list(stepsize=stepsize, minval=minval, maxval=maxval)
+        if create_color_list:
+            self.create_measurement_color_list(stepsize=stepsize, minval=minval, maxval=maxval)
         # obtain number of measurements
         noc = len(self.colors) * n_rep
         colors_updated = []
