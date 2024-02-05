@@ -151,3 +151,6 @@ def sine_fitter(x, amp, phi, off):
     """
     return amp * np.sin(x + phi) + off
 
+
+def gamma_fitter(x, a0, a, gamma):
+    return a0 + a * x ** gamma
