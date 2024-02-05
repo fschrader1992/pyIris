@@ -32,7 +32,7 @@ class ColorSpace:
     """
 
     def __init__(self, calibration_path=None, subject_path=None, bit_depth=10, saturation=0.16,
-                 gray_level=0.66, unit="rad", s_scale=2.6):
+                 gray_level=0.66, unit="deg", s_scale=2.6):
 
         self.uuid = uuid.uuid4()
         self.calibration_path = None
