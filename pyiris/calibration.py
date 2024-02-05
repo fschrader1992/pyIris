@@ -156,7 +156,7 @@ class Calibration:
         self._rgb_mat = self._rgb_mat.T
 
         for r in (0, 1, 2):
-            self._lms_mat[r] = self._lms_mat[r]/max(self._lms_mat[r]) * np.max(self._rgb_mat)
+            self._lms_mat[r] /= np.max(self._lms_mat[r])
 
         return True
 
