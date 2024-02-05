@@ -181,8 +181,8 @@ class ColorSpace:
         if s_scale is None:
             s_scale = self.s_scale
         s_scale = s_scale * np.ones(phi_len)
-        if unit != 'rad':
-            phi *= np.pi/180.
+        if unit == 'deg':
+            phi = phi * np.pi/180.
 
         amplitude = 0.
         phase = 0.
