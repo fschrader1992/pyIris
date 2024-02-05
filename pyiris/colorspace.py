@@ -125,24 +125,60 @@ class ColorSpace:
         """
         return self.lms2cnop(lms)
 
-    def lms2cnop(self, lms):
+    def lms2cnop(self, lms, unit=None):
         """
         Conversion of a lms value to dkl-similar coordinates,
         such that a gray value and color_angle can be given.
         If a subject is given, this also depends on its isoslant.
 
-        :param lms: list/3-tuples/numpy array with single or multiple lms values (0-1).
-        :return: dkl-like coordinates.
+        :param lms: List/3-tuples/numpy array with single or multiple lms values (0-1).
+        :param unit: Unit for phi: rad or deg. If None, class attribute is used. Default is None.
+        :return: angle, saturation.
         """
+
+        if unit is None:
+            unit = self.unit
+        self.op_mode = True
+
+        amplitude = 0.
+        phase = 0.
+        offset = 0.
+        chrom_0 = self.saturation
+        if self.iso_slant["amplitude"] == 0.:
+            if not self.op_mode:
+                print("WARNING: Amplitude of iso-slant is 0.\n"
+                      "Make sure to measure subject's iso-slant with ColorSpace.measure_iso_slant.")
+        else:
+            amplitude = self.iso_slant["amplitude"]
+            phase = self.iso_slant["phase"]
+            offset = self.iso_slant["offset"]
+            chrom_0 = self.iso_slant["saturation"]
+
         lms[lms == 0] = self.min_val
         if lms.ndim == 1:
             lms = np.asarray([lms])
-        l, m, s = lms.T
 
-        r = l+m
-        a = l-m
-        phi = np.arccos(a/r)
-        return phi
+        lum = (lms.T[0] + lms.T[1])/2.
+        rgb_gray = self.calibration.gray_finder()(lum)
+        rgb_gray = np.tile(np.reshape(rgb_gray, (1, len(rgb_gray))), (3, 1)).T
+        gray = self.rgb2lms(rgb_gray)
+
+        lms /= gray
+        l, m, s = lms.T
+        y = (s-(l + m)/2.)/self.s_scale
+        x = l - m
+        phi = np.arctan2(y, x)
+        saturation = np.sqrt(y * y + x * x)
+
+        phi_len = len(phi)
+        phi_lum = phi + phase * np.ones(phi_len)
+
+        lum = rgb_gray.T[0] - saturation/chrom_0 * amplitude * np.sin(phi_lum) - offset
+
+        if unit == 'deg':
+            phi = phi * 180./np.pi
+        self.op_mode = False
+        return phi, saturation, lum
 
     def dklc2lms(self, phi, gray_level=None, saturation=None, unit=None, s_scale=None):
         """
