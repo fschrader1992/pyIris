@@ -14,10 +14,11 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 from scipy.interpolate import interp1d
+from scipy.optimize import curve_fit
 from symfit import variables, parameters, Model, Fit
 
 from .spectrum import Spectrum
-from .functions import dump_file
+from .functions import dump_file, gamma_fitter
 
 
 class Calibration:
@@ -244,6 +245,45 @@ class Calibration:
             print("gamma", gamma)
 
         return True
+
+    def gray_finder(self, use_lum="measured", normalize=True):
+        """
+        Create an interpolation function to link luminance with RGB gray levels,
+        for example for conversion from LMS to CNOP colorspace.
+        Usage: `calibration.gray_finder(<OPTIONS>)(<lum-values>)`.
+        Can also be used as local function:
+        `gray_finder = calibration.gray_finder(<OPTIONS>)`,
+        `gray = gray__finder(<lum-values>)`.
+        :param use_lum: Which set of luminance values to use. Values are:
+                        - "measured": Values provided by the photometer.
+                        - "effective": Effective values calculated from L and M activation.
+                        Default is "measured".
+        :param normalize: If True, luminance values are normalized to the highest detected one (for gray levels).
+                          In this case luminance values given to the function have to be normalized as well.
+                          Default is True.
+        :return: Interpolation function derived from fitted power law.
+        """
+        x = np.arange(0., 1., 0.01)
+        x_s = [(x, x, x)]
+
+        ch_rgb_mat = np.where(self._rgb_mat > self._min_val, 1, 0).T
+        ch_rgb_mat = np.where(ch_rgb_mat < 0.001, 0, 1)
+        ch_x_s = np.where(np.asarray(x_s) > 0, 1, 0).T[-1].T
+
+        inds = np.argwhere(np.all(np.equal(ch_rgb_mat, ch_x_s), axis=1))
+        if "measure" in use_lum:
+            lum_dp = self.lum_ms
+        else:
+            lum_dp = self.lum_eff
+        r_basic = self._rgb_mat[0][inds].T[0]
+        lum_basic = lum_dp[inds].T[0]
+        if normalize:
+            lum_basic /= np.max(lum_basic)
+        a0, a, gamma = curve_fit(gamma_fitter, r_basic, lum_basic, bounds=(0., [0.1, 10., 4.]))[0]
+        gray = np.arange(0., 1.000001, 0.001)
+        lum = gamma_fitter(gray, a0, a, gamma)
+
+        return interp1d(lum, gray, kind="cubic")
 
     def plot(self, path=None, directory=None, show=True):
         """
