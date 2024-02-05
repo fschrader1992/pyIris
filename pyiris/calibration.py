@@ -234,7 +234,7 @@ class Calibration:
         print("CALIBRATION VALUES (LMS)")
         print("r\tg\tb")
 
-        if self.corr_type == "gamma corr":
+        if self.corr_type == "gamma":
             cm = self.calibration_matrix
             a_0 = cm[0]
             a = cm[1:4]
