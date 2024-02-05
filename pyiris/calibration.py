@@ -307,12 +307,15 @@ class Calibration:
         if directory:
             path = os.path.join(directory, os.path.basename(path))
         os.makedirs(os.path.split(path)[0], exist_ok=True)
+        path = os.path.splitext(path)[0]
 
         # Fit Values
-        fig, ax = plt.subplots(ncols=3, nrows=7, figsize=(10, 16))
+        fig, ax = plt.subplots(ncols=4, nrows=7, figsize=(12, 16))
         cs = ColorSpace()
         cs.calibration = self
-        x = np.arange(0., 1., 0.01)
+        xmin = np.min(np.max(self._rgb_mat, axis=0))
+        xmax = np.max(self._rgb_mat)
+        x = np.arange(xmin, xmax, 0.01)
         x_z = np.zeros(len(x))
         x_s = [(x, x_z, x_z), (x_z, x, x_z), (x_z, x_z, x), (x, x, x_z), (x, x_z, x), (x_z, x, x), (x, x, x)]
 
@@ -335,6 +338,7 @@ class Calibration:
             ax[i][0].grid()
             ax[i][1].grid()
             ax[i][2].grid()
+            ax[i][3].grid()
             ax[i][0].plot(x, l, label="L", c="tab:red", linewidth=1)
             ax[i][0].plot(x, m, label="M", c="tab:green", linewidth=1)
             ax[i][0].plot(x, s, label="S", c="tab:blue", linewidth=1)
@@ -343,31 +347,44 @@ class Calibration:
             ax[i][0].plot(rgb_e, s_e, c="tab:blue", marker="x", linestyle=None)
             ax[i][0].set_title(titles[i] + ", LMS-Values")
 
-            ha, sat = cs.lms2cnop(lms, x)
-            ha_e, sat_e = cs.lms2cnop(lms_e, rgb_e)
+            ax[i][0].set_ylabel("Norm. LMS Value")
+            ax[i][0].set_xlabel("Input RGB Level (Max.)")
+            ax[i][1].set_ylabel("Hue Angle [deg]")
+            ax[i][1].set_xlabel("Input RGB Level (Max.)")
+            ax[i][2].set_ylabel("Cone Contrast")
+            ax[i][2].set_xlabel("Input RGB Level (Max.)")
+            ax[i][3].set_ylabel("Gray Level")
+            ax[i][3].set_xlabel("Input RGB Level (Max.)")
+
+            ha, sat, lum = cs.lms2cnop(lms, unit="deg")
+            ha_e, sat_e, lum_e = cs.lms2cnop(lms_e, unit="deg")
 
             ax[i][1].plot(x, ha % 360., label="Fit", c="tab:blue", linewidth=1)
             ax[i][2].plot(x, sat, label="Fit", c="tab:blue", linewidth=1)
+            ax[i][3].plot(x, lum, label="Fit", c="tab:blue", linewidth=1)
             ax[i][1].plot(rgb_e, ha_e % 360., label="Data", c="tab:blue", marker="x", linestyle=None)
             ax[i][2].plot(rgb_e, sat_e, label="Data", c="tab:blue", marker="x", linestyle=None)
+            ax[i][3].plot(rgb_e, lum_e, label="Data", c="tab:blue", marker="x", linestyle=None)
             ax[i][1].set_title(titles[i] + ", Hue Angle")
             ax[i][2].set_title(titles[i] + ", Saturation")
+            ax[i][3].set_title(titles[i] + ", Luminance")
             if i == 0:
                 ax[i][0].legend()
                 ax[i][1].legend()
                 ax[i][2].legend()
+                ax[i][3].legend()
         fig.suptitle("Calibration Data and Fits")
-        fig.text(0.5, 0.0, "Ratio Component Intensity", va="bottom", ha="center", size=12)
         plt.tight_layout()
+        fig.tight_layout()
         plt.savefig(path + "_Fit.pdf")
         if show:
             plt.show()
         plt.cla()
 
         # Luminance
-        fig, ax = plt.subplots(ncols=3, nrows=3, sharex=True, figsize=(10, 8))
+        fig, ax = plt.subplots(ncols=3, nrows=3, sharex=True, sharey=True, figsize=(10, 8))
 
-        x = np.arange(0., 1., 0.01)
+        x = np.arange(xmin, xmax, 0.01)
         x_z = np.zeros(len(x))
         x_s = [(x, x_z, x_z), (x_z, x, x_z), (x_z, x_z, x), (x, x, x_z), (x, x_z, x), (x_z, x, x), (x, x, x)]
 
@@ -393,8 +410,11 @@ class Calibration:
             if i == 0:
                 ax[int(i / 3)][i % 3].legend()
 
-        fig.suptitle("Luminance")
+        fig.suptitle("Luminance Data and Fit")
+        ax[2][1].set_xlabel("Input RGB Level (Max.)")
+        ax[1][0].set_ylabel("Luminance [cd/m2]")
         plt.tight_layout()
+        fig.tight_layout()
         plt.savefig(path + "_luminance.pdf")
         if show:
             plt.show()
@@ -424,12 +444,15 @@ class Calibration:
         if directory:
             path = os.path.join(directory, os.path.basename(path))
         os.makedirs(os.path.split(path)[0], exist_ok=True)
+        path = os.path.splitext(path)[0]
 
         # RGB Values
-        fig, ax = plt.subplots(ncols=3, nrows=7, figsize=(10, 16))
+        fig, ax = plt.subplots(ncols=4, nrows=7, figsize=(12, 16))
         cs = ColorSpace()
         cs.calibration = self
-        x = np.arange(0, 1, 0.01)
+        xmin = np.min(np.max(self._rgb_mat, axis=0))
+        xmax = np.max(self._rgb_mat)
+        x = np.arange(xmin, xmax, 0.01)
         x_z = np.zeros(len(x))
         x_s = [(x, x_z, x_z), (x_z, x, x_z), (x_z, x_z, x), (x, x, x_z), (x, x_z, x), (x_z, x, x), (x, x, x)]
 
@@ -455,25 +478,39 @@ class Calibration:
             ax[i][0].grid()
             ax[i][1].grid()
             ax[i][2].grid()
+            ax[i][3].grid()
             ax[i][0].plot(rgb_e, l - l_e, label="L, Fit - Data", c="tab:red", marker="x", linewidth=1)
             ax[i][0].plot(rgb_e, m - m_e, label="M, Fit - Data", c="tab:green", marker="x", linewidth=1)
             ax[i][0].plot(rgb_e, s - s_e, label="S, Fit - Data", c="tab:blue", marker="x", linewidth=1)
+
+            ax[i][0].set_ylabel("Norm. LMS Value")
+            ax[i][0].set_xlabel("Input RGB Level (Max.)")
+            ax[i][1].set_ylabel("Hue Angle [deg]")
+            ax[i][1].set_xlabel("Input RGB Level (Max.)")
+            ax[i][2].set_ylabel("Cone Contrast")
+            ax[i][2].set_xlabel("Input RGB Level (Max.)")
+            ax[i][3].set_ylabel("Gray Level")
+            ax[i][3].set_xlabel("Input RGB Level (Max.)")
+
             ax[i][0].set_title(titles[i] + ", LMS-Values")
 
-            ha, sat = cs.lms2cnop(lms, rgb_e)
-            ha_e, sat_e = cs.lms2cnop(lms_e, rgb_e)
+            ha, sat, lum = cs.lms2cnop(lms, unit="deg")
+            ha_e, sat_e, lum_e = cs.lms2cnop(lms_e, unit="deg")
 
             ax[i][1].plot(rgb_e, ha - ha_e, label="HA, Fit - Data", c="tab:blue", marker="x", linewidth=1)
             ax[i][2].plot(rgb_e, sat - sat_e, label="SAT, Fit - Data", c="tab:blue", marker="x", linewidth=1)
+            ax[i][3].plot(rgb_e, lum - lum_e, label="LUM, Fit - Data", c="tab:blue", marker="x", linewidth=1)
             ax[i][1].set_title(titles[i] + ", mean HA: " + str(np.round(np.mean(ha_e), 2) % 360.))
             ax[i][2].set_title(titles[i] + ", mean SAT: " + str(np.round(np.mean(sat_e), 3)))
+            ax[i][3].set_title(titles[i] + ", LUM")
             if i == 0:
                 ax[i][0].legend()
                 ax[i][1].legend()
                 ax[i][2].legend()
+                ax[i][3].legend()
         fig.suptitle("Calibration Fit - Data")
-        fig.text(0.5, 0.0, "Ratio Component Intensity", va="bottom", ha="center", size=12)
         plt.tight_layout()
+        fig.tight_layout()
         plt.savefig(path + "_differences.pdf")
         if show:
             plt.show()
@@ -483,7 +520,7 @@ class Calibration:
         # Luminance Differences
         fig, ax = plt.subplots(ncols=3, nrows=3, sharex=True, figsize=(10, 8))
 
-        x = np.arange(0, 1, 0.01)
+        x = np.arange(xmin, xmax, 0.01)
         x_z = np.zeros(len(x))
         x_s = [(x, x_z, x_z), (x_z, x, x_z), (x_z, x_z, x), (x, x, x_z), (x, x_z, x), (x_z, x, x), (x, x, x)]
         for i in range(len(x_s)):
@@ -512,7 +549,10 @@ class Calibration:
                 ax[int(i / 3)][i % 3].legend()
 
         fig.suptitle("Luminance Differences")
+        ax[2][1].set_xlabel("Input RGB Level (Max.)")
+        ax[1][0].set_ylabel("Luminance [cd/m2]")
         plt.tight_layout()
+        fig.tight_layout()
         plt.savefig(path + "_luminance_differences.pdf")
         if show:
             plt.show()
