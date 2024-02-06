@@ -201,7 +201,7 @@ class Spectrum:
         self.params['win-units'] = "deg"
 
         if save_append:
-            self.save_as_yaml()
+            self.save_to_file()
 
         # iterate through positions
         for xy_label, xy in zip(xy_labels, xys):
