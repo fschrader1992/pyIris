@@ -116,7 +116,7 @@ class Spectrum:
         self.spectra[name, "date"] = datetime.datetime.now().isoformat()
 
         if save_append:
-            self.save_addend_to_yaml(name)
+            self.save_append(name)
 
         return True
 
@@ -497,7 +497,7 @@ class Spectrum:
         print("Successfully saved spectra to file {}".format(path))
         return True
 
-    def save_addend(self, name, path=None, directory=None, filetype="yaml"):
+    def save_append(self, name, path=None, directory=None, filetype="yaml"):
         """
         Append spectrum data to yaml file.
         :param name: Spectrum measurement name.
