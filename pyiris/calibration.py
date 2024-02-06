@@ -280,7 +280,7 @@ class Calibration:
         if normalize:
             lum_basic /= np.max(lum_basic)
         a0, a, gamma = curve_fit(gamma_fitter, r_basic, lum_basic, bounds=(0., [0.1, 10., 4.]))[0]
-        gray = np.arange(0., 1.000001, 0.001)
+        gray = np.arange(0., 1.100001, 0.001)
         lum = gamma_fitter(gray, a0, a, gamma)
 
         return interp1d(lum, gray, kind="cubic")
